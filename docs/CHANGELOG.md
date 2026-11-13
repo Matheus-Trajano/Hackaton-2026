@@ -2,6 +2,20 @@
 
 Uma entrada por prompt/etapa.
 
+## 0.9.0 — Etapa 9: pedido de socorro
+
+- Botão "Pedir socorro" ativo: abre diálogo com "Ligar 199" e "Enviar alerta".
+- Função serverless `/api/alerta` (simulada): valida o pedido, gera protocolo e
+  escreve no log; não guarda nem encaminha.
+- Plugin do Vite que atende `/api/alerta` em desenvolvimento.
+- O alerta leva posição, precisão, estado de risco, inclinação e chuva.
+- Aba Alertas: histórico dos pedidos feitos no aparelho (enviados e falhos).
+- Avisos de protótipo no diálogo, no resultado e na aba Alertas.
+- Sem localização, o diálogo oferece apenas a ligação.
+- Removida a tela provisória "em breve".
+- Verificação: lint, tipos, 231 testes e build aprovados; chamadas HTTP reais à
+  rota local (201, 400 e 405). Função na Vercel e discador ainda não testados.
+
 ## 0.8.1 — Correção: inclinação e risco com dados reais
 
 Problema relatado pelo usuário no preview: o mapa de calor, a altitude e o clima

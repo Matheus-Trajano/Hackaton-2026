@@ -10,8 +10,8 @@ Todas gratuitas e sem chave. A coluna "Estado" indica se já está integrada.
 | 4 | Open-Meteo Elevation — `https://api.open-meteo.com/v1/elevation` | Reserva para a altitude | 5–6 | Planejada |
 | 5 | Esri World Imagery — `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}` | Mapa base de satélite (padrão) | 3 | **Integrada** |
 | 5b | OpenStreetMap — `https://tile.openstreetmap.org/{z}/{x}/{y}.png` | Mapa base de ruas (alternativa) | 3 | **Integrada** |
-| 6 | Função serverless `/api/alerta` (Vercel) | Recebe o pedido de socorro (simulado) | 9 | Planejada |
-| 7 | Link `tel:199` | Ligação para a Defesa Civil | 9 | Planejada |
+| 6 | Função serverless `/api/alerta` (Vercel) — `POST`, corpo JSON | Recebe o pedido de socorro, valida e devolve um protocolo. **Simulada:** não guarda nem encaminha | 9 | **Integrada** (testada localmente; não testada na Vercel) |
+| 7 | Link `tel:199` | Abre o discador para ligar à Defesa Civil | 9 | **Integrada** |
 
 ## Observações
 
@@ -35,3 +35,32 @@ Todas gratuitas e sem chave. A coluna "Estado" indica se já está integrada.
 - Os servidores de tiles do OpenStreetMap têm política de uso justo; servem para
   protótipo, não para tráfego alto.
 - Respeitar os termos de uso e a atribuição de cada provedor de mapa.
+
+## `/api/alerta`
+
+Pedido (`POST`, `Content-Type: application/json`):
+
+```json
+{
+  "lat": -8.0153,
+  "lon": -34.9125,
+  "precisaoMetros": 12,
+  "localizacaoSimulada": false,
+  "risco": "risco",
+  "inclinacaoPercentual": 40.2,
+  "chuva": "forte",
+  "momento": "2026-11-13T14:37:00.000Z"
+}
+```
+
+Só `lat` e `lon` são obrigatórios. Respostas:
+
+| Status | Quando | Corpo |
+|---|---|---|
+| 201 | Pedido aceito | `{ "protocolo": "ES-20261113-4F9A2C", "recebidoEm": "…", "simulado": true }` |
+| 400 | JSON inválido, latitude ou longitude ausente ou fora da faixa | `{ "erro": "…" }` |
+| 405 | Método diferente de POST | `{ "erro": "Use o método POST." }` |
+
+A rota não tem autenticação nem limite de chamadas — aceitável só porque é
+simulada. Uma versão real precisaria de ambos, além de armazenamento e do
+encaminhamento à Defesa Civil.

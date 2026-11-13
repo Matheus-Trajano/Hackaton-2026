@@ -21,7 +21,8 @@ export type NomeIcone =
   | 'menos'
   | 'camadas'
   | 'montanha'
-  | 'grade';
+  | 'grade'
+  | 'telefone';
 
 const DESENHOS: Record<NomeIcone, ReactNode> = {
   casa: <path d="M3 11.5 12 4l9 7.5M5.5 10v9.5h4.5v-6h4v6h4.5V10" />,
@@ -100,6 +101,9 @@ const DESENHOS: Record<NomeIcone, ReactNode> = {
   camadas: <path d="m12 3.5 9 4.5-9 4.5L3 8l9-4.5ZM3.5 12.5 12 16.8l8.5-4.3M3.5 16.5 12 20.8l8.5-4.3" />,
   montanha: <path d="m2.5 19.5 6.5-11 4 6 2.5-3.5 6 8.5h-19Z" />,
   grade: <path d="M4 4h16v16H4zM4 9.3h16M4 14.7h16M9.3 4v16M14.7 4v16" />,
+  telefone: (
+    <path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 4.5 5.5a2 2 0 0 1 2-2Z" />
+  ),
   relogio: (
     <>
       <circle cx="12" cy="12" r="9" />

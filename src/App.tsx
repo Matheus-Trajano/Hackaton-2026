@@ -3,17 +3,20 @@ import { Cabecalho } from '@/components/layout/Cabecalho';
 import { MolduraCelular } from '@/components/layout/MolduraCelular';
 import { NavegacaoInferior } from '@/components/layout/NavegacaoInferior';
 import { MapaBase } from '@/components/mapa/MapaBase';
-import { TelaEmBreve } from '@/components/telas/TelaEmBreve';
+import { DialogoSocorro } from '@/components/socorro/DialogoSocorro';
+import { TelaAlertas } from '@/components/telas/TelaAlertas';
 import { TelaInicio } from '@/components/telas/TelaInicio';
 import { TelaSobre, type ModoRisco } from '@/components/telas/TelaSobre';
 import { PONTO_DEMO_PADRAO } from '@/config/pontosDemo';
 import { mensagemLocalizacao, posicaoUtilizavel } from '@/domain/localizacao';
 import { avaliacaoDeDemonstracao, avaliarRisco } from '@/domain/risco';
 import { CLIMA } from '@/config/clima';
+import { useAlertas } from '@/hooks/useAlertas';
 import { useAltitude } from '@/hooks/useAltitude';
 import { useClima } from '@/hooks/useClima';
 import { useSetorAtual } from '@/hooks/useSetorAtual';
 import { useLocalizacao } from '@/hooks/useLocalizacao';
+import { enviarAlerta } from '@/services/alerta';
 import type { Aba } from '@/types';
 
 export function App() {
@@ -40,6 +43,32 @@ export function App() {
     clima,
   );
   const risco = modoRisco === 'automatico' ? riscoReal : avaliacaoDeDemonstracao(modoRisco);
+  // Pedido de socorro: envia o alerta e guarda o resultado (sucesso ou falha) no histórico.
+  const [socorroAberto, setSocorroAberto] = useState(false);
+  const alertas = useAlertas();
+  const localizacaoSimulada = localizacao.estado.modo === 'simulado';
+  const enviarSocorro = async () => {
+    if (!posicao) throw new Error('Sem localização disponível.');
+    const momento = new Date().toISOString();
+    const registro = { momento, posicao, localizacaoSimulada, situacao: risco.titulo };
+    try {
+      const recebido = await enviarAlerta({
+        lat: posicao.lat,
+        lon: posicao.lon,
+        precisaoMetros: localizacao.estado.precisaoMetros,
+        localizacaoSimulada,
+        risco: risco.estado,
+        inclinacaoPercentual: setorAtual.status === 'ok' ? setorAtual.inclinacao.percentual : undefined,
+        chuva: clima.status === 'ok' ? clima.clima.intensidade : undefined,
+        momento,
+      });
+      alertas.registrar({ ...registro, status: 'enviado', protocolo: recebido.protocolo });
+      return recebido;
+    } catch (erro) {
+      alertas.registrar({ ...registro, status: 'falhou' });
+      throw erro;
+    }
+  };
   const usarDemonstracao = () => localizacao.usarPontoDemo(PONTO_DEMO_PADRAO.id);
 
   return (
@@ -57,6 +86,7 @@ export function App() {
             altitude={altitude}
             setorAtual={setorAtual}
             aoVerDetalhes={() => setAba('mapa')}
+            aoPedirSocorro={() => setSocorroAberto(true)}
           />
         )}
         {aba === 'mapa' && (
@@ -68,13 +98,7 @@ export function App() {
             setorAtual={setorAtual}
           />
         )}
-        {aba === 'alertas' && (
-          <TelaEmBreve
-            titulo="Alertas"
-            icone="sino"
-            descricao="O histórico de alertas e pedidos de socorro ficará aqui."
-          />
-        )}
+        {aba === 'alertas' && <TelaAlertas registros={alertas.registros} aoLimpar={alertas.limpar} />}
         {aba === 'sobre' && (
           <TelaSobre
             modoRisco={modoRisco}
@@ -84,6 +108,14 @@ export function App() {
         )}
       </main>
       <NavegacaoInferior abaAtiva={aba} aoMudar={setAba} />
+      {socorroAberto && (
+        <DialogoSocorro
+          posicao={posicao}
+          localizacaoSimulada={localizacaoSimulada}
+          aoEnviar={enviarSocorro}
+          aoFechar={() => setSocorroAberto(false)}
+        />
+      )}
     </MolduraCelular>
   );
 }

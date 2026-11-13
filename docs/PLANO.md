@@ -13,7 +13,7 @@ indicada), atualização da documentação e um commit.
 | 6 | Grade de 100 m e cálculo de inclinação por setor | Testes com terrenos sintéticos, medidas da grade e desenho no mapa | ✅ Concluída |
 | 7 | Painel superior de clima (chuva nas próximas 3 h, temperatura) | Testes com respostas simuladas da API | ✅ Concluída |
 | 8 | Motor de risco e painel inferior com instruções | Testes de toda a matriz inclinação × chuva e do fluxo de ponta a ponta | ✅ Concluída |
-| 9 | Botão "Pedir socorro", `/api/alerta`, ligação 199, aba de alertas | Teste do endpoint e do fluxo | ⏳ Pendente |
+| 9 | Botão "Pedir socorro", `/api/alerta`, ligação 199, aba de alertas | Testes da rota e do fluxo; chamada HTTP real à rota local | ✅ Concluída |
 | 10 | Acabamento: PWA, tratamento de falhas, documentação final, deploy | Todos os testes, build e roteiro manual | ⏳ Pendente |
 
 ## Regras de negócio já definidas
@@ -143,3 +143,15 @@ indicada), atualização da documentação e um commit.
 - `npm run verificar`: lint, tipos, 199 testes e build aprovados.
 - **Ainda não verificado com dados reais:** o cálculo de inclinação e o painel de
   risco depois desta correção.
+
+## Resultado da verificação — etapa 9
+
+- `npm run lint` e `npm run typecheck`: sem erros.
+- `npm run test`: 231 testes, 231 aprovados (32 novos: validação e respostas da
+  rota, envio pelo app, histórico no aparelho, diálogo em todos os estados, aba
+  Alertas e três cenários de ponta a ponta).
+- `npm run build`: build de produção gerado.
+- **Chamada HTTP real** à rota no servidor de desenvolvimento (com `curl`):
+  pedido válido → 201 com protocolo; latitude inválida → 400; GET → 405.
+- **Não verificado:** a função rodando na Vercel (só é possível depois do
+  deploy) e a abertura do discador pelo link `tel:199` em um celular.
