@@ -2,6 +2,15 @@
 
 Uma entrada por prompt/etapa.
 
+## 1.0.1 — Legenda de inclinação em graus
+
+- A legenda "Relevo / Inclinação" do mapa mostra as faixas em graus: Baixo
+  (< 2,9°), Moderado (2,9° – 8,5°), Alto (8,5° – 16,7°), Muito alto (> 16,7°).
+- São os mesmos limites de antes (5%, 15% e 30%), só convertidos; cálculo,
+  cores e regras de risco não mudaram.
+- A linha "Inclinação do setor" e o texto do painel de risco continuam em
+  percentual.
+
 ## Retorno à 1.0.0 (versão 1.1.0 desfeita)
 
 - A versão 1.1.0 (inclinação em graus, risco só a partir de 20°) foi publicada e
