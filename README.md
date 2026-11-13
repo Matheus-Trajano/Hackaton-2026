@@ -4,7 +4,7 @@ Protótipo (MVP) de um aplicativo mobile que avisa quando o usuário está em um
 encosta com risco de deslizamento, cruzando a localização do dispositivo, a
 inclinação do terreno e a previsão de chuva. Cobertura inicial: Pernambuco.
 
-> **Estado atual:** etapa 4 de 10 concluída (layout mobile, mapa base de Pernambuco e localização do usuário; relevo, clima e análise de risco ainda não integrados). Veja
+> **Estado atual:** etapa 5 de 10 concluída (layout mobile, mapa base, localização e mapa de calor de altitude; grade de setores, clima e análise de risco ainda não integrados). Veja
 > [docs/PLANO.md](docs/PLANO.md).
 
 ## Stack
@@ -43,7 +43,7 @@ src/
     telas/      uma tela por aba
     ui/         peças reutilizáveis (ícones)
   hooks/        hooks React (relógio, localização; depois clima e setor atual)
-  services/     clientes das APIs externas
+  services/     clientes das APIs externas (terreno/altitude)
   domain/       lógica pura e testada (grade, inclinação, risco)
   config/       constantes (limites de PE, setor, provedores do mapa, pontos de demonstração)
   types/        tipos compartilhados
@@ -58,6 +58,17 @@ Mapa base em Leaflet, centrado em Pernambuco e travado na região do estado
 Pernambuco e trocar a camada (satélite Esri ↔ ruas OpenStreetMap), além da
 escala métrica. O mesmo componente aparece na tela inicial e, em tela cheia,
 na aba **Mapa**.
+
+## Relevo (mapa de calor)
+
+Por cima do mapa base, o app pinta a altitude do terreno: **mais claro = mais
+baixo, mais vermelho = mais alto**. O mar fica transparente. A escala vai de 0 a
+1.000 m ou mais e não é linear, para que os morros do litoral (dezenas de metros)
+apareçam tão bem quanto as serras do interior. O botão com o ícone de montanha
+liga e desliga a camada; a legenda fica no canto superior esquerdo. Com a
+localização ativa, a caixa de coordenadas mostra também a altitude do ponto.
+
+Os dados vêm dos AWS Terrain Tiles (resolução de origem de cerca de 30 m).
 
 ## Localização
 
