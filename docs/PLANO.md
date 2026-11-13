@@ -10,7 +10,7 @@ indicada), atualização da documentação e um commit.
 | 3 | Mapa base centrado em Pernambuco, com zoom, centralizar e escala | Testes do mapa e dos limites; conferência visual | ✅ Concluída |
 | 4 | Geolocalização: GPS real, modo simulado, marcador e coordenadas | Testes de permissão negada, ponto fora de PE e modo simulado | ✅ Concluída |
 | 5 | Altitude: leitura dos tiles, mapa de calor e legenda | Testes da conversão de altitude, das cores e da grade de tiles | ✅ Concluída |
-| 6 | Grade de 100 m e cálculo de inclinação por setor | Testes com terrenos sintéticos | ⏳ Pendente |
+| 6 | Grade de 100 m e cálculo de inclinação por setor | Testes com terrenos sintéticos, medidas da grade e desenho no mapa | ✅ Concluída |
 | 7 | Painel superior de clima (chuva nas próximas 3 h, temperatura) | Testes com respostas simuladas | ⏳ Pendente |
 | 8 | Motor de risco e painel inferior com instruções | Testes da combinação inclinação × chuva | ⏳ Pendente |
 | 9 | Botão "Pedir socorro", `/api/alerta`, ligação 199, aba de alertas | Teste do endpoint e do fluxo | ⏳ Pendente |
@@ -20,6 +20,8 @@ indicada), atualização da documentação e um commit.
 
 - Setores da grade: 100 m × 100 m.
 - Classes de inclinação: Baixo < 5% · Moderado 5–15% · Alto 15–30% · Muito alto > 30%.
+  Nos limites: 5% já é moderado, 15% já é alto, 30% ainda é alto.
+- Inclinação do setor: método de Horn sobre 9 pontos do setor (espaçados 50 m).
 - Mapa de calor de altitude: mais claro = mais baixo, mais vermelho = mais alto;
   escala não linear com paradas em 0, 20, 50, 100, 200, 500 e 1.000 m; mar transparente.
 - Risco final = inclinação do setor do usuário cruzada com a previsão de chuva.
@@ -79,3 +81,20 @@ indicada), atualização da documentação e um commit.
   de relevo, a leitura dos pixels no navegador (depende de o servidor permitir
   acesso de outros domínios) e a aparência do mapa de calor. Precisam ser
   conferidos no preview.
+
+## Resultado da verificação — etapa 6
+
+- `npm run lint` e `npm run typecheck`: sem erros.
+- `npm run test`: 118 testes, 118 aprovados (41 novos: setores medem 100 m —
+  conferido por distância real em três regiões do estado —, vizinhança, lista de
+  setores de uma área, inclinação em terrenos sintéticos planos, em rampa e na
+  diagonal, limites das classes, cruzamento posição × grade, desenho e pintura
+  dos setores no mapa, controles e legenda).
+- `npm run build`: build de produção gerado.
+- Durante a etapa, a execução dos testes travou por falta de memória: um teste
+  passava ao hook uma função nova a cada renderização, o que o fazia recalcular
+  sem parar. O hook (`useSetorAtual`, e também `useAltitude`) foi corrigido para
+  não depender da identidade dessa função.
+- **Não verificado no ambiente de desenvolvimento:** a inclinação com dados
+  reais de relevo (os testes usam terrenos sintéticos), o desempenho do desenho
+  da grade em um celular e a aparência. Precisam ser conferidos no preview.

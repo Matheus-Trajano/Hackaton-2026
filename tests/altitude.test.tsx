@@ -233,7 +233,7 @@ describe('relevo no mapa', () => {
   it('começa com o relevo ligado, com legenda e crédito da fonte', () => {
     render(<MapaBase />);
     const mapa = screen.getByLabelText('Mapa');
-    expect(mapa.querySelector<HTMLElement>('.mapa__leaflet')?.dataset.relevo).toBe('true');
+    expect(mapa.querySelector<HTMLElement>('.mapa__leaflet')?.dataset.relevo).toBe('altitude');
     const legenda = screen.getByRole('group', { name: 'Legenda de altitude' });
     expect(legenda.textContent).toContain('Altitude (m)');
     expect(legenda.textContent).toContain('1000+');

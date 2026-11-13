@@ -349,6 +349,33 @@ button:focus-visible {
   color: var(--texto-suave);
 }
 
+.legenda__faixas {
+  list-style: none;
+  padding: 0;
+  margin-top: 4px;
+  display: grid;
+  gap: 2px;
+  font-size: 0.66rem;
+}
+
+.legenda__faixas li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legenda__cor {
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+  flex: none;
+}
+
+.mapa__aviso--neutro {
+  border-color: var(--borda);
+  background: rgb(13 21 38 / 88%);
+}
+
 .mapa__coordenadas {
   position: absolute;
   left: 10px;

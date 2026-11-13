@@ -117,11 +117,41 @@ config/relevo.ts         URL, zooms, opacidade e escala de cores
 - A escala de cores (`ESCALA_ALTITUDE`) é fixa, igual em todo o estado, e não
   linear. Altitude ≤ 0 fica transparente.
 - Os tiles são buscados até o zoom 14; em zooms maiores a imagem é ampliada.
-- `posicaoNoTile` (Web Mercator) é a base para a grade de setores da etapa 6.
+- `posicaoNoTile` (Web Mercator) localiza qualquer ponto nos tiles; é o que a
+  grade de setores usa para ler altitudes.
 - Se nenhum tile de relevo carregar, o mapa mostra um aviso.
 
-## Estado atual (etapa 5)
+## Grade de setores e inclinação
 
-Layout, navegação, mapa base, localização (real ou simulada) e mapa de calor de
-altitude funcionando. Ainda sem grade de setores, inclinação, clima e análise de
-risco reais; o estado de risco só muda pelo modo demonstração.
+```
+domain/grade.ts          setor de um ponto, limites, centro, setores de uma área
+domain/inclinacao.ts     método de Horn, classificação, inclinação de um setor
+hooks/useSetorAtual.ts   cruza a posição do usuário com a grade
+components/mapa/
+  CamadaSetores.ts       desenha a grade e pinta os setores no Leaflet
+  LegendaInclinacao.tsx  legenda das quatro faixas
+config/inclinacao.ts     faixas, cores e limites de desenho
+```
+
+- **Grade:** quadrados de 100 m alinhados ao norte, contados a partir do canto
+  sudoeste da cobertura. Graus de longitude são convertidos em metros pela
+  latitude média do estado (variação de largura inferior a 0,5%).
+- **Inclinação de um setor:** altitudes de 9 pontos (cantos, meios das bordas e
+  centro, espaçados 50 m) → gradiente pelo método de Horn → percentual, graus e
+  classe.
+- **Cruzamento com o usuário:** `useSetorAtual` recebe a posição utilizável,
+  acha o setor e calcula a inclinação. Só recalcula quando o setor muda.
+- **No mapa:** a grade só é desenhada a partir do zoom 15 e até 1.500 setores por
+  vez; é redesenhada ao fim de cada movimento. Respostas de um desenho antigo são
+  descartadas. Os resultados ficam em memória enquanto o mapa existir.
+- **Uma camada de cada vez:** `MapaBase` tem o modo `altitude`, `inclinacao` ou
+  `nenhum`.
+- Os hooks de consulta guardam a função de consulta em um `ref`, para não
+  refazer o trabalho se ela for recriada a cada renderização.
+
+## Estado atual (etapa 6)
+
+Layout, navegação, mapa base, localização, mapa de calor de altitude, grade de
+setores e inclinação funcionando. Ainda sem clima e sem análise de risco real: o
+painel de risco **não** usa a inclinação calculada e só muda pelo modo
+demonstração (isso entra na etapa 8).

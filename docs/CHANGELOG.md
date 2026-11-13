@@ -2,6 +2,20 @@
 
 Uma entrada por prompt/etapa.
 
+## 0.6.0 — Etapa 6: grade de 100 m e inclinação
+
+- Grade de setores de 100 m × 100 m sobre o mapa (a partir do zoom 15).
+- Cálculo de inclinação por setor (método de Horn) e classificação em quatro
+  faixas: baixo, moderado, alto e muito alto.
+- Botão para pintar os setores pela inclinação, com a legenda "Relevo / Inclinação".
+- Cruzamento da posição do usuário com a grade: setor destacado no mapa e
+  inclinação do setor na caixa de coordenadas.
+- Altitude e inclinação passam a ser camadas alternativas.
+- Correção: os hooks de consulta não recalculam mais quando recebem uma função
+  recriada a cada renderização.
+- Verificação: lint, tipos, 118 testes e build aprovados; inclinação com dados
+  reais e desempenho a conferir no preview.
+
 ## 0.5.0 — Etapa 5: mapa de calor de altitude
 
 - Leitura dos AWS Terrain Tiles (formato Terrarium) com cache em memória.

@@ -9,6 +9,7 @@ import { TelaSobre } from '@/components/telas/TelaSobre';
 import { PONTO_DEMO_PADRAO } from '@/config/pontosDemo';
 import { posicaoUtilizavel } from '@/domain/localizacao';
 import { useAltitude } from '@/hooks/useAltitude';
+import { useSetorAtual } from '@/hooks/useSetorAtual';
 import { useLocalizacao } from '@/hooks/useLocalizacao';
 import type { Aba, EstadoRisco } from '@/types';
 
@@ -18,7 +19,9 @@ export function App() {
   const [estadoRisco, setEstadoRisco] = useState<EstadoRisco>('indefinido');
 
   const localizacao = useLocalizacao();
-  const altitude = useAltitude(posicaoUtilizavel(localizacao.estado) ? localizacao.estado.posicao : null);
+  const posicao = posicaoUtilizavel(localizacao.estado) ? localizacao.estado.posicao : null;
+  const altitude = useAltitude(posicao);
+  const setorAtual = useSetorAtual(posicao);
   const usarDemonstracao = () => localizacao.usarPontoDemo(PONTO_DEMO_PADRAO.id);
 
   return (
@@ -31,6 +34,7 @@ export function App() {
             localizacao={localizacao.estado}
             aoUsarDemonstracao={usarDemonstracao}
             altitude={altitude}
+            setorAtual={setorAtual}
             aoVerDetalhes={() => setAba('mapa')}
           />
         )}
@@ -40,6 +44,7 @@ export function App() {
             localizacao={localizacao.estado}
             aoUsarDemonstracao={usarDemonstracao}
             altitude={altitude}
+            setorAtual={setorAtual}
           />
         )}
         {aba === 'alertas' && (
