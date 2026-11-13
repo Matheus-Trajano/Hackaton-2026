@@ -177,3 +177,10 @@ indicada), atualização da documentação e um commit.
 As 10 etapas estão concluídas. Próximos passos fora do plano: publicar na
 Vercel, instalar em um Android e conferir em campo os itens listados como não
 verificados.
+
+## Depois do plano — versão 1.1.0 desfeita
+
+A mudança para inclinação em graus com risco a partir de 20° foi mesclada
+(PR #12) e depois revertida a pedido, por dar resultados errados com relevo
+real. O código voltou ao da versão 1.0.0 (255 testes, lint, tipos e build
+aprovados). O problema dos prédios na altitude segue sem solução.

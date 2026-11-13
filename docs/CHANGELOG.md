@@ -2,6 +2,16 @@
 
 Uma entrada por prompt/etapa.
 
+## Retorno à 1.0.0 (versão 1.1.0 desfeita)
+
+- A versão 1.1.0 (inclinação em graus, risco só a partir de 20°) foi publicada e
+  desfeita a pedido: o cálculo de risco passou a dar resultados errados em uso
+  real.
+- O código voltou a ser idêntico ao da 1.0.0: inclinação em percentual, com as
+  classes baixo (< 5%), moderado (5% a 15%), alto (15% a 30%) e muito alto (> 30%).
+- Continua em aberto o problema original: a fonte de relevo inclui a altura de
+  prédios e distorce a inclinação em áreas construídas.
+
 ## 1.0.0 — Etapa 10: app instalável e acabamento
 
 - PWA: manifesto, ícones (192, 512, mascarável, iOS) e service worker próprio.
