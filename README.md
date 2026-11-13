@@ -4,7 +4,7 @@ Protótipo (MVP) de um aplicativo mobile que avisa quando o usuário está em um
 encosta com risco de deslizamento, cruzando a localização do dispositivo, a
 inclinação do terreno e a previsão de chuva. Cobertura inicial: Pernambuco.
 
-> **Estado atual:** etapa 7 de 10 concluída (layout mobile, mapa base, localização, mapa de calor de altitude, grade de setores de 100 m, inclinação e previsão do tempo; a análise de risco ainda não está integrada). Veja
+> **Estado atual:** etapa 8 de 10 concluída (mapa, localização, relevo, grade de 100 m, inclinação, previsão do tempo e análise de risco funcionando; o botão de emergência ainda não envia alertas). Veja
 > [docs/PLANO.md](docs/PLANO.md).
 
 ## Stack
@@ -70,6 +70,29 @@ localização ativa, a caixa de coordenadas mostra também a altitude do ponto.
 
 Os dados vêm dos AWS Terrain Tiles (resolução de origem de cerca de 30 m).
 
+## Análise de risco
+
+O painel inferior cruza a **inclinação do setor de 100 m em que o usuário está**
+com a **previsão de chuva** do mesmo local:
+
+| Inclinação do setor | Chuva moderada ou mais forte | Sem chuva significativa | Previsão indisponível |
+|---|---|---|---|
+| Alta ou muito alta (≥ 15%) | **Risco** ("Você está em risco!") | **Risco** ("Você está em área de risco") | **Risco** |
+| Moderada (5% a < 15%) | **Atenção** | Seguro | **Atenção** (por cautela) |
+| Baixa (< 5%) | Seguro | Seguro | Seguro |
+
+- Um setor de inclinação alta ou muito alta é zona de risco com ou sem chuva; a
+  chuva agrava o alerta.
+- Sem localização ou sem dados de relevo, o painel mostra "Risco ainda não
+  avaliado" e o motivo — o app não supõe segurança.
+- Em risco, aparecem as instruções "O que fazer agora"; em atenção, "Fique
+  atento"; nos demais casos, dicas de prevenção.
+- O app avalia apenas risco de **deslizamento em encosta**. Alagamento em área
+  plana não é avaliado.
+
+Estas regras são parâmetros do protótipo (`src/config/risco.ts`), não critérios
+oficiais da Defesa Civil.
+
 ## Previsão do tempo
 
 O painel superior mostra, para a posição do usuário, a previsão das **próximas
@@ -128,8 +151,9 @@ aproximadas).
 
 Em telas largas (≥ 600 px) o app aparece dentro de uma moldura de celular; em
 um celular real, ocupa a tela inteira. Na aba **Sobre** há um *modo
-demonstração* para alternar o estado de risco (não avaliado / seguro / em risco)
-enquanto a análise real não está ligada.
+demonstração*: em "Automático" (padrão) o painel de risco usa os dados reais; as
+outras opções forçam um estado (seguro / atenção / em risco), e o painel avisa
+que o estado é simulado.
 
 ## Documentação
 

@@ -516,6 +516,23 @@ button:focus-visible {
   color: #ff4a4f;
 }
 
+.risco--atencao {
+  border-color: #f5a623;
+  background: #3a2a08;
+}
+
+.risco--atencao .risco__icone,
+.risco--atencao .risco__titulo {
+  color: #f5a623;
+}
+
+.risco__simulado {
+  margin-top: 4px;
+  font-size: 0.68rem;
+  font-style: italic;
+  color: var(--texto-suave);
+}
+
 .risco--seguro {
   border-color: var(--verde);
   background: var(--verde-escuro);
@@ -556,6 +573,15 @@ button:focus-visible {
 .instrucoes__lista svg {
   flex: none;
   color: var(--texto-suave);
+}
+
+.instrucoes--atencao {
+  border-color: #6b5320;
+}
+
+.instrucoes--atencao .instrucoes__titulo,
+.instrucoes--atencao svg {
+  color: #f5a623;
 }
 
 .instrucoes--risco {
@@ -672,7 +698,7 @@ button:focus-visible {
 
 .segmentado {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 6px;
 }
 

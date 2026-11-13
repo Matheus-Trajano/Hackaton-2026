@@ -8,10 +8,12 @@ import type { EstadoLocalizacao } from '@/domain/localizacao';
 import type { EstadoAltitude } from '@/hooks/useAltitude';
 import type { EstadoSetor } from '@/hooks/useSetorAtual';
 import type { EstadoClima } from '@/hooks/useClima';
-import type { EstadoRisco } from '@/types';
+import type { AvaliacaoRisco } from '@/domain/risco';
 
 interface Props {
-  estadoRisco: EstadoRisco;
+  risco: AvaliacaoRisco;
+  /** O estado de risco foi forçado pelo modo demonstração? */
+  riscoSimulado: boolean;
   localizacao: EstadoLocalizacao;
   aoUsarDemonstracao: () => void;
   altitude: EstadoAltitude;
@@ -23,7 +25,8 @@ interface Props {
 }
 
 export function TelaInicio({
-  estadoRisco,
+  risco,
+  riscoSimulado,
   localizacao,
   aoUsarDemonstracao,
   altitude,
@@ -41,9 +44,9 @@ export function TelaInicio({
         altitude={altitude}
         setorAtual={setorAtual}
       />
-      <PainelRisco estado={estadoRisco} />
+      <PainelRisco avaliacao={risco} simulado={riscoSimulado} />
       <div className="inicio__acoes">
-        <Instrucoes estado={estadoRisco} />
+        <Instrucoes estado={risco.estado} />
         <BotaoSocorro />
       </div>
       <BarraMonitoramento

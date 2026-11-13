@@ -4,19 +4,23 @@ import { formatarCoordenada, mensagemLocalizacao, posicaoUtilizavel } from '@/do
 import type { Localizacao } from '@/hooks/useLocalizacao';
 import type { EstadoRisco } from '@/types';
 
-const OPCOES: { valor: EstadoRisco; rotulo: string }[] = [
-  { valor: 'indefinido', rotulo: 'Não avaliado' },
+/** `automatico` usa os dados reais; os demais forçam um estado para demonstração. */
+export type ModoRisco = 'automatico' | EstadoRisco;
+
+const OPCOES: { valor: ModoRisco; rotulo: string }[] = [
+  { valor: 'automatico', rotulo: 'Automático' },
   { valor: 'seguro', rotulo: 'Área segura' },
+  { valor: 'atencao', rotulo: 'Atenção' },
   { valor: 'risco', rotulo: 'Em risco' },
 ];
 
 interface Props {
-  estadoRisco: EstadoRisco;
-  aoMudarEstadoRisco: (estado: EstadoRisco) => void;
+  modoRisco: ModoRisco;
+  aoMudarModoRisco: (modo: ModoRisco) => void;
   localizacao: Localizacao;
 }
 
-export function TelaSobre({ estadoRisco, aoMudarEstadoRisco, localizacao }: Props) {
+export function TelaSobre({ modoRisco, aoMudarModoRisco, localizacao }: Props) {
   const { estado, pontoDemoId, usarGps, usarPontoDemo } = localizacao;
   const aviso = mensagemLocalizacao(estado);
   return (
@@ -61,16 +65,16 @@ export function TelaSobre({ estadoRisco, aoMudarEstadoRisco, localizacao }: Prop
       <section className="painel">
         <h2>Modo demonstração</h2>
         <p>
-          A análise de risco real ainda não está ligada. Escolha um estado para ver como a tela inicial
-          se comporta.
+          Em "Automático", o painel de risco usa os dados reais: a inclinação do seu setor e a previsão de
+          chuva. As outras opções forçam um estado, para demonstração.
         </p>
         <div className="segmentado" role="group" aria-label="Estado de risco simulado">
           {OPCOES.map((opcao) => (
             <button
               key={opcao.valor}
               type="button"
-              aria-pressed={estadoRisco === opcao.valor}
-              onClick={() => aoMudarEstadoRisco(opcao.valor)}
+              aria-pressed={modoRisco === opcao.valor}
+              onClick={() => aoMudarModoRisco(opcao.valor)}
             >
               {opcao.rotulo}
             </button>

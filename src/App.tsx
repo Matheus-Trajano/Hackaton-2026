@@ -5,20 +5,21 @@ import { NavegacaoInferior } from '@/components/layout/NavegacaoInferior';
 import { MapaBase } from '@/components/mapa/MapaBase';
 import { TelaEmBreve } from '@/components/telas/TelaEmBreve';
 import { TelaInicio } from '@/components/telas/TelaInicio';
-import { TelaSobre } from '@/components/telas/TelaSobre';
+import { TelaSobre, type ModoRisco } from '@/components/telas/TelaSobre';
 import { PONTO_DEMO_PADRAO } from '@/config/pontosDemo';
-import { posicaoUtilizavel } from '@/domain/localizacao';
+import { mensagemLocalizacao, posicaoUtilizavel } from '@/domain/localizacao';
+import { avaliacaoDeDemonstracao, avaliarRisco } from '@/domain/risco';
 import { CLIMA } from '@/config/clima';
 import { useAltitude } from '@/hooks/useAltitude';
 import { useClima } from '@/hooks/useClima';
 import { useSetorAtual } from '@/hooks/useSetorAtual';
 import { useLocalizacao } from '@/hooks/useLocalizacao';
-import type { Aba, EstadoRisco } from '@/types';
+import type { Aba } from '@/types';
 
 export function App() {
   const [aba, setAba] = useState<Aba>('inicio');
-  // Até a etapa 8, o estado de risco só muda pelo modo demonstração (aba Sobre).
-  const [estadoRisco, setEstadoRisco] = useState<EstadoRisco>('indefinido');
+  // 'automatico' usa os dados reais; os demais valores forçam um estado (modo demonstração).
+  const [modoRisco, setModoRisco] = useState<ModoRisco>('automatico');
 
   const localizacao = useLocalizacao();
   const posicao = posicaoUtilizavel(localizacao.estado) ? localizacao.estado.posicao : null;
@@ -31,6 +32,14 @@ export function App() {
       ? (localizacao.estado.nomeLocal ?? 'o local simulado')
       : 'sua localização'
     : `${CLIMA.localPadrao.nome} (sem localização)`;
+  // Motor de risco: inclinação do setor do usuário × previsão de chuva do mesmo local.
+  const riscoReal = avaliarRisco(
+    setorAtual.status === 'sem-posicao'
+      ? { status: 'sem-posicao', aviso: mensagemLocalizacao(localizacao.estado) }
+      : setorAtual,
+    clima,
+  );
+  const risco = modoRisco === 'automatico' ? riscoReal : avaliacaoDeDemonstracao(modoRisco);
   const usarDemonstracao = () => localizacao.usarPontoDemo(PONTO_DEMO_PADRAO.id);
 
   return (
@@ -39,7 +48,8 @@ export function App() {
       <main className="conteudo">
         {aba === 'inicio' && (
           <TelaInicio
-            estadoRisco={estadoRisco}
+            risco={risco}
+            riscoSimulado={modoRisco !== 'automatico'}
             clima={clima}
             localDoClima={localDoClima}
             localizacao={localizacao.estado}
@@ -67,8 +77,8 @@ export function App() {
         )}
         {aba === 'sobre' && (
           <TelaSobre
-            estadoRisco={estadoRisco}
-            aoMudarEstadoRisco={setEstadoRisco}
+            modoRisco={modoRisco}
+            aoMudarModoRisco={setModoRisco}
             localizacao={localizacao}
           />
         )}

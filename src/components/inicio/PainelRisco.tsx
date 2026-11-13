@@ -1,37 +1,33 @@
 import { Icone, type NomeIcone } from '@/components/ui/Icone';
+import type { AvaliacaoRisco } from '@/domain/risco';
 import type { EstadoRisco } from '@/types';
 
-const CONTEUDO: Record<EstadoRisco, { icone: NomeIcone; titulo: string; texto: string }> = {
-  risco: {
-    icone: 'alerta',
-    titulo: 'Você está em risco!',
-    texto:
-      'Sua localização está em uma área de encosta com inclinação acentuada e previsão de chuva forte.',
-  },
-  seguro: {
-    icone: 'escudo',
-    titulo: 'Você está em área segura',
-    texto: 'Sua localização não está em área de encosta com risco no momento.',
-  },
-  indefinido: {
-    icone: 'mira',
-    titulo: 'Risco ainda não avaliado',
-    texto: 'Aguardando sua localização e os dados de relevo e chuva.',
-  },
+const ICONES: Record<EstadoRisco, NomeIcone> = {
+  risco: 'alerta',
+  atencao: 'alerta',
+  seguro: 'escudo',
+  indefinido: 'mira',
 };
 
-export function PainelRisco({ estado }: { estado: EstadoRisco }) {
-  const { icone, titulo, texto } = CONTEUDO[estado];
+interface Props {
+  avaliacao: AvaliacaoRisco;
+  /** Indica que o estado foi forçado pelo modo demonstração. */
+  simulado?: boolean;
+}
+
+export function PainelRisco({ avaliacao, simulado = false }: Props) {
+  const { estado, titulo, texto } = avaliacao;
   return (
     <section
       className={`risco risco--${estado}`}
       role={estado === 'risco' ? 'alert' : 'status'}
       aria-live="polite"
     >
-      <Icone nome={icone} tamanho={52} className="risco__icone" />
+      <Icone nome={ICONES[estado]} tamanho={52} className="risco__icone" />
       <div>
         <h2 className="risco__titulo">{titulo}</h2>
         <p className="risco__texto">{texto}</p>
+        {simulado && <p className="risco__simulado">Estado simulado (modo demonstração)</p>}
       </div>
     </section>
   );

@@ -12,7 +12,7 @@ indicada), atualização da documentação e um commit.
 | 5 | Altitude: leitura dos tiles, mapa de calor e legenda | Testes da conversão de altitude, das cores e da grade de tiles | ✅ Concluída |
 | 6 | Grade de 100 m e cálculo de inclinação por setor | Testes com terrenos sintéticos, medidas da grade e desenho no mapa | ✅ Concluída |
 | 7 | Painel superior de clima (chuva nas próximas 3 h, temperatura) | Testes com respostas simuladas da API | ✅ Concluída |
-| 8 | Motor de risco e painel inferior com instruções | Testes da combinação inclinação × chuva | ⏳ Pendente |
+| 8 | Motor de risco e painel inferior com instruções | Testes de toda a matriz inclinação × chuva e do fluxo de ponta a ponta | ✅ Concluída |
 | 9 | Botão "Pedir socorro", `/api/alerta`, ligação 199, aba de alertas | Teste do endpoint e do fluxo | ⏳ Pendente |
 | 10 | Acabamento: PWA, tratamento de falhas, documentação final, deploy | Todos os testes, build e roteiro manual | ⏳ Pendente |
 
@@ -24,7 +24,10 @@ indicada), atualização da documentação e um commit.
 - Inclinação do setor: método de Horn sobre 9 pontos do setor (espaçados 50 m).
 - Mapa de calor de altitude: mais claro = mais baixo, mais vermelho = mais alto;
   escala não linear com paradas em 0, 20, 50, 100, 200, 500 e 1.000 m; mar transparente.
-- Risco final = inclinação do setor do usuário cruzada com a previsão de chuva.
+- Risco final = inclinação do setor do usuário cruzada com a previsão de chuva:
+  inclinação alta ou muito alta → risco (sempre; a chuva agrava); moderada com
+  chuva moderada ou mais forte → atenção; demais casos → seguro. Sem inclinação
+  conhecida → não avaliado. Inclinação moderada sem previsão → atenção.
 - Chuva: janela de 3 horas (hora em andamento e as duas seguintes); intensidade
   pelo maior volume em uma hora: fraca < 5 mm, moderada < 25 mm, forte < 50 mm,
   muito forte ≥ 50 mm.
@@ -116,3 +119,15 @@ indicada), atualização da documentação e um commit.
   Open-Meteo. O formato da resposta foi implementado a partir da documentação
   conhecida da API, sem uma chamada de conferência. Se o formato real for
   diferente, o painel mostra "Sem dados". Precisa ser conferido no preview.
+
+## Resultado da verificação — etapa 8
+
+- `npm run lint` e `npm run typecheck`: sem erros.
+- `npm run test`: 195 testes, 195 aprovados (42 novos: as 20 combinações de
+  inclinação × chuva, previsão indisponível ou carregando, ausência de
+  localização ou de relevo, textos do painel e sete cenários de ponta a ponta no
+  app — GPS → setor → inclinação × chuva → painel e instruções).
+- `npm run build`: build de produção gerado.
+- Os cenários de ponta a ponta usam GPS, terreno e previsão simulados.
+  **Não verificado:** o resultado com dados reais (depende do relevo e do clima
+  reais, ainda não conferidos no preview nas etapas 5 a 7).
