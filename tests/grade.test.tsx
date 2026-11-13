@@ -110,7 +110,7 @@ describe('cálculo de inclinação', () => {
     const r = inclinacaoHorn(Array(9).fill(42), 50);
     expect(r.percentual).toBe(0);
     expect(r.graus).toBe(0);
-    expect(r.classe).toBe('baixo');
+    expect(r.classe).toBe('normal');
   });
 
   it('rampa de 10 m a cada 100 m para leste dá 10%', () => {
@@ -118,7 +118,7 @@ describe('cálculo de inclinação', () => {
     const r = inclinacaoHorn([0, 5, 10, 0, 5, 10, 0, 5, 10], 50);
     expect(r.percentual).toBeCloseTo(10, 6);
     expect(r.graus).toBeCloseTo(5.7106, 3);
-    expect(r.classe).toBe('moderado');
+    expect(r.classe).toBe('normal'); // 5,7°
   });
 
   it('rampa para o norte dá o mesmo valor que para o leste', () => {
@@ -138,38 +138,38 @@ describe('cálculo de inclinação', () => {
     expect(inclinacaoHorn(grade, 50).percentual).toBeCloseTo(50, 6);
   });
 
-  it('os graus da legenda são os mesmos limites da classificação (5%, 15% e 30%)', () => {
-    const emGraus = (percentual: number) =>
-      ((Math.atan(percentual / 100) * 180) / Math.PI).toFixed(1).replace('.', ',') + '°';
-    expect([5, 15, 30].map(emGraus)).toEqual(['2,9°', '8,5°', '16,7°']);
-    expect(FAIXAS_INCLINACAO.map((f) => f.faixa)).toEqual([
-      `< ${emGraus(5)}`,
-      `${emGraus(5)} – ${emGraus(15)}`,
-      `${emGraus(15)} – ${emGraus(30)}`,
-      `> ${emGraus(30)}`,
-    ]);
-    expect(FAIXAS_INCLINACAO.some((f) => f.faixa.includes('%'))).toBe(false);
-  });
-
   it('exige exatamente 9 altitudes', () => {
     expect(() => inclinacaoHorn([1, 2, 3], 50)).toThrow();
   });
 
   it.each([
-    [0, 'baixo'],
-    [4.99, 'baixo'],
-    [5, 'moderado'],
-    [14.99, 'moderado'],
+    [0, 'normal'],
+    [10, 'normal'],
+    [14.99, 'normal'],
     [15, 'alto'],
-    [30, 'alto'],
-    [30.01, 'muito-alto'],
+    [25, 'alto'],
+    [35, 'alto'], // era "muito alto" na regra anterior
+    [44.99, 'alto'],
+    [45, 'muito-alto'],
     [80, 'muito-alto'],
-  ])('%d%% é classe "%s"', (percentual, classe) => {
-    expect(classificarInclinacao(percentual)).toBe(classe);
+  ])('%d° é classe "%s"', (graus, classe) => {
+    expect(classificarInclinacao(graus)).toBe(classe);
   });
 
-  it('as faixas da legenda cobrem as quatro classes, em ordem', () => {
-    expect(FAIXAS_INCLINACAO.map((f) => f.classe)).toEqual(['baixo', 'moderado', 'alto', 'muito-alto']);
+  it('a classe sai do ângulo em graus, não do percentual', () => {
+    // Rampas de 25% (14°), 30% (16,7°), 75% (36,9°) e 110% (47,7°).
+    const rampa = (percentual: number) => inclinacaoHorn([0, 1, 2, 0, 1, 2, 0, 1, 2].map((v) => (v * percentual) / 2), 50);
+    expect(rampa(25)).toMatchObject({ classe: 'normal' });
+    expect(rampa(30)).toMatchObject({ classe: 'alto' });
+    expect(rampa(30).graus).toBeCloseTo(16.7, 1);
+    expect(rampa(75)).toMatchObject({ classe: 'alto' });
+    expect(rampa(110)).toMatchObject({ classe: 'muito-alto' });
+  });
+
+  it('a legenda tem três faixas em graus, com verde para a normal', () => {
+    expect(FAIXAS_INCLINACAO.map((f) => f.classe)).toEqual(['normal', 'alto', 'muito-alto']);
+    expect(FAIXAS_INCLINACAO.map((f) => f.faixa)).toEqual(['0° – 15°', '15° – 45°', '≥ 45°']);
+    expect(FAIXAS_INCLINACAO[0]!.cor).toBe('#2ecc40');
   });
 });
 
@@ -190,10 +190,13 @@ describe('inclinação de um setor', () => {
     ['subindo 8% para leste', (leste: number) => 0.08 * leste, 8],
     ['subindo 22% para o norte', (_l: number, norte: number) => 0.22 * norte, 22],
     ['descendo 35% para leste', (leste: number) => -0.35 * leste, 35],
+    ['subindo 80% para o norte', (_l: number, norte: number) => 0.8 * norte, 80],
+    ['subindo 120% para o norte', (_l: number, norte: number) => 1.2 * norte, 120],
   ])('terreno %s → %d%%', async (_nome, f, esperado) => {
     const r = await inclinacaoDoSetor(setor, terreno(f));
     expect(r.percentual).toBeCloseTo(esperado, 1);
-    expect(r.classe).toBe(classificarInclinacao(esperado));
+    // 8% = 4,6° · 22% = 12,4° · 35% = 19,3° · 80% = 38,7° · 120% = 50,2°
+    expect(r.classe).toBe(esperado < 27 ? 'normal' : esperado < 100 ? 'alto' : 'muito-alto');
   });
 
   it('consulta cada ponto passando só a coordenada (regressão: índice do map virava opção da consulta)', async () => {
@@ -232,7 +235,7 @@ describe('useSetorAtual (cruza a posição com a grade)', () => {
   });
 
   it('informa o setor do usuário e a inclinação dele', async () => {
-    const consultar = terreno((leste) => 0.18 * leste);
+    const consultar = terreno((leste) => 0.4 * leste); // 21,8°
     const { result } = renderHook(() => useSetorAtual(RECIFE, consultar));
     expect(result.current).toMatchObject({ status: 'carregando', setor: setorDe(RECIFE) });
     await waitFor(() => expect(result.current.status).toBe('ok'));
@@ -276,7 +279,7 @@ describe('grade no mapa', () => {
 
   it('no zoom 16 desenha os setores visíveis e pinta cada um pela inclinação', async () => {
     const mapa = criarMapa(16);
-    const camada = new CamadaSetores(mapa, terreno((leste) => 0.2 * leste));
+    const camada = new CamadaSetores(mapa, terreno((leste) => 0.4 * leste)); // 21,8°
     const total = camada.desenhar({ preencher: true });
     // 400 × 300 px a ~2,4 m/px ≈ 950 m × 710 m → cerca de 10 × 8 setores (mais as bordas).
     expect(total).toBeGreaterThan(60);
@@ -325,7 +328,7 @@ describe('inclinação na interface do mapa', () => {
   it('com o mapa aproximado no usuário, mostra a legenda das faixas de inclinação', async () => {
     render(<MapaBase localizacao={aqui} />);
     const legenda = await screen.findByRole('group', { name: 'Legenda de inclinação' });
-    for (const texto of ['Relevo / Inclinação', 'Baixo (< 2,9°)', 'Moderado (2,9° – 8,5°)', 'Alto (8,5° – 16,7°)', 'Muito alto (> 16,7°)']) {
+    for (const texto of ['Relevo / Inclinação', 'Normal (0° – 15°)', 'Alto (15° – 45°)', 'Muito alto (≥ 45°)']) {
       expect(legenda.textContent).toContain(texto);
     }
     expect(screen.queryByRole('group', { name: 'Legenda de altitude' })).toBeNull();

@@ -2,6 +2,34 @@
 
 Uma entrada por prompt/etapa.
 
+## 1.3.0 — Alerta de alagamento em setores de inclinação normal
+
+- Setor de inclinação normal (menos de 15°) com chuva moderada, forte ou muito
+  forte prevista: painel "Alerta de alagamento" (amarelo), com orientações
+  próprias de alagamento.
+- Sem chuva significativa, ou sem previsão disponível, o setor normal continua
+  como área segura.
+- Setores de inclinação alta ou muito alta não mudam: risco de deslizamento.
+- Modo demonstração: a opção "Atenção" passou a se chamar "Alagamento".
+- Limite: o alerta considera só inclinação e chuva; não há dados de drenagem,
+  rios ou pontos baixos, então ele vale para todo setor normal quando chove.
+- Verificação: lint, tipos, 271 testes e build aprovados. Não conferido com
+  dados reais.
+
+## 1.2.0 — Novas faixas de inclinação, em graus
+
+- Faixas: Normal (0° a 15°, verde), Alto (15° a 45°, laranja), Muito alto (45°
+  em diante, vermelho). "Baixo" e "moderado" foram unidos na faixa Normal.
+- A classe passa a ser definida pelo ângulo em graus (antes, pelo percentual).
+- Motor de risco: inclinação normal é área segura; alta ou muito alta é risco.
+  O estado "Atenção" não é mais produzido pelo cálculo (só no modo demonstração).
+- A linha "Inclinação do setor" e o texto do painel de risco continuam mostrando
+  o valor em percentual.
+- Verificação: lint, tipos, 261 testes e build aprovados. Não conferido com
+  relevo real.
+- Observação: 45° de média em um setor de 100 m é raro; a faixa "Muito alto"
+  deve aparecer pouco no mapa.
+
 ## 1.0.1 — Legenda de inclinação em graus
 
 - A legenda "Relevo / Inclinação" do mapa mostra as faixas em graus: Baixo

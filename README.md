@@ -80,18 +80,22 @@ com a **previsão de chuva** do mesmo local:
 
 | Inclinação do setor | Chuva moderada ou mais forte | Sem chuva significativa | Previsão indisponível |
 |---|---|---|---|
-| Alta ou muito alta (≥ 15%) | **Risco** ("Você está em risco!") | **Risco** ("Você está em área de risco") | **Risco** |
-| Moderada (5% a < 15%) | **Atenção** | Seguro | **Atenção** (por cautela) |
-| Baixa (< 5%) | Seguro | Seguro | Seguro |
+| Alta (15° a 45°) ou muito alta (45° em diante) | **Risco** ("Você está em risco!") | **Risco** ("Você está em área de risco") | **Risco** |
+| Normal (menos de 15°) | **Alerta de alagamento** | Seguro | Seguro |
 
 - Um setor de inclinação alta ou muito alta é zona de risco com ou sem chuva; a
   chuva agrava o alerta.
 - Sem localização ou sem dados de relevo, o painel mostra "Risco ainda não
   avaliado" e o motivo — o app não supõe segurança.
-- Em risco, aparecem as instruções "O que fazer agora"; em atenção, "Fique
-  atento"; nos demais casos, dicas de prevenção.
-- O app avalia apenas risco de **deslizamento em encosta**. Alagamento em área
-  plana não é avaliado.
+- **Alerta de alagamento:** em setor de inclinação normal, chuva moderada ou mais
+  forte prevista gera o alerta (painel amarelo), com orientações próprias de
+  alagamento. Sem previsão disponível não há alerta.
+- Em risco, aparecem as instruções "O que fazer agora"; no alerta de alagamento,
+  "Fique atento"; nos demais casos, dicas de prevenção.
+- O alerta de alagamento é uma **indicação geral**: considera só a inclinação do
+  setor e a chuva prevista. O app não sabe se o local é baixo em relação ao
+  entorno, se fica perto de rio ou canal, nem como é a drenagem; por isso alerta
+  todo setor de inclinação normal quando há chuva, inclusive os que não alagam.
 
 Estas regras são parâmetros do protótipo (`src/config/risco.ts`), não critérios
 oficiais da Defesa Civil.
@@ -142,13 +146,12 @@ mostra a altitude no lugar. O botão com o ícone de grade liga e desliga o modo
 
 | Classe | Inclinação | Cor |
 |---|---|---|
-| Baixo | < 2,9° (5%) | verde |
-| Moderado | 2,9° – 8,5° (5% – 15%) | amarelo |
-| Alto | 8,5° – 16,7° (15% – 30%) | laranja |
-| Muito alto | > 16,7° (30%) | vermelho |
+| Normal | 0° a 15° | verde |
+| Alto | 15° a 45° | laranja |
+| Muito alto | 45° em diante | vermelho |
 
-A legenda do mapa mostra as faixas em graus; os limites são os mesmos de antes,
-apenas convertidos.
+Os limites exatos de 15° e 45° já pertencem à faixa de cima. A classe é definida
+pelo ângulo em graus.
 
 A posição do usuário é cruzada com a grade: o setor em que ele está ganha um
 contorno reforçado e a caixa de coordenadas mostra a inclinação desse setor.
@@ -212,7 +215,8 @@ Os ícones são gerados por `python3 scripts/gerar_icones.py` (requer Pillow).
 
 - O envio de alerta é simulado: não chega à Defesa Civil.
 - As regras de risco são parâmetros do protótipo, não critérios oficiais, e só
-  consideram deslizamento em encosta (não alagamento).
+  não medem alagamento: o alerta de alagamento vale para todo setor de
+  inclinação normal com chuva prevista, sem dados de drenagem ou de rios.
 - A área coberta é o retângulo que envolve Pernambuco, não o contorno do estado.
 - As coordenadas dos locais de demonstração são aproximadas.
 - A reserva de altitude (Open-Meteo Elevation) não é acionada automaticamente.

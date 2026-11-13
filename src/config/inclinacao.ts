@@ -1,4 +1,12 @@
-export type ClasseInclinacao = 'baixo' | 'moderado' | 'alto' | 'muito-alto';
+export type ClasseInclinacao = 'normal' | 'alto' | 'muito-alto';
+
+/** Limites das classes de inclinação, em graus. */
+export const LIMITES_INCLINACAO = {
+  /** A partir deste ângulo a inclinação é alta; abaixo, normal. */
+  alto: 15,
+  /** A partir deste ângulo a inclinação é muito alta. */
+  muitoAlto: 45,
+} as const;
 
 export interface FaixaInclinacao {
   classe: ClasseInclinacao;
@@ -8,16 +16,16 @@ export interface FaixaInclinacao {
   cor: string;
 }
 
-/**
- * Faixas de inclinação, da menor para a maior. A classificação é feita em
- * percentual (baixo < 5 · moderado 5 a < 15 · alto 15 a 30 · muito alto > 30);
- * a legenda mostra os mesmos limites em graus: 5% = 2,9° · 15% = 8,5° · 30% = 16,7°.
- */
+/** Faixas de inclinação (em graus), da menor para a maior: normal 0 a 15 · alto 15 a 45 · muito alto 45 em diante. */
 export const FAIXAS_INCLINACAO: readonly FaixaInclinacao[] = [
-  { classe: 'baixo', rotulo: 'Baixo', faixa: '< 2,9°', cor: '#2ecc40' },
-  { classe: 'moderado', rotulo: 'Moderado', faixa: '2,9° – 8,5°', cor: '#ffdc00' },
-  { classe: 'alto', rotulo: 'Alto', faixa: '8,5° – 16,7°', cor: '#ff851b' },
-  { classe: 'muito-alto', rotulo: 'Muito alto', faixa: '> 16,7°', cor: '#e5262b' },
+  { classe: 'normal', rotulo: 'Normal', faixa: `0° – ${LIMITES_INCLINACAO.alto}°`, cor: '#2ecc40' },
+  {
+    classe: 'alto',
+    rotulo: 'Alto',
+    faixa: `${LIMITES_INCLINACAO.alto}° – ${LIMITES_INCLINACAO.muitoAlto}°`,
+    cor: '#ff851b',
+  },
+  { classe: 'muito-alto', rotulo: 'Muito alto', faixa: `≥ ${LIMITES_INCLINACAO.muitoAlto}°`, cor: '#e5262b' },
 ];
 
 export function faixaDaClasse(classe: ClasseInclinacao): FaixaInclinacao {
