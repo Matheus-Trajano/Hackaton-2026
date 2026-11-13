@@ -2,7 +2,7 @@
 export const APP = {
   nome: 'Encosta Segura',
   slogan: 'Sempre ao seu lado',
-  versao: '0.3.0',
+  versao: '0.4.0',
   /** Lado de cada setor da grade, em metros. */
   tamanhoSetorMetros: 100,
   /** Telefone da Defesa Civil. */
@@ -18,5 +18,5 @@ export const LIMITES_PE = {
 } as const;
 
 /** Etapas do plano de desenvolvimento (ver docs/PLANO.md). */
-export const ETAPA_ATUAL = 3;
+export const ETAPA_ATUAL = 4;
 export const TOTAL_ETAPAS = 10;

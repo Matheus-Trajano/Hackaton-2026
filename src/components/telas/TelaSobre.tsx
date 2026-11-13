@@ -1,4 +1,7 @@
 import { APP, ETAPA_ATUAL, TOTAL_ETAPAS } from '@/config/app';
+import { PONTOS_DEMO } from '@/config/pontosDemo';
+import { formatarCoordenada, mensagemLocalizacao, posicaoUtilizavel } from '@/domain/localizacao';
+import type { Localizacao } from '@/hooks/useLocalizacao';
 import type { EstadoRisco } from '@/types';
 
 const OPCOES: { valor: EstadoRisco; rotulo: string }[] = [
@@ -10,9 +13,12 @@ const OPCOES: { valor: EstadoRisco; rotulo: string }[] = [
 interface Props {
   estadoRisco: EstadoRisco;
   aoMudarEstadoRisco: (estado: EstadoRisco) => void;
+  localizacao: Localizacao;
 }
 
-export function TelaSobre({ estadoRisco, aoMudarEstadoRisco }: Props) {
+export function TelaSobre({ estadoRisco, aoMudarEstadoRisco, localizacao }: Props) {
+  const { estado, pontoDemoId, usarGps, usarPontoDemo } = localizacao;
+  const aviso = mensagemLocalizacao(estado);
   return (
     <div className="sobre">
       <section className="painel">
@@ -24,6 +30,32 @@ export function TelaSobre({ estadoRisco, aoMudarEstadoRisco }: Props) {
         <p className="rotulo">
           Versão {APP.versao} · etapa {ETAPA_ATUAL} de {TOTAL_ETAPAS}
         </p>
+      </section>
+
+      <section className="painel">
+        <h2>Localização</h2>
+        <p role="status">
+          {posicaoUtilizavel(estado)
+            ? `${estado.modo === 'simulado' ? `Simulada: ${estado.nomeLocal}` : 'GPS do aparelho'} (${formatarCoordenada(estado.posicao)})`
+            : aviso}
+        </p>
+        <div className="lista-opcoes" role="group" aria-label="Origem da localização">
+          <button type="button" aria-pressed={estado.modo === 'gps'} onClick={usarGps}>
+            <strong>GPS do aparelho</strong>
+            <small>Usa a posição real deste dispositivo</small>
+          </button>
+          {PONTOS_DEMO.map((ponto) => (
+            <button
+              key={ponto.id}
+              type="button"
+              aria-pressed={pontoDemoId === ponto.id}
+              onClick={() => usarPontoDemo(ponto.id)}
+            >
+              <strong>{ponto.nome}</strong>
+              <small>{ponto.descricao} · coordenada aproximada</small>
+            </button>
+          ))}
+        </div>
       </section>
 
       <section className="painel">

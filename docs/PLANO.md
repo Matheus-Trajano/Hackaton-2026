@@ -8,7 +8,7 @@ indicada), atualização da documentação e um commit.
 | 1 | Estrutura do projeto, configuração, documentação inicial, `vercel.json` | Lint, tipos, teste de exemplo e build | ✅ Concluída |
 | 2 | Layout mobile: cabeçalho, moldura de celular, navegação inferior, tema escuro | Build, testes de interface e conferência visual | ✅ Concluída |
 | 3 | Mapa base centrado em Pernambuco, com zoom, centralizar e escala | Testes do mapa e dos limites; conferência visual | ✅ Concluída |
-| 4 | Geolocalização: GPS real, modo simulado, marcador e coordenadas | Testes de permissão negada e ponto fora de PE | ⏳ Pendente |
+| 4 | Geolocalização: GPS real, modo simulado, marcador e coordenadas | Testes de permissão negada, ponto fora de PE e modo simulado | ✅ Concluída |
 | 5 | Altitude: leitura dos tiles, mapa de calor e legenda | Testes da conversão de altitude | ⏳ Pendente |
 | 6 | Grade de 100 m e cálculo de inclinação por setor | Testes com terrenos sintéticos | ⏳ Pendente |
 | 7 | Painel superior de clima (chuva nas próximas 3 h, temperatura) | Testes com respostas simuladas | ⏳ Pendente |
@@ -51,3 +51,14 @@ indicada), atualização da documentação e um commit.
 - **Não verificado no ambiente de desenvolvimento:** o carregamento real das
   imagens do mapa (Esri e OpenStreetMap), porque o ambiente não acessa esses
   servidores nem tem navegador. Precisa ser conferido no preview.
+
+## Resultado da verificação — etapa 4
+
+- `npm run lint` e `npm run typecheck`: sem erros.
+- `npm run test`: 42 testes, 42 aprovados (18 novos: tradução de erros, avisos,
+  pontos de demonstração dentro de PE, navegador sem suporte, permissão negada,
+  posição fora de PE, falha passageira, troca GPS ↔ demonstração, marcador e
+  coordenadas no mapa, fluxo completo no app).
+- `npm run build`: build de produção gerado.
+- Os testes usam um GPS simulado. **Não verificado:** a leitura do GPS de um
+  aparelho real e a aparência do marcador; precisam ser conferidas no preview.

@@ -2,6 +2,19 @@
 
 Uma entrada por prompt/etapa.
 
+## 0.4.0 — Etapa 4: geolocalização
+
+- Localização pelo GPS do aparelho, acompanhada continuamente.
+- Modo simulado com sete locais de demonstração na Região Metropolitana do Recife.
+- Marcador do usuário, círculo de precisão e caixa de coordenadas no mapa.
+- O mapa foca no usuário; o botão de centralizar passa a apontar para ele.
+- Avisos para permissão negada, falha, navegador sem suporte e posição fora de
+  Pernambuco, com botão "Usar local de demonstração".
+- Aba Sobre: seção "Localização" para escolher GPS ou local de demonstração.
+- Regras em `src/domain/localizacao.ts`; hook `useLocalizacao`.
+- Verificação: lint, tipos, 42 testes e build aprovados; GPS real a conferir no
+  preview.
+
 ## 0.3.0 — Etapa 3: mapa base de Pernambuco
 
 - Mapa Leaflet centrado em Pernambuco, travado na região do estado.

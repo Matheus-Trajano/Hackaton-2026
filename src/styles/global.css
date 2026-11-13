@@ -291,18 +291,66 @@ button:focus-visible {
   cursor: not-allowed;
 }
 
-.mapa__aviso {
+.mapa__avisos {
   position: absolute;
   left: 10px;
   right: 58px;
   top: 10px;
   z-index: 500;
+  display: grid;
+  gap: 6px;
+}
+
+.mapa__aviso {
+  display: grid;
+  gap: 6px;
   padding: 8px 10px;
   border: 1px solid #6b5320;
   border-radius: 10px;
   background: rgb(40 30 8 / 92%);
   font-size: 0.75rem;
   line-height: 1.3;
+}
+
+.mapa__aviso button {
+  justify-self: start;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--laranja);
+  color: #1a0d00;
+  font-weight: 600;
+}
+
+.mapa__coordenadas {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  background: rgb(13 21 38 / 88%);
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.marcador-usuario {
+  filter: drop-shadow(0 2px 3px rgb(0 0 0 / 60%));
+}
+
+.marcador-usuario__ponto {
+  position: absolute;
+  left: 11px;
+  bottom: -2px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--azul);
 }
 
 .mapa .leaflet-control-scale-line {
@@ -535,6 +583,32 @@ button:focus-visible {
   background: rgb(255 122 26 / 18%);
   color: var(--laranja);
   font-weight: 600;
+}
+
+.lista-opcoes {
+  display: grid;
+  gap: 6px;
+}
+
+.lista-opcoes button {
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  background: var(--painel-claro);
+  text-align: left;
+  font-size: 0.85rem;
+}
+
+.lista-opcoes small {
+  color: var(--texto-suave);
+  font-size: 0.72rem;
+}
+
+.lista-opcoes button[aria-pressed='true'] {
+  border-color: var(--laranja);
+  background: rgb(255 122 26 / 18%);
 }
 
 /* ---------- Navegação inferior ---------- */

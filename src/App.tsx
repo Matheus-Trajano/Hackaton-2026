@@ -6,6 +6,8 @@ import { MapaBase } from '@/components/mapa/MapaBase';
 import { TelaEmBreve } from '@/components/telas/TelaEmBreve';
 import { TelaInicio } from '@/components/telas/TelaInicio';
 import { TelaSobre } from '@/components/telas/TelaSobre';
+import { PONTO_DEMO_PADRAO } from '@/config/pontosDemo';
+import { useLocalizacao } from '@/hooks/useLocalizacao';
 import type { Aba, EstadoRisco } from '@/types';
 
 export function App() {
@@ -13,12 +15,28 @@ export function App() {
   // Até a etapa 8, o estado de risco só muda pelo modo demonstração (aba Sobre).
   const [estadoRisco, setEstadoRisco] = useState<EstadoRisco>('indefinido');
 
+  const localizacao = useLocalizacao();
+  const usarDemonstracao = () => localizacao.usarPontoDemo(PONTO_DEMO_PADRAO.id);
+
   return (
     <MolduraCelular>
       <Cabecalho aoAbrirAjustes={() => setAba('sobre')} />
       <main className="conteudo">
-        {aba === 'inicio' && <TelaInicio estadoRisco={estadoRisco} aoVerDetalhes={() => setAba('mapa')} />}
-        {aba === 'mapa' && <MapaBase className="mapa--cheio" />}
+        {aba === 'inicio' && (
+          <TelaInicio
+            estadoRisco={estadoRisco}
+            localizacao={localizacao.estado}
+            aoUsarDemonstracao={usarDemonstracao}
+            aoVerDetalhes={() => setAba('mapa')}
+          />
+        )}
+        {aba === 'mapa' && (
+          <MapaBase
+            className="mapa--cheio"
+            localizacao={localizacao.estado}
+            aoUsarDemonstracao={usarDemonstracao}
+          />
+        )}
         {aba === 'alertas' && (
           <TelaEmBreve
             titulo="Alertas"
@@ -26,7 +44,13 @@ export function App() {
             descricao="O histórico de alertas e pedidos de socorro ficará aqui."
           />
         )}
-        {aba === 'sobre' && <TelaSobre estadoRisco={estadoRisco} aoMudarEstadoRisco={setEstadoRisco} />}
+        {aba === 'sobre' && (
+          <TelaSobre
+            estadoRisco={estadoRisco}
+            aoMudarEstadoRisco={setEstadoRisco}
+            localizacao={localizacao}
+          />
+        )}
       </main>
       <NavegacaoInferior abaAtiva={aba} aoMudar={setAba} />
     </MolduraCelular>

@@ -54,7 +54,8 @@ MolduraCelular            moldura do aparelho (só em telas largas) + barra de s
 └── NavegacaoInferior     Início · Mapa · Alertas · Sobre
 ```
 
-- A aba ativa e o estado de risco ficam em `App.tsx` (`useState`); não há
+- A aba ativa, o estado de risco e a localização (`useLocalizacao`) ficam em
+  `App.tsx` e descem por propriedades; não há
   roteador nem biblioteca de estado.
 - Os painéis recebem os dados por propriedades opcionais. **Sem dados, mostram
   "—" / "Sem dados"** em vez de valores fictícios; o botão de socorro fica
@@ -79,10 +80,28 @@ MolduraCelular            moldura do aparelho (só em telas largas) + barra de s
   `expandirLimites`). A cobertura usa o **retângulo** que envolve o estado, não o
   contorno exato — aceita trechos de estados vizinhos dentro do retângulo.
 - Limitação conhecida: a tela inicial e a aba Mapa criam instâncias separadas do
-  mapa, então posição e zoom não são preservados ao trocar de aba.
+  mapa, então posição e zoom não são preservados ao trocar de aba (com
+  localização disponível, cada uma volta a focar no usuário).
 
-## Estado atual (etapa 3)
+## Localização
 
-Layout completo, navegação entre abas e mapa base funcional. Ainda sem
-localização, relevo, clima e análise de risco reais; o estado de risco só muda
-pelo modo demonstração.
+- `hooks/useLocalizacao.ts` é a única fonte da posição do usuário. Tem dois
+  modos: **GPS** (padrão; `watchPosition`) e **simulado** (um ponto de
+  `config/pontosDemo.ts`). Ao sair do modo GPS, o acompanhamento é encerrado.
+- `domain/localizacao.ts` guarda as regras puras: tipos de estado, tradução dos
+  erros do navegador, texto dos avisos e `posicaoUtilizavel`.
+- Estados possíveis: `buscando`, `ok`, `negada`, `indisponivel`, `nao-suportada`.
+  Com `ok`, o campo `naCobertura` diz se a posição está em Pernambuco.
+- **Só posição `ok` e dentro da cobertura é usada** (marcador, foco e, nas
+  próximas etapas, setor e risco). Nos demais casos o mapa mostra um aviso.
+- Uma falha passageira do GPS não descarta a última posição válida; a negação de
+  permissão descarta.
+- No mapa: marcador (pino + ponto azul), círculo de precisão e caixa de
+  coordenadas. O mapa foca no usuário na primeira posição e quando a origem muda;
+  depois só move o marcador, para não brigar com quem está navegando no mapa.
+
+## Estado atual (etapa 4)
+
+Layout, navegação, mapa base e localização (real ou simulada) funcionando.
+Ainda sem relevo, grade de setores, clima e análise de risco reais; o estado de
+risco só muda pelo modo demonstração e ainda **não** depende da localização.
