@@ -1,4 +1,10 @@
-import { FAIXAS_CHUVA, type FaixaChuva, type IntensidadeChuva } from '@/config/clima';
+import {
+  CHUVAS_DE_TESTE,
+  FAIXAS_CHUVA,
+  type ChuvaDeTeste,
+  type FaixaChuva,
+  type IntensidadeChuva,
+} from '@/config/clima';
 
 /** Previsão de uma hora. */
 export interface HoraPrevista {
@@ -12,8 +18,8 @@ export interface HoraPrevista {
 
 /** Resumo do clima exibido no painel superior. */
 export interface ResumoClima {
-  /** Temperatura atual, em °C. */
-  temperatura: number;
+  /** Temperatura atual, em °C; `null` quando não há medição (chuva de teste sem previsão real). */
+  temperatura: number | null;
   /** Maior probabilidade de chuva nas próximas horas (0–100); `null` se a fonte não informar. */
   probabilidadeChuva: number | null;
   /** Soma do volume previsto nas próximas horas, em mm. */
@@ -45,7 +51,7 @@ export function proximasHoras(horas: readonly HoraPrevista[], agora: Date, quant
 }
 
 /** Resume as horas informadas. Exige ao menos uma hora. */
-export function resumirClima(temperatura: number, horas: readonly HoraPrevista[]): ResumoClima {
+export function resumirClima(temperatura: number | null, horas: readonly HoraPrevista[]): ResumoClima {
   if (horas.length === 0) throw new Error('Previsão sem horas futuras.');
   const probabilidades = horas.map((h) => h.probabilidade).filter((p): p is number => p !== null);
   const picoMmPorHora = Math.max(...horas.map((h) => h.volumeMm));
@@ -59,4 +65,25 @@ export function resumirClima(temperatura: number, horas: readonly HoraPrevista[]
     rotuloIntensidade: faixa.rotulo,
     horas: [...horas],
   };
+}
+
+/**
+ * Previsão simulada para o modo demonstração: a chuva escolhida em cada uma das
+ * próximas `quantidade` horas. A temperatura não é simulada: usa a real, se houver.
+ */
+export function climaDeTeste(
+  chuva: ChuvaDeTeste,
+  temperatura: number | null,
+  agora: Date,
+  quantidade: number,
+): ResumoClima {
+  const { mmPorHora, probabilidade } = CHUVAS_DE_TESTE[chuva];
+  const umaHora = 3_600_000;
+  const inicio = Math.floor(agora.getTime() / umaHora) * umaHora;
+  const horas = Array.from({ length: quantidade }, (_, i) => ({
+    inicio: new Date(inicio + i * umaHora),
+    probabilidade,
+    volumeMm: mmPorHora,
+  }));
+  return resumirClima(temperatura, horas);
 }

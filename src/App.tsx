@@ -1,5 +1,5 @@
 import { APP } from '@/config/app';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Cabecalho } from '@/components/layout/Cabecalho';
 import { MolduraCelular } from '@/components/layout/MolduraCelular';
 import { NavegacaoInferior } from '@/components/layout/NavegacaoInferior';
@@ -7,7 +7,7 @@ import { MapaBase } from '@/components/mapa/MapaBase';
 import { DialogoSocorro } from '@/components/socorro/DialogoSocorro';
 import { TelaAlertas } from '@/components/telas/TelaAlertas';
 import { TelaInicio } from '@/components/telas/TelaInicio';
-import { TelaSobre, type ModoRisco } from '@/components/telas/TelaSobre';
+import { TelaSobre, type ModoChuva, type ModoRisco } from '@/components/telas/TelaSobre';
 import { PONTO_DEMO_PADRAO } from '@/config/pontosDemo';
 import { mensagemLocalizacao, posicaoUtilizavel } from '@/domain/localizacao';
 import { avaliacaoDeDemonstracao, avaliarRisco } from '@/domain/risco';
@@ -16,7 +16,8 @@ import { useAlertas } from '@/hooks/useAlertas';
 import { useConexao } from '@/hooks/useConexao';
 import { useInstalacao } from '@/hooks/useInstalacao';
 import { useAltitude } from '@/hooks/useAltitude';
-import { useClima } from '@/hooks/useClima';
+import { useClima, type EstadoClima } from '@/hooks/useClima';
+import { climaDeTeste } from '@/domain/clima';
 import { useSetorAtual } from '@/hooks/useSetorAtual';
 import { useLocalizacao } from '@/hooks/useLocalizacao';
 import { enviarAlerta } from '@/services/alerta';
@@ -26,13 +27,32 @@ export function App() {
   const [aba, setAba] = useState<Aba>('inicio');
   // 'automatico' usa os dados reais; os demais valores forçam um estado (modo demonstração).
   const [modoRisco, setModoRisco] = useState<ModoRisco>('automatico');
+  // 'automatico' usa a previsão real; os demais valores simulam a chuva (modo demonstração).
+  const [modoChuva, setModoChuva] = useState<ModoChuva>('automatico');
 
   const localizacao = useLocalizacao();
   const posicao = posicaoUtilizavel(localizacao.estado) ? localizacao.estado.posicao : null;
   const altitude = useAltitude(posicao);
   const setorAtual = useSetorAtual(posicao);
   // Sem localização utilizável, a previsão é a do local padrão (e o painel diz isso).
-  const clima = useClima(posicao ?? CLIMA.localPadrao);
+  const climaReal = useClima(posicao ?? CLIMA.localPadrao);
+  // Chuva de teste: substitui a previsão real no painel de chuva e no motor de risco.
+  // A temperatura não é simulada: é a real, quando disponível.
+  const temperaturaReal = climaReal.status === 'ok' ? climaReal.clima.temperatura : null;
+  const clima = useMemo<EstadoClima>(() => {
+    if (modoChuva === 'automatico') return climaReal;
+    const agora = new Date();
+    return {
+      status: 'ok',
+      clima: climaDeTeste(modoChuva, temperaturaReal, agora, CLIMA.horasDePrevisao),
+      atualizadoEm: agora,
+    };
+  }, [modoChuva, climaReal, temperaturaReal]);
+  // Ao escolher uma chuva de teste, o risco volta a ser calculado (sai do estado forçado).
+  const mudarModoChuva = (modo: ModoChuva) => {
+    setModoChuva(modo);
+    if (modo !== 'automatico') setModoRisco('automatico');
+  };
   const localDoClima = posicao
     ? localizacao.estado.modo === 'simulado'
       ? (localizacao.estado.nomeLocal ?? 'o local simulado')
@@ -92,6 +112,7 @@ export function App() {
             riscoSimulado={modoRisco !== 'automatico'}
             clima={clima}
             localDoClima={localDoClima}
+            climaSimulado={modoChuva !== 'automatico'}
             localizacao={localizacao.estado}
             aoUsarDemonstracao={usarDemonstracao}
             altitude={altitude}
@@ -112,6 +133,8 @@ export function App() {
         {aba === 'alertas' && <TelaAlertas registros={alertas.registros} aoLimpar={alertas.limpar} />}
         {aba === 'sobre' && (
           <TelaSobre
+            modoChuva={modoChuva}
+            aoMudarModoChuva={mudarModoChuva}
             modoRisco={modoRisco}
             aoMudarModoRisco={setModoRisco}
             localizacao={localizacao}

@@ -21,6 +21,8 @@ interface Props {
   clima: EstadoClima;
   /** De onde é a previsão do tempo. */
   localDoClima: string;
+  /** A chuva mostrada é de teste (modo demonstração). */
+  climaSimulado?: boolean;
   aoVerDetalhes: () => void;
   aoPedirSocorro: () => void;
 }
@@ -34,12 +36,13 @@ export function TelaInicio({
   setorAtual,
   clima,
   localDoClima,
+  climaSimulado = false,
   aoVerDetalhes,
   aoPedirSocorro,
 }: Props) {
   return (
     <div className="inicio">
-      <PainelClima estado={clima} local={localDoClima} />
+      <PainelClima estado={clima} local={localDoClima} simulado={climaSimulado} />
       <MapaBase
         localizacao={localizacao}
         aoUsarDemonstracao={aoUsarDemonstracao}

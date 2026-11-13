@@ -2,6 +2,20 @@
 
 Uma entrada por prompt/etapa.
 
+## 1.6.0 — Chuva de teste (modo demonstração)
+
+- Aba Sobre: nova seção "Chuva de teste" com os botões Automático, Chuva fraca,
+  Chuva moderada e Chuva forte.
+- A chuva escolhida substitui a previsão real no painel de chuva e no motor de
+  risco; o aviso de risco e as recomendações mudam conforme a inclinação do
+  setor. O painel de chuva mostra "Chuva simulada (modo demonstração)".
+- A temperatura não é simulada: mostra a real ou "—".
+- Escolher uma chuva de teste desfaz o estado de risco forçado, para o risco
+  voltar a ser calculado.
+- Valores simulados em `src/config/clima.ts` (2, 10 e 30 mm por hora).
+- Verificação: lint, tipos, 304 testes e build aprovados. Aparência não
+  conferida em navegador.
+
 ## 1.5.2 — Novo símbolo no ícone do app e na miniatura do site
 
 - Ícones de instalação (192, 512, mascarável e iPhone) e miniatura da aba do

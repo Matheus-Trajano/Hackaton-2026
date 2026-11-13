@@ -6,12 +6,14 @@ interface Props {
   estado: EstadoClima;
   /** De onde é a previsão, ex.: "sua localização" ou "Recife". */
   local: string;
+  /** A chuva mostrada é de teste (modo demonstração), não a previsão real. */
+  simulado?: boolean;
 }
 
 const hora = (data: Date) => `${data.toLocaleTimeString('pt-BR', { hour: '2-digit' })}h`;
 const milimetros = (mm: number) => mm.toLocaleString('pt-BR', { maximumFractionDigits: 1 });
 
-export function PainelClima({ estado, local }: Props) {
+export function PainelClima({ estado, local, simulado = false }: Props) {
   const clima = estado.status === 'ok' ? estado.clima : null;
   const semDados = estado.status === 'erro' ? 'Sem dados' : 'Carregando…';
 
@@ -33,7 +35,7 @@ export function PainelClima({ estado, local }: Props) {
           <div>
             <p className="rotulo">Temp. atual</p>
             <p className="clima__valor">
-              <strong>{clima ? `${Math.round(clima.temperatura)}°C` : '—'}</strong>
+              <strong>{clima && clima.temperatura !== null ? `${Math.round(clima.temperatura)}°C` : '—'}</strong>
             </p>
           </div>
         </div>
@@ -56,6 +58,11 @@ export function PainelClima({ estado, local }: Props) {
           ? 'Não foi possível obter a previsão. Nova tentativa em instantes.'
           : `Previsão para ${local}${clima ? ` · ${milimetros(clima.volumeMm)} mm no período` : ''}`}
       </p>
+      {simulado && (
+        <p className="clima__simulado" role="status">
+          Chuva simulada (modo demonstração)
+        </p>
+      )}
     </section>
   );
 }

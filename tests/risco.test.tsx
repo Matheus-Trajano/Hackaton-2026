@@ -1,4 +1,4 @@
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { App } from '@/App';
 import { PainelRisco } from '@/components/inicio/PainelRisco';
@@ -384,6 +384,106 @@ describe('risco no app, de ponta a ponta (GPS → setor → inclinação × chuv
     expect(screen.queryByRole('heading', { name: 'Alerta de alagamento' })).toBeNull();
   });
 
+  describe('chuva de teste (aba Sobre)', () => {
+    /** Escolhe a chuva de teste na aba Sobre e volta para o Início. */
+    function escolherChuva(rotulo: string) {
+      fireEvent.click(screen.getByRole('button', { name: 'Sobre' }));
+      fireEvent.click(within(screen.getByRole('group', { name: 'Chuva de teste' })).getByRole('button', { name: rotulo }));
+      fireEvent.click(screen.getByRole('button', { name: 'Início' }));
+    }
+
+    it('setor normal: fraca mantém área segura; moderada e forte geram alerta de alagamento', async () => {
+      gpsEmRecife();
+      terreno.percentual = 1;
+      previsao(0);
+      render(<App />);
+      expect(await screen.findByRole('heading', { name: 'Você está em área segura' })).toBeTruthy();
+      expect(screen.queryByText('Chuva simulada (modo demonstração)')).toBeNull();
+
+      escolherChuva('Chuva fraca');
+      expect(screen.getByRole('heading', { name: 'Você está em área segura' })).toBeTruthy();
+      expect(screen.getByRole('heading', { name: 'Para se prevenir:' })).toBeTruthy();
+      expect(screen.getByText('Chuva simulada (modo demonstração)')).toBeTruthy();
+      expect(within(screen.getByRole('region', { name: 'Previsão do tempo' })).getByText('Chuva fraca')).toBeTruthy();
+
+      escolherChuva('Chuva moderada');
+      expect(screen.getByRole('heading', { name: 'Alerta de alagamento' })).toBeTruthy();
+      expect(screen.getByText(/há previsão de chuva moderada/)).toBeTruthy();
+      expect(screen.getByText(/Não atravesse ruas alagadas/)).toBeTruthy();
+
+      escolherChuva('Chuva forte');
+      expect(screen.getByRole('heading', { name: 'Alerta de alagamento' })).toBeTruthy();
+      expect(screen.getByText(/há previsão de chuva forte/)).toBeTruthy();
+      expect(within(screen.getByRole('region', { name: 'Previsão do tempo' })).getByText('Chuva forte')).toBeTruthy();
+    });
+
+    it('setor moderado: fraca é área segura; forte vira atenção com orientações de deslizamento', async () => {
+      gpsEmRecife();
+      terreno.percentual = 30;
+      previsao(0);
+      render(<App />);
+      expect(await screen.findByRole('heading', { name: 'Você está em área segura' })).toBeTruthy();
+      escolherChuva('Chuva fraca');
+      expect(screen.getByRole('heading', { name: 'Você está em área segura' })).toBeTruthy();
+      escolherChuva('Chuva forte');
+      expect(screen.getByRole('heading', { name: 'Atenção' })).toBeTruthy();
+      expect(screen.getByText(/Observe sinais de deslizamento/)).toBeTruthy();
+    });
+
+    it('setor alto: fraca é "área de risco"; moderada agrava para "Você está em risco!"', async () => {
+      gpsEmRecife();
+      terreno.percentual = 45;
+      previsao(0);
+      render(<App />);
+      await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('Você está em área de risco'));
+      escolherChuva('Chuva fraca');
+      expect(screen.getByRole('alert').textContent).toContain('Você está em área de risco');
+      escolherChuva('Chuva moderada');
+      expect(screen.getByRole('alert').textContent).toContain('Você está em risco!');
+      expect(screen.getByRole('heading', { name: 'O que fazer agora:' })).toBeTruthy();
+    });
+
+    it('"Automático" volta à previsão real e tira o aviso de simulação', async () => {
+      gpsEmRecife();
+      terreno.percentual = 1;
+      previsao(0);
+      render(<App />);
+      await screen.findByRole('heading', { name: 'Você está em área segura' });
+      escolherChuva('Chuva forte');
+      expect(screen.getByRole('heading', { name: 'Alerta de alagamento' })).toBeTruthy();
+      escolherChuva('Automático');
+      expect(screen.getByRole('heading', { name: 'Você está em área segura' })).toBeTruthy();
+      expect(screen.queryByText('Chuva simulada (modo demonstração)')).toBeNull();
+    });
+
+    it('funciona mesmo com a previsão real indisponível, sem inventar temperatura', async () => {
+      gpsEmRecife();
+      terreno.percentual = 1;
+      vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('sem rede')));
+      render(<App />);
+      await screen.findByRole('heading', { name: 'Você está em área segura' });
+      escolherChuva('Chuva forte');
+      expect(screen.getByRole('heading', { name: 'Alerta de alagamento' })).toBeTruthy();
+      const painel = screen.getByRole('region', { name: 'Previsão do tempo' });
+      expect(painel.textContent).not.toContain('°C');
+    });
+
+    it('escolher uma chuva de teste desfaz o estado de risco forçado', async () => {
+      gpsEmRecife();
+      terreno.percentual = 1;
+      previsao(0);
+      render(<App />);
+      await screen.findByRole('heading', { name: 'Você está em área segura' });
+      fireEvent.click(screen.getByRole('button', { name: 'Sobre' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Em risco' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Início' }));
+      expect(screen.getByText('Estado simulado (modo demonstração)')).toBeTruthy();
+      escolherChuva('Chuva moderada');
+      expect(screen.queryByText('Estado simulado (modo demonstração)')).toBeNull();
+      expect(screen.getByRole('heading', { name: 'Alerta de alagamento' })).toBeTruthy();
+    });
+  });
+
   it('sem dados de relevo: não avalia, e diz por quê', async () => {
     gpsEmRecife();
     terreno.falhar = true;
@@ -414,7 +514,9 @@ describe('risco no app, de ponta a ponta (GPS → setor → inclinação × chuv
     expect(screen.getByRole('alert').textContent).toContain('Estado simulado (modo demonstração)');
 
     fireEvent.click(screen.getByRole('button', { name: 'Sobre' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Automático' }));
+    fireEvent.click(
+      within(screen.getByRole('group', { name: 'Estado de risco simulado' })).getByRole('button', { name: 'Automático' }),
+    );
     fireEvent.click(screen.getByRole('button', { name: 'Início' }));
     expect(await screen.findByRole('heading', { name: 'Você está em área segura' })).toBeTruthy();
     expect(screen.queryByText('Estado simulado (modo demonstração)')).toBeNull();
