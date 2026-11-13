@@ -1,0 +1,32 @@
+# Plano de desenvolvimento
+
+Dez etapas. Cada uma termina com: verificação (`npm run verificar` + conferência
+indicada), atualização da documentação e um commit.
+
+| # | Etapa | Verificação | Estado |
+|---|---|---|---|
+| 1 | Estrutura do projeto, configuração, documentação inicial, `vercel.json` | Lint, tipos, teste de exemplo e build | ✅ Concluída |
+| 2 | Layout mobile: cabeçalho, moldura de celular, navegação inferior, tema escuro | Build e conferência visual | ⏳ Pendente |
+| 3 | Mapa base centrado em Pernambuco, com zoom, centralizar e escala | Mapa abre, limitado a PE | ⏳ Pendente |
+| 4 | Geolocalização: GPS real, modo simulado, marcador e coordenadas | Testes de permissão negada e ponto fora de PE | ⏳ Pendente |
+| 5 | Altitude: leitura dos tiles, mapa de calor e legenda | Testes da conversão de altitude | ⏳ Pendente |
+| 6 | Grade de 100 m e cálculo de inclinação por setor | Testes com terrenos sintéticos | ⏳ Pendente |
+| 7 | Painel superior de clima (chuva nas próximas 3 h, temperatura) | Testes com respostas simuladas | ⏳ Pendente |
+| 8 | Motor de risco e painel inferior com instruções | Testes da combinação inclinação × chuva | ⏳ Pendente |
+| 9 | Botão "Pedir socorro", `/api/alerta`, ligação 199, aba de alertas | Teste do endpoint e do fluxo | ⏳ Pendente |
+| 10 | Acabamento: PWA, tratamento de falhas, documentação final, deploy | Todos os testes, build e roteiro manual | ⏳ Pendente |
+
+## Regras de negócio já definidas
+
+- Setores da grade: 100 m × 100 m.
+- Classes de inclinação: Baixo < 5% · Moderado 5–15% · Alto 15–30% · Muito alto > 30%.
+- Mapa de calor de altitude: mais claro = mais baixo, mais vermelho = mais alto.
+- Risco final = inclinação do setor do usuário cruzada com a previsão de chuva.
+- Cobertura: Pernambuco.
+
+## Resultado da verificação — etapa 1
+
+- `npm run lint`: sem erros.
+- `npm run typecheck`: sem erros.
+- `npm run test`: 3 testes, 3 aprovados.
+- `npm run build`: build de produção gerado em `dist/`.
