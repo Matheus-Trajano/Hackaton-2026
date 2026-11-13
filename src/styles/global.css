@@ -159,6 +159,13 @@ textarea {
   gap: 10px;
 }
 
+.cabecalho__logo {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
 .cabecalho__nome {
   font-size: 1.25rem;
   line-height: 1.1;
