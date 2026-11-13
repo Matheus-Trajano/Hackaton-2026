@@ -14,7 +14,7 @@ indicada), atualização da documentação e um commit.
 | 7 | Painel superior de clima (chuva nas próximas 3 h, temperatura) | Testes com respostas simuladas da API | ✅ Concluída |
 | 8 | Motor de risco e painel inferior com instruções | Testes de toda a matriz inclinação × chuva e do fluxo de ponta a ponta | ✅ Concluída |
 | 9 | Botão "Pedir socorro", `/api/alerta`, ligação 199, aba de alertas | Testes da rota e do fluxo; chamada HTTP real à rota local | ✅ Concluída |
-| 10 | Acabamento: PWA, tratamento de falhas, documentação final, deploy | Todos os testes, build e roteiro manual | ⏳ Pendente |
+| 10 | Acabamento: PWA, tratamento de falhas, documentação final, deploy | Todos os testes, build e roteiro manual | ✅ Concluída (deploy é um passo do responsável pelo repositório) |
 
 ## Regras de negócio já definidas
 
@@ -155,3 +155,25 @@ indicada), atualização da documentação e um commit.
   pedido válido → 201 com protocolo; latitude inválida → 400; GET → 405.
 - **Não verificado:** a função rodando na Vercel (só é possível depois do
   deploy) e a abertura do discador pelo link `tel:199` em um celular.
+
+## Resultado da verificação — etapa 10
+
+- `npm run lint` e `npm run typecheck`: sem erros.
+- `npm run test`: 255 testes, 255 aprovados (24 novos: manifesto e ícones,
+  service worker em ambiente simulado, registro, instalação, aviso de falta de
+  internet, barreira de erro).
+- `npm run build`: build de produção gerado, com manifesto, ícones e `sw.js`.
+- **Chamadas HTTP reais** à versão de produção servida localmente: página,
+  `sw.js`, manifesto (tipo `application/manifest+json`), ícones e todos os
+  arquivos citados pela página respondem 200; `/api/alerta` responde 201.
+- Ícones conferidos visualmente.
+- **Não verificado** (o ambiente de desenvolvimento não tem navegador):
+  - o service worker rodando em um navegador real e a abertura offline;
+  - a oferta de instalação e a instalação em um Android;
+  - o deploy na Vercel (configuração nunca executada).
+
+## Encerramento
+
+As 10 etapas estão concluídas. Próximos passos fora do plano: publicar na
+Vercel, instalar em um Android e conferir em campo os itens listados como não
+verificados.

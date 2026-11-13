@@ -4,7 +4,7 @@ Protótipo (MVP) de um aplicativo mobile que avisa quando o usuário está em um
 encosta com risco de deslizamento, cruzando a localização do dispositivo, a
 inclinação do terreno e a previsão de chuva. Cobertura inicial: Pernambuco.
 
-> **Estado atual:** etapa 9 de 10 concluída (mapa, localização, relevo, grade de 100 m, inclinação, previsão do tempo, análise de risco e pedido de socorro simulado; falta o acabamento e a instalação como app). Veja
+> **Estado atual:** as 10 etapas do protótipo estão concluídas (versão 1.0.0). O app é instalável no Android como PWA. Falta apenas publicar na Vercel, passo descrito em [docs/DEPLOY.md](docs/DEPLOY.md). Veja
 > [docs/PLANO.md](docs/PLANO.md).
 
 ## Stack
@@ -34,7 +34,8 @@ npm run verificar  # lint + tipos + testes + build (rodar ao fim de cada etapa)
 ```
 api/            função serverless da Vercel (`/api/alerta`, pedido de socorro)
 docs/           documentação (plano, arquitetura, APIs, deploy, changelog)
-public/         ícones e manifesto — etapa 10
+public/         manifesto, ícones e service worker do app instalável (PWA)
+scripts/        gerador dos ícones
 src/
   components/
     layout/     moldura de celular, cabeçalho, navegação inferior
@@ -43,7 +44,8 @@ src/
     socorro/    diálogo do pedido de socorro
     telas/      uma tela por aba
     ui/         peças reutilizáveis (ícones)
-  hooks/        hooks React (relógio, localização, altitude, setor atual, clima)
+  hooks/        hooks React (relógio, localização, altitude, setor atual, clima, alertas, conexão, instalação)
+  pwa/          registro do service worker
   services/     clientes das APIs (terreno/altitude, clima, alerta)
   domain/       lógica pura e testada (grade, inclinação, risco)
   config/       constantes (limites de PE, setor, provedores do mapa, pontos de demonstração)
@@ -167,6 +169,52 @@ aproximadas).
 > A geolocalização do navegador exige HTTPS (a Vercel já fornece) e pode ser
 > bloqueada quando o app está embutido em outra página (iframe); nesse caso,
 > abra o endereço do app diretamente em uma aba.
+
+## Instalar no Android (PWA)
+
+O app pode ser instalado pelo Chrome do Android e abre em tela cheia, com ícone
+próprio. Isso exige o app publicado em um endereço HTTPS (veja
+[docs/DEPLOY.md](docs/DEPLOY.md)).
+
+1. Abra o endereço do app no Chrome do celular.
+2. Vá à aba **Sobre** e toque em **Instalar app**; ou abra o menu (⋮) do Chrome
+   e toque em "Instalar app" / "Adicionar à tela inicial".
+
+O que o app instalado faz e não faz:
+
+- **Sem internet, só a interface abre.** Mapa, relevo, previsão do tempo e
+  envio de alerta precisam de conexão. Uma faixa avisa quando o aparelho está
+  sem rede e mostra o telefone 199.
+- Não envia notificações com o app fechado.
+- Não está na Play Store.
+
+O service worker (`public/sw.js`) só é registrado na versão de produção
+(`npm run build` + `npm run preview`, ou o deploy); em `npm run dev` ele fica
+desligado.
+
+Os ícones são gerados por `python3 scripts/gerar_icones.py` (requer Pillow).
+
+## Falhas tratadas
+
+| Situação | O que o app faz |
+|---|---|
+| Aparelho sem rede | Faixa "Sem internet" com o telefone 199 |
+| Previsão do tempo indisponível | "Sem dados"; nova tentativa em 1 minuto |
+| Relevo indisponível | "Inclinação indisponível"; risco "ainda não avaliado" |
+| GPS negado, indisponível ou fora de Pernambuco | Aviso e opção de local de demonstração |
+| Falha no envio do alerta | Motivo, "Tentar de novo" e "Ligar 199"; tentativa registrada |
+| Erro inesperado na interface | Tela "Algo deu errado" com "Recarregar" e "Ligar 199" |
+
+## Limitações conhecidas
+
+- O envio de alerta é simulado: não chega à Defesa Civil.
+- As regras de risco são parâmetros do protótipo, não critérios oficiais, e só
+  consideram deslizamento em encosta (não alagamento).
+- A área coberta é o retângulo que envolve Pernambuco, não o contorno do estado.
+- As coordenadas dos locais de demonstração são aproximadas.
+- A reserva de altitude (Open-Meteo Elevation) não é acionada automaticamente.
+- Nenhum deploy na Vercel foi feito ainda; a instalação em um Android real e o
+  uso do GPS em campo não foram testados.
 
 ## Simulação do dispositivo
 

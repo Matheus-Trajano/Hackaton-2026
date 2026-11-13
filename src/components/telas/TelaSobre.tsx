@@ -1,6 +1,7 @@
 import { APP, ETAPA_ATUAL, TOTAL_ETAPAS } from '@/config/app';
 import { PONTOS_DEMO } from '@/config/pontosDemo';
 import { formatarCoordenada, mensagemLocalizacao, posicaoUtilizavel } from '@/domain/localizacao';
+import type { Instalacao } from '@/hooks/useInstalacao';
 import type { Localizacao } from '@/hooks/useLocalizacao';
 import type { EstadoRisco } from '@/types';
 
@@ -18,9 +19,10 @@ interface Props {
   modoRisco: ModoRisco;
   aoMudarModoRisco: (modo: ModoRisco) => void;
   localizacao: Localizacao;
+  instalacao: Instalacao;
 }
 
-export function TelaSobre({ modoRisco, aoMudarModoRisco, localizacao }: Props) {
+export function TelaSobre({ modoRisco, aoMudarModoRisco, localizacao, instalacao }: Props) {
   const { estado, pontoDemoId, usarGps, usarPontoDemo } = localizacao;
   const aviso = mensagemLocalizacao(estado);
   return (
@@ -32,7 +34,7 @@ export function TelaSobre({ modoRisco, aoMudarModoRisco, localizacao }: Props) {
           localização, a inclinação do terreno e a previsão de chuva. Cobertura inicial: Pernambuco.
         </p>
         <p className="rotulo">
-          Versão {APP.versao} · etapa {ETAPA_ATUAL} de {TOTAL_ETAPAS}
+          Versão {APP.versao} · etapa {ETAPA_ATUAL} de {TOTAL_ETAPAS} do protótipo
         </p>
       </section>
 
@@ -80,6 +82,28 @@ export function TelaSobre({ modoRisco, aoMudarModoRisco, localizacao }: Props) {
             </button>
           ))}
         </div>
+      </section>
+
+      <section className="painel">
+        <h2>Instalar no celular</h2>
+        {instalacao.estado === 'instalado' && <p>O app está instalado neste aparelho.</p>}
+        {instalacao.estado === 'disponivel' && (
+          <>
+            <p>Instale para abrir o Encosta Segura pela tela inicial, em tela cheia.</p>
+            <button type="button" className="dialogo__enviar" onClick={() => void instalacao.instalar()}>
+              Instalar app
+            </button>
+          </>
+        )}
+        {instalacao.estado === 'indisponivel' && (
+          <p>
+            No Chrome do Android, abra o menu (⋮) e toque em "Instalar app" ou "Adicionar à tela inicial". A
+            instalação só é oferecida no endereço público (HTTPS) do app.
+          </p>
+        )}
+        <p className="rotulo">
+          Sem internet, o app instalado abre, mas mapa, previsão do tempo e envio de alerta não funcionam.
+        </p>
       </section>
 
       <section className="painel sobre__aviso">
