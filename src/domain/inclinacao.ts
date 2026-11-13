@@ -11,6 +11,17 @@ export interface Inclinacao {
   classe: ClasseInclinacao;
 }
 
+/**
+ * Ângulo para exibição, com uma casa decimal e vírgula ("16,7°"; inteiros sem casa: "14°").
+ * Arredonda para baixo, para o número mostrado nunca passar do limite de uma faixa
+ * em que o setor não está (14,99° aparece como "14,9°", e não "15°").
+ */
+export function formatarGraus(graus: number): string {
+  const decimos = Math.floor(graus * 10 + 1e-6);
+  const texto = decimos % 10 === 0 ? String(decimos / 10) : (decimos / 10).toFixed(1).replace('.', ',');
+  return `${texto}°`;
+}
+
 /** Classe pelo ângulo em graus: normal < 15° · alto 15° a < 45° · muito alto ≥ 45°. */
 export function classificarInclinacao(graus: number): ClasseInclinacao {
   if (graus < LIMITES_INCLINACAO.alto) return 'normal';

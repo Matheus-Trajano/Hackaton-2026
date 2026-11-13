@@ -2,6 +2,15 @@
 
 Uma entrada por prompt/etapa.
 
+## 1.3.1 — Painel de risco mostra a inclinação em graus
+
+- O texto do painel de risco passa a mostrar o ângulo do setor do usuário
+  ("Seu setor tem inclinação de 9° (normal)"), no lugar do percentual.
+- O ângulo aparece com até uma casa decimal, arredondado para baixo (14,99°
+  aparece como "14,9°", nunca como "15°" em um setor normal).
+- A linha "Inclinação do setor" na tela do mapa continua em percentual.
+- Verificação: lint, tipos, 282 testes e build aprovados.
+
 ## 1.3.0 — Alerta de alagamento em setores de inclinação normal
 
 - Setor de inclinação normal (menos de 15°) com chuva moderada, forte ou muito

@@ -1,3 +1,4 @@
+import { formatarGraus } from '@/domain/inclinacao';
 import { CLIMA } from '@/config/clima';
 import { faixaDaClasse } from '@/config/inclinacao';
 import { RISCO } from '@/config/risco';
@@ -31,7 +32,7 @@ const JANELA = `nas próximas ${CLIMA.horasDePrevisao} h`;
 
 function descreverInclinacao(inclinacao: Inclinacao): string {
   const rotulo = faixaDaClasse(inclinacao.classe).rotulo.toLowerCase();
-  return `Seu setor tem inclinação de ${Math.round(inclinacao.percentual)}% (${rotulo})`;
+  return `Seu setor tem inclinação de ${formatarGraus(inclinacao.graus)} (${rotulo})`;
 }
 
 /**
