@@ -44,11 +44,32 @@ button {
   font: inherit;
   color: inherit;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
-button:focus-visible {
+button:focus-visible,
+a:focus-visible,
+textarea:focus-visible {
   outline: 2px solid var(--laranja);
   outline-offset: 2px;
+}
+
+button,
+a,
+textarea {
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease,
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+@media (hover: hover) {
+  button:not(:disabled):hover,
+  a:hover {
+    filter: brightness(1.08);
+  }
 }
 
 /* ---------- Moldura do celular ---------- */
@@ -168,6 +189,7 @@ button:focus-visible {
   scrollbar-width: thin;
   scrollbar-color: var(--borda) transparent;
   padding: 0 10px 10px;
+  overscroll-behavior: contain;
 }
 
 .painel {
@@ -175,6 +197,7 @@ button:focus-visible {
   border-radius: var(--raio);
   background: var(--painel);
   padding: 10px 12px;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 10%);
 }
 
 .rotulo {
@@ -784,10 +807,59 @@ button:focus-visible {
   color: #fff;
 }
 
+.dialogo__ligar--bombeiros {
+  border-color: #ff9a5c;
+  background: linear-gradient(180deg, #f0782e, #c84b0e);
+}
+
 .dialogo__enviar {
   border: 1px solid var(--laranja);
   background: rgb(255 122 26 / 18%);
   color: var(--laranja);
+}
+
+.dialogo__audio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #5d77a8;
+  border-radius: 12px;
+  background: rgb(31 94 255 / 15%);
+  color: #a9c2ff;
+  font-weight: 600;
+}
+
+.dialogo__campo {
+  display: grid;
+  gap: 6px;
+  color: var(--texto-suave);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.dialogo__campo textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 76px;
+  padding: 10px;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  background: var(--fundo);
+  color: var(--texto);
+  font: inherit;
+  font-weight: 400;
+}
+
+.dialogo__sucesso {
+  padding: 12px;
+  border: 1px solid var(--verde);
+  border-radius: 10px;
+  background: var(--verde-escuro);
+  color: var(--verde);
+  font-weight: 700;
 }
 
 .dialogo__secundario {
@@ -891,7 +963,8 @@ button:focus-visible {
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  padding: 8px 0 10px;
+  min-height: 58px;
+  padding: 8px 4px 10px;
   border: 0;
   background: transparent;
   color: var(--texto-suave);
@@ -899,6 +972,15 @@ button:focus-visible {
 }
 
 .navegacao__aba--ativa {
+  background: rgb(255 122 26 / 10%);
   color: var(--laranja);
   font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button,
+  a,
+  textarea {
+    transition: none;
+  }
 }

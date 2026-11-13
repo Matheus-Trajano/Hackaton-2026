@@ -1,11 +1,6 @@
-import { Icone } from '@/components/ui/Icone';
 import { APP } from '@/config/app';
 
-interface Props {
-  aoAbrirAjustes: () => void;
-}
-
-export function Cabecalho({ aoAbrirAjustes }: Props) {
+export function Cabecalho() {
   return (
     <header className="cabecalho">
       <span className="cabecalho__espaco" />
@@ -19,9 +14,7 @@ export function Cabecalho({ aoAbrirAjustes }: Props) {
           <p className="cabecalho__slogan">{APP.slogan}</p>
         </div>
       </div>
-      <button type="button" className="botao-icone" onClick={aoAbrirAjustes} aria-label="Ajustes">
-        <Icone nome="engrenagem" tamanho={22} />
-      </button>
+      <span className="cabecalho__espaco" aria-hidden="true" />
     </header>
   );
 }

@@ -78,7 +78,7 @@ export function App() {
 
   return (
     <MolduraCelular>
-      <Cabecalho aoAbrirAjustes={() => setAba('sobre')} />
+      <Cabecalho />
       {!conectado && (
         <p className="aviso-conexao" role="status">
           Sem internet: mapa, previsão e envio de alerta não funcionam. Em emergência, ligue{' '}
