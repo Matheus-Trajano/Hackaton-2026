@@ -22,6 +22,7 @@ interface Props {
   /** De onde é a previsão do tempo. */
   localDoClima: string;
   aoVerDetalhes: () => void;
+  aoPedirSocorro: () => void;
 }
 
 export function TelaInicio({
@@ -34,6 +35,7 @@ export function TelaInicio({
   clima,
   localDoClima,
   aoVerDetalhes,
+  aoPedirSocorro,
 }: Props) {
   return (
     <div className="inicio">
@@ -47,7 +49,7 @@ export function TelaInicio({
       <PainelRisco avaliacao={risco} simulado={riscoSimulado} />
       <div className="inicio__acoes">
         <Instrucoes estado={risco.estado} />
-        <BotaoSocorro />
+        <BotaoSocorro aoPedir={aoPedirSocorro} />
       </div>
       <BarraMonitoramento
         ultimaAtualizacao={clima.status === 'ok' ? clima.atualizadoEm : undefined}

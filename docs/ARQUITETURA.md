@@ -1,7 +1,7 @@
 # Arquitetura
 
 Aplicação web de página única (SPA), mobile-first, sem backend próprio além de
-uma função serverless para o alerta de socorro.
+uma função serverless para o alerta de socorro (simulado).
 
 ## Camadas
 
@@ -52,9 +52,10 @@ MolduraCelular            moldura do aparelho (só em telas largas) + barra de s
 │   │   ├── Instrucoes + BotaoSocorro
 │   │   └── BarraMonitoramento
 │   ├── MapaBase          aba Mapa (mesmo componente, em tela cheia)
-│   ├── TelaEmBreve       aba Alertas (provisória)
+│   ├── TelaAlertas       histórico dos pedidos de socorro
 │   └── TelaSobre         informações, localização e modo demonstração
-└── NavegacaoInferior     Início · Mapa · Alertas · Sobre
+├── NavegacaoInferior     Início · Mapa · Alertas · Sobre
+└── DialogoSocorro        confirmação, envio e resultado do pedido de socorro
 ```
 
 - A aba ativa, o estado de risco e a localização (`useLocalizacao`) ficam em
@@ -196,8 +197,31 @@ config/clima.ts          URL, janela, intervalos, faixas de intensidade, local p
 - Limitação: só avalia deslizamento em encosta; chuva forte em área plana
   resulta em "seguro".
 
-## Estado atual (etapa 8)
+## Pedido de socorro
 
-O fluxo principal está completo: localização → setor → inclinação × chuva →
-painel de risco e instruções. Falta o botão "Pedir socorro" (etapa 9), que
-continua desativado, e a aba Alertas.
+```
+api/alerta.ts                  rota: valida, gera protocolo, escreve no log
+vite.config.ts (apiLocal)      atende a mesma rota no servidor de desenvolvimento
+services/alerta.ts             envia o pedido (POST /api/alerta)
+hooks/useAlertas.ts            histórico no armazenamento local do aparelho
+components/socorro/DialogoSocorro.tsx
+components/telas/TelaAlertas.tsx
+```
+
+- `api/alerta.ts` não importa nada de `src/`, para a Vercel empacotá-lo sozinho.
+  A lógica fica em `processarAlerta` (função pura), usada pelo handler da Vercel,
+  pelo plugin do Vite e pelos testes.
+- `App.tsx` monta o pedido com o que o app está mostrando (posição, risco,
+  inclinação, chuva) e registra toda tentativa no histórico, com sucesso ou falha.
+- O envio só é oferecido quando há posição utilizável; a ligação para o 199 está
+  sempre disponível.
+- **Transparência:** o diálogo, a tela de resultado e a aba Alertas informam que
+  o alerta é de demonstração e não aciona ninguém.
+- O diálogo é posicionado dentro da tela do app (e, no desktop, dentro da
+  moldura do celular); recebe o foco ao abrir e fecha com Esc, exceto durante o
+  envio.
+
+## Estado atual (etapa 9)
+
+Todas as funções do MVP estão implementadas. Falta a etapa 10: instalação como
+app (PWA), tratamento de falhas restante, documentação final e o deploy.

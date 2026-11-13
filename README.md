@@ -4,7 +4,7 @@ Protótipo (MVP) de um aplicativo mobile que avisa quando o usuário está em um
 encosta com risco de deslizamento, cruzando a localização do dispositivo, a
 inclinação do terreno e a previsão de chuva. Cobertura inicial: Pernambuco.
 
-> **Estado atual:** etapa 8 de 10 concluída (mapa, localização, relevo, grade de 100 m, inclinação, previsão do tempo e análise de risco funcionando; o botão de emergência ainda não envia alertas). Veja
+> **Estado atual:** etapa 9 de 10 concluída (mapa, localização, relevo, grade de 100 m, inclinação, previsão do tempo, análise de risco e pedido de socorro simulado; falta o acabamento e a instalação como app). Veja
 > [docs/PLANO.md](docs/PLANO.md).
 
 ## Stack
@@ -32,7 +32,7 @@ npm run verificar  # lint + tipos + testes + build (rodar ao fim de cada etapa)
 ## Estrutura
 
 ```
-api/            função serverless da Vercel (alerta de socorro) — etapa 9
+api/            função serverless da Vercel (`/api/alerta`, pedido de socorro)
 docs/           documentação (plano, arquitetura, APIs, deploy, changelog)
 public/         ícones e manifesto — etapa 10
 src/
@@ -40,10 +40,11 @@ src/
     layout/     moldura de celular, cabeçalho, navegação inferior
     inicio/     painéis da tela inicial (clima, mapa, risco, instruções, socorro)
     mapa/       mapa base (Leaflet) e seus controles
+    socorro/    diálogo do pedido de socorro
     telas/      uma tela por aba
     ui/         peças reutilizáveis (ícones)
   hooks/        hooks React (relógio, localização, altitude, setor atual, clima)
-  services/     clientes das APIs externas (terreno/altitude, clima)
+  services/     clientes das APIs (terreno/altitude, clima, alerta)
   domain/       lógica pura e testada (grade, inclinação, risco)
   config/       constantes (limites de PE, setor, provedores do mapa, pontos de demonstração)
   types/        tipos compartilhados
@@ -92,6 +93,25 @@ com a **previsão de chuva** do mesmo local:
 
 Estas regras são parâmetros do protótipo (`src/config/risco.ts`), não critérios
 oficiais da Defesa Civil.
+
+## Pedido de socorro
+
+O botão **Pedir socorro** abre um diálogo com duas saídas:
+
+- **Ligar 199 (Defesa Civil):** abre o discador do aparelho. Está sempre
+  disponível, inclusive sem localização e na aba Alertas.
+- **Enviar alerta:** envia a `/api/alerta` a posição, a precisão, o estado de
+  risco, a inclinação do setor e a chuva prevista, e mostra um protocolo.
+
+> **O envio é simulado.** A função `/api/alerta` valida o pedido, gera o
+> protocolo e escreve no log; **não guarda em banco nem aciona a Defesa
+> Civil**. O diálogo e a aba Alertas dizem isso ao usuário.
+
+A aba **Alertas** lista os pedidos feitos neste aparelho (enviados e falhos). O
+histórico fica no armazenamento local do navegador, até 50 registros.
+
+Em desenvolvimento (`npm run dev` / `npm run preview`), a rota `/api/alerta` é
+atendida por um plugin do Vite com a mesma lógica da função da Vercel.
 
 ## Previsão do tempo
 
@@ -168,4 +188,5 @@ que o estado é simulado.
 
 Este é um protótipo. Os dados de relevo têm resolução aproximada de 30 m e a
 classificação de risco **não substitui** o mapeamento oficial da Defesa Civil.
-O botão de emergência será simulado no MVP. Em emergência real, ligue **199**.
+O envio de alerta é simulado e não chega à Defesa Civil. Em emergência real,
+ligue **199**.
