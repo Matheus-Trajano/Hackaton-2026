@@ -200,7 +200,9 @@ O service worker (`public/sw.js`) só é registrado na versão de produção
 (`npm run build` + `npm run preview`, ou o deploy); em `npm run dev` ele fica
 desligado.
 
-Os ícones são gerados por `python3 scripts/gerar_icones.py` (requer Pillow).
+Os ícones, a miniatura do site e o logotipo do cabeçalho são gerados por
+`python3 scripts/gerar_icones.py` (requer Pillow), a partir de
+`scripts/logo-origem.png`.
 
 ## Falhas tratadas
 

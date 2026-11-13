@@ -1,53 +1,46 @@
-"""Gera os ícones do app (PWA) em public/icones. Requer Pillow: pip install pillow.
+"""Gera os ícones do app (PWA), o favicon e o logotipo do cabeçalho.
 
+Requer Pillow: pip install pillow.
 Uso: python3 scripts/gerar_icones.py
-O desenho é o mesmo escudo do cabeçalho (src/components/layout/Cabecalho.tsx).
+
+A arte de origem é scripts/logo-origem.png (símbolo com fundo transparente).
+Para trocar o logotipo, substitua esse arquivo e rode o script de novo.
 """
 from pathlib import Path
-from PIL import Image, ImageDraw
+from PIL import Image
 
-FUNDO, LARANJA, BRANCO = "#0b1220", "#ff7a1a", "#ffffff"
-SAIDA = Path(__file__).resolve().parent.parent / "public" / "icones"
-
-
-def curva(p0, p1, p2, p3, passos=24):
-    pontos = []
-    for i in range(1, passos + 1):
-        t = i / passos
-        u = 1 - t
-        pontos.append(tuple(
-            u**3 * a + 3 * u * u * t * b + 3 * u * t * t * c + t**3 * d
-            for a, b, c, d in zip(p0, p1, p2, p3)
-        ))
-    return pontos
+FUNDO = "#0b1220"
+RAIZ = Path(__file__).resolve().parent.parent
+PUBLICO = RAIZ / "public"
+ORIGEM = Image.open(Path(__file__).resolve().parent / "logo-origem.png").convert("RGBA")
 
 
-# Caixa do desenho original: 38 x 42.
-ESCUDO = [(19, 1), (36, 7), (36, 20)]
-ESCUDO += curva((36, 20), (36, 30.5), (28.8, 37.8), (19, 41))
-ESCUDO += curva((19, 41), (9.2, 37.8), (2, 30.5), (2, 20))
-ESCUDO += [(2, 7)]
-MONTANHA = [(8, 29), (16, 15), (21, 22), (24, 18), (30, 29)]
+def simbolo(lado):
+    """O símbolo reduzido para caber em um quadrado de `lado` pixels, mantendo a proporção."""
+    escala = lado / max(ORIGEM.size)
+    tamanho = (max(1, round(ORIGEM.width * escala)), max(1, round(ORIGEM.height * escala)))
+    return ORIGEM.resize(tamanho, Image.LANCZOS)
 
 
-def icone(tamanho, proporcao):
-    """`proporcao`: altura do escudo em relação ao lado do ícone."""
-    fator = 4  # desenha maior e reduz, para suavizar as bordas
-    lado = tamanho * fator
-    imagem = Image.new("RGB", (lado, lado), FUNDO)
-    desenho = ImageDraw.Draw(imagem)
-    escala = lado * proporcao / 42
-    dx, dy = (lado - 38 * escala) / 2, (lado - 42 * escala) / 2
-    mover = lambda pontos: [(dx + x * escala, dy + y * escala) for x, y in pontos]
-    desenho.polygon(mover(ESCUDO), fill=LARANJA)
-    desenho.polygon(mover(MONTANHA), fill=BRANCO)
-    return imagem.resize((tamanho, tamanho), Image.LANCZOS)
+def icone(tamanho, proporcao, fundo=FUNDO):
+    """Ícone quadrado; `proporcao` é o lado ocupado pelo símbolo. `fundo=None` deixa transparente."""
+    imagem = Image.new("RGBA", (tamanho, tamanho), fundo or (0, 0, 0, 0))
+    desenho = simbolo(round(tamanho * proporcao))
+    posicao = ((tamanho - desenho.width) // 2, (tamanho - desenho.height) // 2)
+    imagem.alpha_composite(desenho, posicao)
+    return imagem if fundo is None else imagem.convert("RGB")
 
 
-SAIDA.mkdir(parents=True, exist_ok=True)
-icone(192, 0.72).save(SAIDA / "icone-192.png", optimize=True)
-icone(512, 0.72).save(SAIDA / "icone-512.png", optimize=True)
-# Mascarável: o Android pode recortar até 10% de cada borda; o escudo fica na área segura.
-icone(512, 0.56).save(SAIDA / "icone-mascaravel-512.png", optimize=True)
-icone(180, 0.72).save(SAIDA / "apple-touch-icon.png", optimize=True)
-print("Ícones gerados em", SAIDA)
+if __name__ == "__main__":
+    icones = PUBLICO / "icones"
+    icones.mkdir(parents=True, exist_ok=True)
+    icone(192, 0.78).save(icones / "icone-192.png", optimize=True)
+    icone(512, 0.78).save(icones / "icone-512.png", optimize=True)
+    # Ícone mascarável: o desenho fica na área segura central (o sistema recorta as bordas).
+    icone(512, 0.56).save(icones / "icone-mascaravel-512.png", optimize=True)
+    icone(180, 0.78).save(icones / "apple-touch-icon.png", optimize=True)
+    # Miniatura do site (aba do navegador), com fundo para aparecer bem em abas claras e escuras.
+    icone(64, 0.86).save(PUBLICO / "favicon.png", optimize=True)
+    # Logotipo do cabeçalho, com fundo transparente.
+    icone(192, 0.98, fundo=None).save(PUBLICO / "logo.png", optimize=True)
+    print("Ícones gerados em", PUBLICO)
