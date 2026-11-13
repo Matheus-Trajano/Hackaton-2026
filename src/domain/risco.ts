@@ -37,8 +37,9 @@ function descreverInclinacao(inclinacao: Inclinacao): string {
  * | Inclinação do setor | Chuva significativa | Sem chuva significativa | Previsão indisponível |
  * |---------------------|---------------------|-------------------------|-----------------------|
  * | alta ou muito alta  | risco (agravado)    | risco                   | risco                 |
- * | moderada            | atenção             | seguro                  | atenção (por cautela) |
- * | baixa               | seguro              | seguro                  | seguro                |
+ * | normal (< 15°)      | seguro              | seguro                  | seguro                |
+ *
+ * O estado `atencao` não é produzido pelo cálculo; existe só no modo demonstração.
  *
  * Sem inclinação conhecida, o resultado é `indefinido` — o app não supõe segurança.
  */
@@ -76,14 +77,6 @@ export function avaliarRisco(inclinacao: InclinacaoParaRisco, chuva: ChuvaParaRi
         };
   }
 
-  if (classe === RISCO.classeDeAtencao) {
-    if (chuvaAgrava) return { estado: 'atencao', titulo: 'Atenção', texto: `${relevo} e ${previsao}.`, chuvaAgrava };
-    if (!clima) {
-      // Sem saber da chuva, não dá para afirmar que está seguro.
-      return { estado: 'atencao', titulo: 'Atenção', texto: `${relevo}; ${previsao}.`, chuvaAgrava };
-    }
-  }
-
   return {
     estado: 'seguro',
     titulo: 'Você está em área segura',
@@ -106,7 +99,7 @@ export function avaliacaoDeDemonstracao(estado: EstadoRisco): AvaliacaoRisco {
       return {
         estado,
         titulo: 'Atenção',
-        texto: 'Seu setor tem inclinação moderada e há previsão de chuva significativa.',
+        texto: 'Situação de atenção simulada: acompanhe os avisos e a previsão de chuva.',
         chuvaAgrava: true,
       };
     case 'seguro':

@@ -80,16 +80,16 @@ com a **previsão de chuva** do mesmo local:
 
 | Inclinação do setor | Chuva moderada ou mais forte | Sem chuva significativa | Previsão indisponível |
 |---|---|---|---|
-| Alta ou muito alta (≥ 15%) | **Risco** ("Você está em risco!") | **Risco** ("Você está em área de risco") | **Risco** |
-| Moderada (5% a < 15%) | **Atenção** | Seguro | **Atenção** (por cautela) |
-| Baixa (< 5%) | Seguro | Seguro | Seguro |
+| Alta (15° a 35°) ou muito alta (35° em diante) | **Risco** ("Você está em risco!") | **Risco** ("Você está em área de risco") | **Risco** |
+| Normal (menos de 15°) | Seguro | Seguro | Seguro |
 
 - Um setor de inclinação alta ou muito alta é zona de risco com ou sem chuva; a
   chuva agrava o alerta.
 - Sem localização ou sem dados de relevo, o painel mostra "Risco ainda não
   avaliado" e o motivo — o app não supõe segurança.
-- Em risco, aparecem as instruções "O que fazer agora"; em atenção, "Fique
-  atento"; nos demais casos, dicas de prevenção.
+- Em risco, aparecem as instruções "O que fazer agora"; nos demais casos, dicas
+  de prevenção. O estado "Atenção" não é mais produzido pelo cálculo (a classe
+  moderada deixou de existir); continua disponível só no modo demonstração.
 - O app avalia apenas risco de **deslizamento em encosta**. Alagamento em área
   plana não é avaliado.
 
@@ -142,13 +142,12 @@ mostra a altitude no lugar. O botão com o ícone de grade liga e desliga o modo
 
 | Classe | Inclinação | Cor |
 |---|---|---|
-| Baixo | < 2,9° (5%) | verde |
-| Moderado | 2,9° – 8,5° (5% – 15%) | amarelo |
-| Alto | 8,5° – 16,7° (15% – 30%) | laranja |
-| Muito alto | > 16,7° (30%) | vermelho |
+| Normal | 0° a 15° | verde |
+| Alto | 15° a 35° | laranja |
+| Muito alto | 35° em diante | vermelho |
 
-A legenda do mapa mostra as faixas em graus; os limites são os mesmos de antes,
-apenas convertidos.
+Os limites exatos de 15° e 35° já pertencem à faixa de cima. A classe é definida
+pelo ângulo em graus.
 
 A posição do usuário é cruzada com a grade: o setor em que ele está ganha um
 contorno reforçado e a caixa de coordenadas mostra a inclinação desse setor.

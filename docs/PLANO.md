@@ -184,3 +184,9 @@ A mudança para inclinação em graus com risco a partir de 20° foi mesclada
 (PR #12) e depois revertida a pedido, por dar resultados errados com relevo
 real. O código voltou ao da versão 1.0.0 (255 testes, lint, tipos e build
 aprovados). O problema dos prédios na altitude segue sem solução.
+
+## Depois do plano — versão 1.2.0: faixas de inclinação em graus
+
+Pedido: normal de 0° a 15°, alto de 15° a 35°, muito alto de 35° em diante.
+Verificação: lint, tipos, 259 testes e build aprovados, incluindo os limites
+(14,99° normal; 15° e 34,99° alto; 35° muito alto). Não conferido com relevo real.

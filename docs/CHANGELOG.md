@@ -2,6 +2,18 @@
 
 Uma entrada por prompt/etapa.
 
+## 1.2.0 — Novas faixas de inclinação, em graus
+
+- Faixas: Normal (0° a 15°, verde), Alto (15° a 35°, laranja), Muito alto (35°
+  em diante, vermelho). As classes "baixo" e "moderado" deixam de existir.
+- A classe passa a ser definida pelo ângulo em graus (antes, pelo percentual).
+- Motor de risco: inclinação normal é área segura; alta ou muito alta é risco.
+  O estado "Atenção" não é mais produzido pelo cálculo (só no modo demonstração).
+- A linha "Inclinação do setor" e o texto do painel de risco continuam mostrando
+  o valor em percentual.
+- Verificação: lint, tipos, 259 testes e build aprovados. Não conferido com
+  relevo real.
+
 ## 1.0.1 — Legenda de inclinação em graus
 
 - A legenda "Relevo / Inclinação" do mapa mostra as faixas em graus: Baixo

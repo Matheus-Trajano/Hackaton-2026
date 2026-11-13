@@ -6,10 +6,11 @@ import type { ClasseInclinacao } from './inclinacao';
  * da Defesa Civil; ficam aqui para serem ajustados com facilidade.
  */
 export const RISCO = {
-  /** Classes de inclinação que fazem do setor uma zona de risco, com ou sem chuva. */
+  /**
+   * Classes de inclinação que fazem do setor uma zona de risco, com ou sem chuva
+   * (a partir de 15°). Abaixo disso a inclinação é normal: setor seguro.
+   */
   classesDeRisco: ['alto', 'muito-alto'] as readonly ClasseInclinacao[],
-  /** Classe intermediária: só preocupa quando há chuva significativa. */
-  classeDeAtencao: 'moderado' as ClasseInclinacao,
   /** Intensidades de chuva consideradas significativas. */
   chuvaSignificativa: ['moderada', 'forte', 'muito-forte'] as readonly IntensidadeChuva[],
 } as const;
