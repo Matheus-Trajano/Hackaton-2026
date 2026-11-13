@@ -61,7 +61,7 @@ export function App() {
         precisaoMetros: localizacao.estado.precisaoMetros,
         localizacaoSimulada,
         risco: risco.estado,
-        inclinacaoPercentual: setorAtual.status === 'ok' ? setorAtual.inclinacao.percentual : undefined,
+        inclinacaoGraus: setorAtual.status === 'ok' ? setorAtual.inclinacao.graus : undefined,
         chuva: clima.status === 'ok' ? clima.clima.intensidade : undefined,
         momento,
       });

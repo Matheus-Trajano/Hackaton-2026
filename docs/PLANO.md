@@ -177,3 +177,16 @@ indicada), atualização da documentação e um commit.
 As 10 etapas estão concluídas. Próximos passos fora do plano: publicar na
 Vercel, instalar em um Android e conferir em campo os itens listados como não
 verificados.
+
+## Depois do plano — versão 1.1.0: inclinação em graus, risco a partir de 20°
+
+Pedido: a altitude de prédios distorce o cálculo em áreas planas; contar como
+risco apenas inclinações a partir de 20°, em graus (20° a 30° alto, acima de
+30° muito alto, abaixo de 20° faixa normal/segura), sem alterar o resto.
+
+- Verificação: lint, tipos, 264 testes e build aprovados, incluindo os limites
+  (19,99° seguro; 20° e 30° alto; 30,01° muito alto) e o caminho completo
+  GPS → setor → inclinação → painel.
+- **Não verificado:** o efeito com relevo real. Como a inclinação é a média de
+  um setor de 100 m, morros conhecidos podem ficar abaixo de 20°; isso precisa
+  ser conferido no mapa.
