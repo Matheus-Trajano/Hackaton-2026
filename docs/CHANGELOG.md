@@ -2,6 +2,21 @@
 
 Uma entrada por prompt/etapa.
 
+## 1.4.0 — Quatro faixas de inclinação (volta do "Moderado")
+
+- Faixas: Normal (0° a 11°, verde), Moderado (11° a 20°, amarelo), Alto (20° a
+  45°, laranja), Muito alto (45° em diante, vermelho). Legenda do mapa e cores
+  dos setores atualizadas.
+- Risco: alto e muito alto (a partir de 20°) são risco de deslizamento.
+- Moderado: "Atenção" (deslizamento) com chuva moderada ou mais forte, ou quando
+  a previsão está indisponível; área segura sem chuva significativa.
+- Normal: alerta de alagamento com chuva moderada ou mais forte (agora só abaixo
+  de 11°).
+- Verificação: lint, tipos, 295 testes e build aprovados. Não conferido com
+  relevo real.
+- Observação: o risco passa a começar em 20°, mesmo limite da versão 1.1.0, que
+  foi revertida após uso real.
+
 ## 1.3.1 — Painel de risco mostra a inclinação em graus
 
 - O texto do painel de risco passa a mostrar o ângulo do setor do usuário

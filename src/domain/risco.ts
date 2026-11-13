@@ -42,7 +42,8 @@ function descreverInclinacao(inclinacao: Inclinacao): string {
  * | Inclinação do setor | Chuva significativa | Sem chuva significativa | Previsão indisponível |
  * |---------------------|---------------------|-------------------------|-----------------------|
  * | alta ou muito alta  | risco (agravado)    | risco                   | risco                 |
- * | normal (< 15°)      | alerta de alagamento | seguro                 | seguro                |
+ * | moderada (11°–20°)  | atenção             | seguro                  | atenção (por cautela) |
+ * | normal (< 11°)      | alerta de alagamento | seguro                 | seguro                |
  *
  * O alerta de alagamento usa o estado `atencao`, com `perigo: 'alagamento'`. Sem
  * previsão disponível não há alerta de alagamento: ele depende só da chuva, e
@@ -89,6 +90,28 @@ export function avaliarRisco(inclinacao: InclinacaoParaRisco, chuva: ChuvaParaRi
           chuvaAgrava,
           perigo: 'deslizamento',
         };
+  }
+
+  // Inclinação moderada: atenção para deslizamento com chuva ou sem previsão.
+  if (classe === RISCO.classeDeAtencao) {
+    if (chuvaAgrava || clima === null) {
+      return {
+        estado: 'atencao',
+        titulo: 'Atenção',
+        texto: clima
+          ? `${relevo} e ${previsao}. Fique atento a sinais de deslizamento.`
+          : `${relevo} e ${previsao}. Fique atento.`,
+        chuvaAgrava,
+        perigo: 'deslizamento',
+      };
+    }
+    return {
+      estado: 'seguro',
+      titulo: 'Você está em área segura',
+      texto: `${relevo} e ${previsao}.`,
+      chuvaAgrava,
+      perigo: null,
+    };
   }
 
   // Setor de inclinação normal: não há risco de deslizamento, mas a chuva pode alagar.

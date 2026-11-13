@@ -8,9 +8,14 @@ import type { ClasseInclinacao } from './inclinacao';
 export const RISCO = {
   /**
    * Classes de inclinação que fazem do setor uma zona de risco, com ou sem chuva
-   * (a partir de 15°). Abaixo disso a inclinação é normal: setor seguro.
+   * (a partir de 20°).
    */
   classesDeRisco: ['alto', 'muito-alto'] as readonly ClasseInclinacao[],
+  /**
+   * Classe intermediária (11° a 20°): atenção para deslizamento quando há chuva
+   * significativa ou quando a previsão está indisponível; segura sem chuva.
+   */
+  classeDeAtencao: 'moderado' as ClasseInclinacao,
   /**
    * Intensidades de chuva que geram alerta de alagamento em setor de inclinação
    * normal (terreno plano ou pouco inclinado, onde a água tende a acumular).

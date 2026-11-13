@@ -22,9 +22,10 @@ export function formatarGraus(graus: number): string {
   return `${texto}°`;
 }
 
-/** Classe pelo ângulo em graus: normal < 15° · alto 15° a < 45° · muito alto ≥ 45°. */
+/** Classe pelo ângulo em graus: normal < 11° · moderado 11° a < 20° · alto 20° a < 45° · muito alto ≥ 45°. */
 export function classificarInclinacao(graus: number): ClasseInclinacao {
-  if (graus < LIMITES_INCLINACAO.alto) return 'normal';
+  if (graus < LIMITES_INCLINACAO.moderado) return 'normal';
+  if (graus < LIMITES_INCLINACAO.alto) return 'moderado';
   if (graus < LIMITES_INCLINACAO.muitoAlto) return 'alto';
   return 'muito-alto';
 }

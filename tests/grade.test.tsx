@@ -144,11 +144,12 @@ describe('cálculo de inclinação', () => {
 
   it.each([
     [0, 'normal'],
-    [10, 'normal'],
-    [14.99, 'normal'],
-    [15, 'alto'],
-    [25, 'alto'],
-    [35, 'alto'], // era "muito alto" na regra anterior
+    [10.99, 'normal'],
+    [11, 'moderado'],
+    [15, 'moderado'],
+    [19.99, 'moderado'],
+    [20, 'alto'],
+    [35, 'alto'],
     [44.99, 'alto'],
     [45, 'muito-alto'],
     [80, 'muito-alto'],
@@ -157,18 +158,21 @@ describe('cálculo de inclinação', () => {
   });
 
   it('a classe sai do ângulo em graus, não do percentual', () => {
-    // Rampas de 25% (14°), 30% (16,7°), 75% (36,9°) e 110% (47,7°).
+    // Rampas de 15% (8,5°), 25% (14°), 30% (16,7°), 40% (21,8°), 75% (36,9°) e 110% (47,7°).
     const rampa = (percentual: number) => inclinacaoHorn([0, 1, 2, 0, 1, 2, 0, 1, 2].map((v) => (v * percentual) / 2), 50);
-    expect(rampa(25)).toMatchObject({ classe: 'normal' });
-    expect(rampa(30)).toMatchObject({ classe: 'alto' });
+    expect(rampa(15)).toMatchObject({ classe: 'normal' });
+    expect(rampa(25)).toMatchObject({ classe: 'moderado' });
+    expect(rampa(30)).toMatchObject({ classe: 'moderado' });
+    expect(rampa(40)).toMatchObject({ classe: 'alto' });
     expect(rampa(30).graus).toBeCloseTo(16.7, 1);
     expect(rampa(75)).toMatchObject({ classe: 'alto' });
     expect(rampa(110)).toMatchObject({ classe: 'muito-alto' });
   });
 
-  it('a legenda tem três faixas em graus, com verde para a normal', () => {
-    expect(FAIXAS_INCLINACAO.map((f) => f.classe)).toEqual(['normal', 'alto', 'muito-alto']);
-    expect(FAIXAS_INCLINACAO.map((f) => f.faixa)).toEqual(['0° – 15°', '15° – 45°', '≥ 45°']);
+  it('a legenda tem quatro faixas em graus, com verde para a normal e amarelo para a moderada', () => {
+    expect(FAIXAS_INCLINACAO.map((f) => f.classe)).toEqual(['normal', 'moderado', 'alto', 'muito-alto']);
+    expect(FAIXAS_INCLINACAO.map((f) => f.faixa)).toEqual(['0° – 11°', '11° – 20°', '20° – 45°', '≥ 45°']);
+    expect(FAIXAS_INCLINACAO[1]!.cor).toBe('#ffdc00');
     expect(FAIXAS_INCLINACAO[0]!.cor).toBe('#2ecc40');
   });
 });
@@ -196,7 +200,9 @@ describe('inclinação de um setor', () => {
     const r = await inclinacaoDoSetor(setor, terreno(f));
     expect(r.percentual).toBeCloseTo(esperado, 1);
     // 8% = 4,6° · 22% = 12,4° · 35% = 19,3° · 80% = 38,7° · 120% = 50,2°
-    expect(r.classe).toBe(esperado < 27 ? 'normal' : esperado < 100 ? 'alto' : 'muito-alto');
+    expect(r.classe).toBe(
+      esperado < 19.4 ? 'normal' : esperado < 36.4 ? 'moderado' : esperado < 100 ? 'alto' : 'muito-alto',
+    );
   });
 
   it('consulta cada ponto passando só a coordenada (regressão: índice do map virava opção da consulta)', async () => {
@@ -328,7 +334,7 @@ describe('inclinação na interface do mapa', () => {
   it('com o mapa aproximado no usuário, mostra a legenda das faixas de inclinação', async () => {
     render(<MapaBase localizacao={aqui} />);
     const legenda = await screen.findByRole('group', { name: 'Legenda de inclinação' });
-    for (const texto of ['Relevo / Inclinação', 'Normal (0° – 15°)', 'Alto (15° – 45°)', 'Muito alto (≥ 45°)']) {
+    for (const texto of ['Relevo / Inclinação', 'Normal (0° – 11°)', 'Moderado (11° – 20°)', 'Alto (20° – 45°)', 'Muito alto (≥ 45°)']) {
       expect(legenda.textContent).toContain(texto);
     }
     expect(screen.queryByRole('group', { name: 'Legenda de altitude' })).toBeNull();
@@ -359,10 +365,10 @@ describe('inclinação na interface do mapa', () => {
     rerender(
       <MapaBase
         localizacao={aqui}
-        setorAtual={{ status: 'ok', setor, inclinacao: { percentual: 21.6, graus: 12.2, classe: 'alto' } }}
+        setorAtual={{ status: 'ok', setor, inclinacao: { percentual: 21.6, graus: 12.2, classe: 'moderado' } }}
       />,
     );
-    expect(screen.getByText(/Inclinação do setor: 22% \(\s*alto\)/)).toBeTruthy();
+    expect(screen.getByText(/Inclinação do setor: 22% \(\s*moderado\)/)).toBeTruthy();
     rerender(<MapaBase localizacao={aqui} setorAtual={{ status: 'erro', setor }} />);
     expect(screen.getByText('Inclinação indisponível')).toBeTruthy();
   });
