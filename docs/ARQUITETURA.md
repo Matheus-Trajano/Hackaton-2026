@@ -18,13 +18,16 @@ components  →  hooks  →  services (APIs externas)
   maior parte dos testes.
 - **config/**: constantes (`src/config/app.ts`).
 
-## Fluxo de dados previsto
+## Fluxo de dados
 
-1. O navegador informa a posição do dispositivo (ou um ponto simulado).
-2. A posição é convertida no setor de 100 m da grade.
-3. As altitudes do setor e dos vizinhos dão a inclinação (%).
-4. A previsão de chuva é buscada para a mesma posição.
-5. O motor de risco combina inclinação e chuva e alimenta o painel inferior.
+1. `useLocalizacao`: o navegador informa a posição (ou um ponto simulado).
+2. `useSetorAtual`: a posição é convertida no setor de 100 m da grade e as
+   altitudes de 9 pontos do setor dão a inclinação (%).
+3. `useClima`: a previsão de chuva é buscada para a mesma posição.
+4. `avaliarRisco`: combina inclinação e chuva.
+5. `PainelRisco` e `Instrucoes` mostram o resultado.
+
+Tudo isso é ligado em `App.tsx`.
 
 ## Decisões
 
@@ -45,12 +48,12 @@ MolduraCelular            moldura do aparelho (só em telas largas) + barra de s
 │   ├── TelaInicio
 │   │   ├── PainelClima          chuva nas próximas 3 h, hora a hora, e temperatura
 │   │   ├── MapaBase             mapa Leaflet + controles
-│   │   ├── PainelRisco          não avaliado / seguro / em risco
+│   │   ├── PainelRisco          não avaliado / seguro / atenção / em risco
 │   │   ├── Instrucoes + BotaoSocorro
 │   │   └── BarraMonitoramento
 │   ├── MapaBase          aba Mapa (mesmo componente, em tela cheia)
 │   ├── TelaEmBreve       aba Alertas (provisória)
-│   └── TelaSobre         informações e modo demonstração
+│   └── TelaSobre         informações, localização e modo demonstração
 └── NavegacaoInferior     Início · Mapa · Alertas · Sobre
 ```
 
@@ -172,8 +175,25 @@ config/clima.ts          URL, janela, intervalos, faixas de intensidade, local p
 - Os horários vêm em segundos (UTC), o que evita erros de fuso; a exibição usa o
   fuso do aparelho.
 
-## Estado atual (etapa 7)
+## Motor de risco
 
-Layout, navegação, mapa base, localização, mapa de calor, grade, inclinação e
-previsão do tempo funcionando. Falta a análise de risco real: o painel de risco
-**não** usa a inclinação nem a chuva e só muda pelo modo demonstração (etapa 8).
+- `domain/risco.ts` → `avaliarRisco(inclinacao, chuva)`: função pura que devolve
+  estado (`indefinido`, `seguro`, `atencao`, `risco`), título, texto e se a chuva
+  agrava. As regras estão em `config/risco.ts`.
+- Entradas com estado próprio: a inclinação pode estar sem posição, carregando,
+  com erro ou disponível; a chuva pode estar carregando, com erro ou disponível.
+- **Princípios:** sem inclinação conhecida, o resultado é `indefinido` (nunca
+  "seguro" por falta de dados); setor de inclinação alta ou muito alta é risco
+  mesmo sem previsão; inclinação moderada sem previsão vira `atencao`.
+- O texto do painel sempre cita os dados usados (percentual, classe e chuva).
+- **Modo demonstração:** `App.tsx` guarda `modoRisco`. Em `automatico` vale a
+  avaliação real; nos demais, `avaliacaoDeDemonstracao`, e o painel exibe
+  "Estado simulado".
+- Limitação: só avalia deslizamento em encosta; chuva forte em área plana
+  resulta em "seguro".
+
+## Estado atual (etapa 8)
+
+O fluxo principal está completo: localização → setor → inclinação × chuva →
+painel de risco e instruções. Falta o botão "Pedir socorro" (etapa 9), que
+continua desativado, e a aba Alertas.

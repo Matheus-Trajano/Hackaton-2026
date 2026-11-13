@@ -2,6 +2,19 @@
 
 Uma entrada por prompt/etapa.
 
+## 0.8.0 — Etapa 8: motor de risco
+
+- Motor de risco (`avaliarRisco`): cruza a inclinação do setor do usuário com a
+  previsão de chuva.
+- Painel inferior com dados reais, citando inclinação e chuva no texto.
+- Novo estado "Atenção" (inclinação moderada com chuva significativa).
+- Instruções conforme o estado: emergência, atenção ou prevenção.
+- Sem localização ou relevo, o painel mostra "Risco ainda não avaliado" e o motivo.
+- Modo demonstração: "Automático" (padrão, dados reais) ou estado forçado, com
+  aviso de "Estado simulado".
+- Verificação: lint, tipos, 195 testes e build aprovados; resultado com dados
+  reais a conferir no preview.
+
 ## 0.7.0 — Etapa 7: previsão do tempo
 
 - Integração com a Open-Meteo: temperatura atual e chuva hora a hora.

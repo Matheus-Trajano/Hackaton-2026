@@ -15,6 +15,12 @@ const EM_RISCO: Item[] = [
   },
 ];
 
+const EM_ATENCAO: Item[] = [
+  { icone: 'chuva', texto: 'Acompanhe a chuva: se ela aumentar, afaste-se de barrancos e encostas.' },
+  { icone: 'alerta', texto: 'Observe sinais de deslizamento: rachaduras, postes inclinados e água barrenta.' },
+  { icone: 'abrigo', texto: 'Tenha em mente um local seguro para ir, caso a situação piore.' },
+];
+
 const PREVENCAO: Item[] = [
   { icone: 'chuva', texto: 'Acompanhe a previsão de chuva antes de sair de casa.' },
   { icone: 'alerta', texto: 'Conheça os sinais de deslizamento: rachaduras, postes inclinados e água barrenta.' },
@@ -23,10 +29,11 @@ const PREVENCAO: Item[] = [
 
 export function Instrucoes({ estado }: { estado: EstadoRisco }) {
   const emRisco = estado === 'risco';
-  const itens = emRisco ? EM_RISCO : PREVENCAO;
+  const itens = emRisco ? EM_RISCO : estado === 'atencao' ? EM_ATENCAO : PREVENCAO;
+  const titulo = emRisco ? 'O que fazer agora:' : estado === 'atencao' ? 'Fique atento:' : 'Para se prevenir:';
   return (
-    <section className={`painel instrucoes${emRisco ? ' instrucoes--risco' : ''}`}>
-      <h2 className="instrucoes__titulo">{emRisco ? 'O que fazer agora:' : 'Para se prevenir:'}</h2>
+    <section className={`painel instrucoes instrucoes--${estado}`}>
+      <h2 className="instrucoes__titulo">{titulo}</h2>
       <ul className="instrucoes__lista">
         {itens.map((item) => (
           <li key={item.texto}>
