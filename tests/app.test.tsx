@@ -1,14 +1,11 @@
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
 import { App } from '@/App';
 import { APP, LIMITES_PE } from '@/config/app';
 
-describe('base do projeto', () => {
-  it('renderiza o nome do aplicativo', () => {
-    render(<App />);
-    expect(screen.getByRole('heading', { name: APP.nome })).toBeTruthy();
-  });
+afterEach(cleanup);
 
+describe('configuração', () => {
   it('usa setores de 100 m', () => {
     expect(APP.tamanhoSetorMetros).toBe(100);
   });
@@ -19,5 +16,58 @@ describe('base do projeto', () => {
     expect(recife.lat).toBeLessThan(LIMITES_PE.norte);
     expect(recife.lon).toBeGreaterThan(LIMITES_PE.oeste);
     expect(recife.lon).toBeLessThan(LIMITES_PE.leste);
+  });
+});
+
+describe('layout (etapa 2)', () => {
+  it('mostra cabeçalho, painéis da tela inicial e as quatro abas', () => {
+    render(<App />);
+    expect(screen.getByRole('heading', { name: APP.nome })).toBeTruthy();
+    expect(screen.getByLabelText('Previsão do tempo')).toBeTruthy();
+    expect(screen.getByLabelText('Mapa')).toBeTruthy();
+    for (const aba of ['Início', 'Mapa', 'Alertas', 'Sobre']) {
+      expect(screen.getByRole('button', { name: aba })).toBeTruthy();
+    }
+    expect(screen.getByRole('button', { name: 'Início' }).getAttribute('aria-current')).toBe('page');
+  });
+
+  it('não inventa dados: clima sem valores, risco não avaliado e socorro desativado', () => {
+    render(<App />);
+    expect(screen.getByText('Sem dados')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Risco ainda não avaliado' })).toBeTruthy();
+    const socorro = screen.getByRole('button', { name: /Pedir socorro/i }) as HTMLButtonElement;
+    expect(socorro.disabled).toBe(true);
+  });
+
+  it('troca de aba pela navegação inferior', () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Alertas' }));
+    expect(screen.getByRole('heading', { name: 'Alertas' })).toBeTruthy();
+    expect(screen.queryByLabelText('Previsão do tempo')).toBeNull();
+  });
+
+  it('o botão de ajustes abre a aba Sobre', () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Ajustes' }));
+    expect(screen.getByRole('heading', { name: 'Modo demonstração' })).toBeTruthy();
+  });
+
+  it('modo demonstração: "Em risco" mostra o alerta e as instruções', () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Sobre' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Em risco' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Início' }));
+    expect(screen.getByRole('alert').textContent).toContain('Você está em risco!');
+    expect(screen.getByRole('heading', { name: 'O que fazer agora:' })).toBeTruthy();
+  });
+
+  it('modo demonstração: "Área segura" mostra o estado seguro sem alerta', () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Sobre' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Área segura' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Início' }));
+    expect(screen.getByRole('heading', { name: 'Você está em área segura' })).toBeTruthy();
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Para se prevenir:' })).toBeTruthy();
   });
 });

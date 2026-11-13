@@ -36,7 +36,34 @@ components  →  hooks  →  services (APIs externas)
 | Lógica de cálculo isolada em `domain/` | Testável sem rede e sem mapa |
 | Alias `@/` → `src/` | Imports curtos e estáveis |
 
-## Estado atual (etapa 1)
+## Interface
 
-Existe apenas a tela provisória (`src/App.tsx`) e a configuração central.
-As pastas das demais camadas estão criadas e vazias.
+```
+MolduraCelular            moldura do aparelho (só em telas largas) + barra de status
+├── Cabecalho             logo, nome, botão de ajustes (abre a aba Sobre)
+├── <main>                uma tela por aba
+│   ├── TelaInicio
+│   │   ├── PainelClima          chuva nas próximas 3 h e temperatura
+│   │   ├── AreaMapa             espaço reservado para o mapa
+│   │   ├── PainelRisco          não avaliado / seguro / em risco
+│   │   ├── Instrucoes + BotaoSocorro
+│   │   └── BarraMonitoramento
+│   ├── TelaEmBreve       abas Mapa e Alertas (provisórias)
+│   └── TelaSobre         informações e modo demonstração
+└── NavegacaoInferior     Início · Mapa · Alertas · Sobre
+```
+
+- A aba ativa e o estado de risco ficam em `App.tsx` (`useState`); não há
+  roteador nem biblioteca de estado.
+- Os painéis recebem os dados por propriedades opcionais. **Sem dados, mostram
+  "—" / "Sem dados"** em vez de valores fictícios; o botão de socorro fica
+  desativado enquanto não houver ação ligada a ele.
+- Ícones: SVG embutido em `components/ui/Icone.tsx`, sem biblioteca externa.
+- Estilos: CSS puro em `src/styles/global.css`, com variáveis de cor do tema.
+- A moldura de celular é ativada por media query (`min-width: 600px`).
+
+## Estado atual (etapa 2)
+
+Layout completo da tela inicial e navegação entre abas. Ainda sem mapa,
+localização, clima e análise de risco reais; o estado de risco só muda pelo
+modo demonstração.

@@ -6,7 +6,7 @@ indicada), atualização da documentação e um commit.
 | # | Etapa | Verificação | Estado |
 |---|---|---|---|
 | 1 | Estrutura do projeto, configuração, documentação inicial, `vercel.json` | Lint, tipos, teste de exemplo e build | ✅ Concluída |
-| 2 | Layout mobile: cabeçalho, moldura de celular, navegação inferior, tema escuro | Build e conferência visual | ⏳ Pendente |
+| 2 | Layout mobile: cabeçalho, moldura de celular, navegação inferior, tema escuro | Build, testes de interface e conferência visual | ✅ Concluída |
 | 3 | Mapa base centrado em Pernambuco, com zoom, centralizar e escala | Mapa abre, limitado a PE | ⏳ Pendente |
 | 4 | Geolocalização: GPS real, modo simulado, marcador e coordenadas | Testes de permissão negada e ponto fora de PE | ⏳ Pendente |
 | 5 | Altitude: leitura dos tiles, mapa de calor e legenda | Testes da conversão de altitude | ⏳ Pendente |
@@ -30,3 +30,13 @@ indicada), atualização da documentação e um commit.
 - `npm run typecheck`: sem erros.
 - `npm run test`: 3 testes, 3 aprovados.
 - `npm run build`: build de produção gerado em `dist/`.
+
+## Resultado da verificação — etapa 2
+
+- `npm run lint` e `npm run typecheck`: sem erros.
+- `npm run test`: 8 testes, 8 aprovados (6 novos de interface: estrutura da tela,
+  ausência de dados inventados, troca de abas, botão de ajustes e os dois
+  estados do modo demonstração).
+- `npm run build`: build de produção gerado.
+- Conferência visual: **pendente do usuário** — o ambiente de desenvolvimento não
+  tem navegador, então a aparência não foi conferida por captura de tela.
