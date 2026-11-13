@@ -6,9 +6,7 @@
    - Saída: `dist`
 3. Clique em **Deploy**. Cada push na branch de produção gera um novo deploy.
 
-Variáveis de ambiente: nenhuma é obrigatória. As opcionais `VITE_RELEVO_URL`,
-`VITE_RELEVO_ZOOM_MAXIMO` e `VITE_RELEVO_NOME` trocam a fonte do relevo (veja
-[RELEVO.md](RELEVO.md)); depois de alterá-las, refaça o deploy.
+Não há variáveis de ambiente no momento.
 
 A pasta `api/` é publicada automaticamente como funções serverless: `api/alerta.ts`
 vira a rota `/api/alerta`. Depois do deploy, confira com:

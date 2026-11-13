@@ -252,27 +252,6 @@ Service worker — guarda só a interface, nunca dados:
 - A decisão de não guardar tiles e previsão é deliberada: mostrar relevo ou
   chuva desatualizados como se fossem atuais seria pior do que mostrar "Sem dados".
 
-## Fonte do relevo configurável
-
-`src/config/relevo.ts` decide a fonte no build, por `fonteDoRelevo(import.meta.env)`:
-
-- sem `VITE_RELEVO_URL`: AWS Terrain Tiles (modelo de superfície), zoom 14;
-- com `VITE_RELEVO_URL`: tiles próprios (modelo do terreno), no zoom informado
-  em `VITE_RELEVO_ZOOM_MAXIMO` (padrão 13).
-
-Tudo o que usa relevo (`services/terreno.ts`, `CamadaRelevo`, inclinação, risco)
-lê de `RELEVO`, então a troca não toca em nenhum outro arquivo. A consulta de
-altitude usa o zoom mais detalhado da fonte (`zoomConsulta = zoomMaximoNativo`).
-
-Configuração inválida nunca é usada pela metade: volta-se à fonte padrão e o
-motivo aparece na aba Sobre. Não há troca automática entre fontes em tempo de
-execução — misturar superfície e terreno no mesmo cálculo de inclinação daria
-resultados errados sem aviso.
-
-`scripts/gerar_tiles_relevo.py` (Python, fora do build do app) converte GeoTIFF
-em tiles Terrarium. Os tiles não ficam neste repositório. O service worker não
-guarda `/relevo/`, caso sejam hospedados junto do app.
-
 ## Estado atual (versão 1.0.0)
 
 Todas as etapas do plano estão implementadas. Pendências fora do código:

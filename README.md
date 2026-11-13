@@ -4,7 +4,7 @@ Protótipo (MVP) de um aplicativo mobile que avisa quando o usuário está em um
 encosta com risco de deslizamento, cruzando a localização do dispositivo, a
 inclinação do terreno e a previsão de chuva. Cobertura inicial: Pernambuco.
 
-> **Estado atual:** as 10 etapas do protótipo estão concluídas (versão 1.1.0). A fonte do relevo agora é configurável, para usar o relevo natural do solo (sem prédios); a geração e a hospedagem dos tiles ainda precisam ser feitas — veja [docs/RELEVO.md](docs/RELEVO.md). Veja
+> **Estado atual:** as 10 etapas do protótipo estão concluídas (versão 1.0.0). O app é instalável no Android como PWA. Falta apenas publicar na Vercel, passo descrito em [docs/DEPLOY.md](docs/DEPLOY.md). Veja
 > [docs/PLANO.md](docs/PLANO.md).
 
 ## Stack
@@ -35,7 +35,7 @@ npm run verificar  # lint + tipos + testes + build (rodar ao fim de cada etapa)
 api/            função serverless da Vercel (`/api/alerta`, pedido de socorro)
 docs/           documentação (plano, arquitetura, APIs, deploy, changelog)
 public/         manifesto, ícones e service worker do app instalável (PWA)
-scripts/        gerador dos ícones e conversor de relevo (GeoTIFF → tiles)
+scripts/        gerador dos ícones
 src/
   components/
     layout/     moldura de celular, cabeçalho, navegação inferior
@@ -63,12 +63,6 @@ escala métrica. O mesmo componente aparece na tela inicial e, em tela cheia,
 na aba **Mapa**.
 
 ## Relevo (mapa de calor)
-
-> **Fonte do relevo.** A fonte padrão (AWS Terrain Tiles) é um modelo de
-> superfície: inclui prédios e árvores. Para o relevo natural do solo em todo o
-> estado, gere tiles de um modelo do terreno e configure `VITE_RELEVO_URL`.
-> Passo a passo em [docs/RELEVO.md](docs/RELEVO.md). A aba Sobre mostra a fonte
-> em uso.
 
 Por cima do mapa base, o app pinta a altitude do terreno: **mais claro = mais
 baixo, mais vermelho = mais alto**. O mar fica transparente. A escala vai de 0 a
@@ -218,10 +212,7 @@ Os ícones são gerados por `python3 scripts/gerar_icones.py` (requer Pillow).
   consideram deslizamento em encosta (não alagamento).
 - A área coberta é o retângulo que envolve Pernambuco, não o contorno do estado.
 - As coordenadas dos locais de demonstração são aproximadas.
-- Sem tiles próprios configurados, o relevo inclui prédios e árvores (veja
-  [docs/RELEVO.md](docs/RELEVO.md)).
-- A reserva de altitude (Open-Meteo Elevation) não é acionada automaticamente
-  e também é um modelo de superfície.
+- A reserva de altitude (Open-Meteo Elevation) não é acionada automaticamente.
 - Nenhum deploy na Vercel foi feito ainda; a instalação em um Android real e o
   uso do GPS em campo não foram testados.
 
