@@ -6,7 +6,7 @@ Todas gratuitas e sem chave. A coluna "Estado" indica se já está integrada.
 |---|---|---|---|---|
 | 1 | Geolocation API (navegador) — `navigator.geolocation.watchPosition` | Posição do dispositivo, acompanhada continuamente | 4 | **Integrada** |
 | 2 | AWS Terrain Tiles (Terrarium) — `https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png` | Altitude para o mapa de calor, a altitude do usuário e a inclinação | 5–6 | **Integrada** (mapa de calor, altitude do ponto e inclinação dos setores) |
-| 3 | Open-Meteo Forecast — `https://api.open-meteo.com/v1/forecast` | Chuva e temperatura das próximas horas | 7 | Planejada |
+| 3 | Open-Meteo Forecast — `https://api.open-meteo.com/v1/forecast` | Temperatura atual e, hora a hora, probabilidade e volume de chuva | 7 | **Integrada** |
 | 4 | Open-Meteo Elevation — `https://api.open-meteo.com/v1/elevation` | Reserva para a altitude | 5–6 | Planejada |
 | 5 | Esri World Imagery — `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}` | Mapa base de satélite (padrão) | 3 | **Integrada** |
 | 5b | OpenStreetMap — `https://tile.openstreetmap.org/{z}/{x}/{y}.png` | Mapa base de ruas (alternativa) | 3 | **Integrada** |
@@ -21,6 +21,12 @@ Todas gratuitas e sem chave. A coluna "Estado" indica se já está integrada.
   `src/config/relevo.ts`; até 96 tiles ficam em memória.
 - A API nº 4 (Open-Meteo Elevation) continua apenas como reserva planejada; ainda
   não há troca automática para ela.
+- Clima: parâmetros `current=temperature_2m`,
+  `hourly=precipitation_probability,precipitation`, `forecast_days=2`,
+  `timeformat=unixtime`, `timezone=UTC`. A coordenada vai com 2 casas decimais
+  (cerca de 1 km). Espera máxima de 12 s. Configuração em `src/config/clima.ts`.
+- A Open-Meteo é gratuita para uso não comercial, com limite diário de chamadas;
+  o app faz uma chamada a cada 10 minutos por usuário.
 - Os testes automatizados usam respostas simuladas; as chamadas reais acontecem
   no navegador do usuário.
 - Geolocalização: alta precisão ativada, espera máxima de 20 s por leitura, aceita

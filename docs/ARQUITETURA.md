@@ -43,7 +43,7 @@ MolduraCelular            moldura do aparelho (só em telas largas) + barra de s
 ├── Cabecalho             logo, nome, botão de ajustes (abre a aba Sobre)
 ├── <main>                uma tela por aba
 │   ├── TelaInicio
-│   │   ├── PainelClima          chuva nas próximas 3 h e temperatura
+│   │   ├── PainelClima          chuva nas próximas 3 h, hora a hora, e temperatura
 │   │   ├── MapaBase             mapa Leaflet + controles
 │   │   ├── PainelRisco          não avaliado / seguro / em risco
 │   │   ├── Instrucoes + BotaoSocorro
@@ -149,9 +149,31 @@ config/inclinacao.ts     faixas, cores e limites de desenho
 - Os hooks de consulta guardam a função de consulta em um `ref`, para não
   refazer o trabalho se ela for recriada a cada renderização.
 
-## Estado atual (etapa 6)
+## Clima
 
-Layout, navegação, mapa base, localização, mapa de calor de altitude, grade de
-setores e inclinação funcionando. Ainda sem clima e sem análise de risco real: o
-painel de risco **não** usa a inclinação calculada e só muda pelo modo
-demonstração (isso entra na etapa 8).
+```
+services/clima.ts        monta a consulta, chama a Open-Meteo e valida a resposta
+domain/clima.ts          janela das próximas horas, resumo e classificação da chuva
+hooks/useClima.ts        estado (carregando / ok / erro) e atualização periódica
+components/inicio/
+  PainelClima.tsx        painel superior
+config/clima.ts          URL, janela, intervalos, faixas de intensidade, local padrão
+```
+
+- **Resumo:** maior probabilidade, soma dos volumes e intensidade pelo maior
+  volume em uma hora, na janela de 3 horas.
+- **Validação:** `interpretarClima` lança erro se faltar temperatura, listas ou
+  horas futuras. O app mostra "Sem dados" em vez de um número duvidoso.
+- **Atualização:** a cada 10 minutos; após falha, nova tentativa em 1 minuto. Uma
+  falha ao atualizar mantém a última previsão do mesmo local.
+- **Local da consulta:** posição utilizável do usuário, arredondada a 2 casas;
+  sem ela, o local padrão (Recife), com aviso no painel.
+- O horário da última previsão alimenta a barra "Monitoramento em tempo real".
+- Os horários vêm em segundos (UTC), o que evita erros de fuso; a exibição usa o
+  fuso do aparelho.
+
+## Estado atual (etapa 7)
+
+Layout, navegação, mapa base, localização, mapa de calor, grade, inclinação e
+previsão do tempo funcionando. Falta a análise de risco real: o painel de risco
+**não** usa a inclinação nem a chuva e só muda pelo modo demonstração (etapa 8).

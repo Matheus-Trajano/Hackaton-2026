@@ -11,7 +11,7 @@ indicada), atualização da documentação e um commit.
 | 4 | Geolocalização: GPS real, modo simulado, marcador e coordenadas | Testes de permissão negada, ponto fora de PE e modo simulado | ✅ Concluída |
 | 5 | Altitude: leitura dos tiles, mapa de calor e legenda | Testes da conversão de altitude, das cores e da grade de tiles | ✅ Concluída |
 | 6 | Grade de 100 m e cálculo de inclinação por setor | Testes com terrenos sintéticos, medidas da grade e desenho no mapa | ✅ Concluída |
-| 7 | Painel superior de clima (chuva nas próximas 3 h, temperatura) | Testes com respostas simuladas | ⏳ Pendente |
+| 7 | Painel superior de clima (chuva nas próximas 3 h, temperatura) | Testes com respostas simuladas da API | ✅ Concluída |
 | 8 | Motor de risco e painel inferior com instruções | Testes da combinação inclinação × chuva | ⏳ Pendente |
 | 9 | Botão "Pedir socorro", `/api/alerta`, ligação 199, aba de alertas | Teste do endpoint e do fluxo | ⏳ Pendente |
 | 10 | Acabamento: PWA, tratamento de falhas, documentação final, deploy | Todos os testes, build e roteiro manual | ⏳ Pendente |
@@ -25,6 +25,9 @@ indicada), atualização da documentação e um commit.
 - Mapa de calor de altitude: mais claro = mais baixo, mais vermelho = mais alto;
   escala não linear com paradas em 0, 20, 50, 100, 200, 500 e 1.000 m; mar transparente.
 - Risco final = inclinação do setor do usuário cruzada com a previsão de chuva.
+- Chuva: janela de 3 horas (hora em andamento e as duas seguintes); intensidade
+  pelo maior volume em uma hora: fraca < 5 mm, moderada < 25 mm, forte < 50 mm,
+  muito forte ≥ 50 mm.
 - Cobertura: Pernambuco.
 
 ## Resultado da verificação — etapa 1
@@ -98,3 +101,18 @@ indicada), atualização da documentação e um commit.
 - **Não verificado no ambiente de desenvolvimento:** a inclinação com dados
   reais de relevo (os testes usam terrenos sintéticos), o desempenho do desenho
   da grade em um celular e a aparência. Precisam ser conferidos no preview.
+
+## Resultado da verificação — etapa 7
+
+- `npm run lint` e `npm run typecheck`: sem erros.
+- `npm run test`: 153 testes, 153 aprovados (35 novos: classificação da chuva,
+  janela das próximas horas, resumo, montagem da consulta, interpretação da
+  resposta, respostas incompletas ou inválidas, falhas de rede, atualização
+  periódica, painel e fluxo completo no app).
+- `npm run build`: build de produção gerado.
+- Os testes passaram a bloquear o acesso à rede por padrão
+  (`tests/preparacao.ts`); cada teste fornece a sua resposta simulada.
+- **Não verificado no ambiente de desenvolvimento:** a chamada real à
+  Open-Meteo. O formato da resposta foi implementado a partir da documentação
+  conhecida da API, sem uma chamada de conferência. Se o formato real for
+  diferente, o painel mostra "Sem dados". Precisa ser conferido no preview.
