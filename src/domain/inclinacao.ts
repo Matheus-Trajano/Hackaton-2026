@@ -52,6 +52,8 @@ export async function inclinacaoDoSetor(
   setor: Setor,
   consultar: (ponto: Coordenada) => Promise<number>,
 ): Promise<Inclinacao> {
-  const altitudes = await Promise.all(pontosDeAmostra(setor).map(consultar));
+  // Chama com um único argumento: `map` também passa índice e lista, que uma função de
+  // consulta com parâmetros opcionais (como `consultarAltitude`) interpretaria como opções.
+  const altitudes = await Promise.all(pontosDeAmostra(setor).map((ponto) => consultar(ponto)));
   return inclinacaoHorn(altitudes, APP.tamanhoSetorMetros / 2);
 }

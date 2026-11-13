@@ -164,6 +164,8 @@ button:focus-visible {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--borda) transparent;
   padding: 0 10px 10px;
 }
 

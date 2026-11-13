@@ -2,7 +2,7 @@
 export const APP = {
   nome: 'Encosta Segura',
   slogan: 'Sempre ao seu lado',
-  versao: '0.8.0',
+  versao: '0.8.1',
   /** Lado de cada setor da grade, em metros. */
   tamanhoSetorMetros: 100,
   /** Telefone da Defesa Civil. */

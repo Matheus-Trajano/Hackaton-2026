@@ -131,3 +131,15 @@ indicada), atualização da documentação e um commit.
 - Os cenários de ponta a ponta usam GPS, terreno e previsão simulados.
   **Não verificado:** o resultado com dados reais (depende do relevo e do clima
   reais, ainda não conferidos no preview nas etapas 5 a 7).
+
+## Correção após a etapa 8 (versão 0.8.1)
+
+- O preview com dados reais mostrou que a inclinação nunca era calculada (ver
+  `docs/CHANGELOG.md`, 0.8.1). Confirmado pelo usuário no preview: mapa de calor,
+  altitude do ponto e clima funcionam com dados reais.
+- Lição registrada: as verificações das etapas 6 e 8 usavam consultas simuladas
+  mais tolerantes que a real. Os testes agora rejeitam argumentos extras e
+  incluem a consulta real.
+- `npm run verificar`: lint, tipos, 199 testes e build aprovados.
+- **Ainda não verificado com dados reais:** o cálculo de inclinação e o painel de
+  risco depois desta correção.

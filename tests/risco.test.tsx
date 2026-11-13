@@ -16,9 +16,10 @@ import type { EstadoRisco } from '@/types';
 const terreno = vi.hoisted(() => ({ percentual: 0, falhar: false }));
 vi.mock('@/services/terreno', async (original) => ({
   ...(await original<typeof import('@/services/terreno')>()),
-  consultarAltitude: (p: Coordenada) =>
-    terreno.falhar
-      ? Promise.reject(new Error('sem relevo'))
+  // Como a função real, tem parâmetros opcionais: receber argumentos a mais é erro de quem chama.
+  consultarAltitude: (p: Coordenada, ...extras: unknown[]) =>
+    terreno.falhar || extras.length > 0
+      ? Promise.reject(new Error(extras.length > 0 ? 'argumentos inesperados' : 'sem relevo'))
       : Promise.resolve(100 + (terreno.percentual / 100) * (p.lon - LIMITES_PE.oeste) * METROS_POR_GRAU_LON),
 }));
 
