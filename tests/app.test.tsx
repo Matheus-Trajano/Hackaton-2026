@@ -46,6 +46,13 @@ describe('layout (etapa 2)', () => {
     expect(screen.queryByLabelText('Previsão do tempo')).toBeNull();
   });
 
+  it('a aba Mapa mostra o mapa em tela cheia', () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Mapa' }));
+    expect(screen.getByLabelText('Mapa').classList.contains('mapa--cheio')).toBe(true);
+    expect(screen.queryByLabelText('Previsão do tempo')).toBeNull();
+  });
+
   it('o botão de ajustes abre a aba Sobre', () => {
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: 'Ajustes' }));

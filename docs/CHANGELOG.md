@@ -2,6 +2,18 @@
 
 Uma entrada por prompt/etapa.
 
+## 0.3.0 — Etapa 3: mapa base de Pernambuco
+
+- Mapa Leaflet centrado em Pernambuco, travado na região do estado.
+- Controles de aproximar, afastar e centralizar; escala métrica.
+- Troca de camada: satélite (Esri World Imagery, padrão) ou ruas (OpenStreetMap).
+- Aviso quando as imagens do mapa base não carregam.
+- Aba Mapa passa a mostrar o mapa em tela cheia.
+- Funções de limites geográficos em `src/domain/geografia.ts`.
+- Dependências novas: `leaflet` e `@types/leaflet`.
+- Verificação: lint, tipos, 24 testes e build aprovados; carregamento real dos
+  tiles a conferir no preview.
+
 ## 0.2.0 — Etapa 2: layout mobile
 
 - Moldura de celular para simular o dispositivo em telas largas, com barra de

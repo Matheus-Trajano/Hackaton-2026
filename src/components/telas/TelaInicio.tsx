@@ -1,8 +1,8 @@
-import { AreaMapa } from '@/components/inicio/AreaMapa';
 import { BarraMonitoramento } from '@/components/inicio/BarraMonitoramento';
 import { BotaoSocorro } from '@/components/inicio/BotaoSocorro';
 import { Instrucoes } from '@/components/inicio/Instrucoes';
 import { PainelClima } from '@/components/inicio/PainelClima';
+import { MapaBase } from '@/components/mapa/MapaBase';
 import { PainelRisco } from '@/components/inicio/PainelRisco';
 import type { EstadoRisco, ResumoClima } from '@/types';
 
@@ -17,7 +17,7 @@ export function TelaInicio({ estadoRisco, clima, ultimaAtualizacao, aoVerDetalhe
   return (
     <div className="inicio">
       <PainelClima clima={clima} />
-      <AreaMapa />
+      <MapaBase />
       <PainelRisco estado={estadoRisco} />
       <div className="inicio__acoes">
         <Instrucoes estado={estadoRisco} />

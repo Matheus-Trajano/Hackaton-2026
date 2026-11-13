@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Cabecalho } from '@/components/layout/Cabecalho';
 import { MolduraCelular } from '@/components/layout/MolduraCelular';
 import { NavegacaoInferior } from '@/components/layout/NavegacaoInferior';
+import { MapaBase } from '@/components/mapa/MapaBase';
 import { TelaEmBreve } from '@/components/telas/TelaEmBreve';
 import { TelaInicio } from '@/components/telas/TelaInicio';
 import { TelaSobre } from '@/components/telas/TelaSobre';
@@ -17,13 +18,7 @@ export function App() {
       <Cabecalho aoAbrirAjustes={() => setAba('sobre')} />
       <main className="conteudo">
         {aba === 'inicio' && <TelaInicio estadoRisco={estadoRisco} aoVerDetalhes={() => setAba('mapa')} />}
-        {aba === 'mapa' && (
-          <TelaEmBreve
-            titulo="Mapa"
-            icone="pino"
-            descricao="O mapa de relevo em tela cheia, com a grade de setores, ficará aqui."
-          />
-        )}
+        {aba === 'mapa' && <MapaBase className="mapa--cheio" />}
         {aba === 'alertas' && (
           <TelaEmBreve
             titulo="Alertas"
