@@ -2,6 +2,21 @@
 
 Uma entrada por prompt/etapa.
 
+## 0.2.0 — Etapa 2: layout mobile
+
+- Moldura de celular para simular o dispositivo em telas largas, com barra de
+  status e relógio real.
+- Cabeçalho com logo, nome e botão de ajustes.
+- Tela inicial conforme a imagem de referência: painel de clima, área do mapa,
+  painel de risco, instruções, botão "Pedir socorro" e barra de monitoramento.
+- Navegação inferior com quatro abas (Início, Mapa, Alertas, Sobre).
+- Aba Sobre com modo demonstração do estado de risco.
+- Painéis sem dados mostram "—"; botão de socorro desativado até a etapa 9.
+- Conjunto de ícones SVG próprio; tema escuro em CSS puro.
+- Tipos compartilhados em `src/types`.
+- Verificação: lint, tipos, 8 testes e build aprovados; conferência visual
+  pendente do usuário.
+
 ## 0.1.0 — Etapa 1: estrutura do projeto
 
 - Projeto Vite + React + TypeScript criado (tipagem estrita, alias `@/`).
