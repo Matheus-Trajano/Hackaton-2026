@@ -2,6 +2,29 @@
 
 Uma entrada por prompt/etapa.
 
+## 0.8.1 — Correção: inclinação e risco com dados reais
+
+Problema relatado pelo usuário no preview: o mapa de calor, a altitude e o clima
+funcionavam, mas a caixa de coordenadas mostrava "Inclinação indisponível" e o
+painel ficava em "Risco ainda não avaliado".
+
+- **Causa:** `inclinacaoDoSetor` chamava a consulta de altitude com
+  `pontos.map(consultar)`. O `map` passa também o índice e a lista, e a função
+  real (`consultarAltitude`) interpretava esses valores como suas opções
+  (carregador de tiles e zoom), falhando sempre. Os testes não pegaram porque as
+  consultas simuladas ignoravam os argumentos extras.
+- **Correção:** a consulta agora recebe só a coordenada. Isso também corrige a
+  pintura dos setores no mapa, que usa a mesma função.
+- **Testes:** a consulta simulada passou a rejeitar argumentos extras, e há um
+  teste novo que usa a consulta real lendo de um tile em memória. Com o código
+  antigo, 6 testes falham.
+- O mapa passa a abrir no modo **inclinação** (legenda "Relevo / Inclinação",
+  como na imagem de referência). Com o mapa afastado, onde os setores de 100 m
+  não cabem, esse modo mostra a altitude.
+- Botões renomeados para "Mostrar/Ocultar altitude".
+- Barra de rolagem da tela mais discreta.
+- Verificação: lint, tipos, 199 testes e build aprovados.
+
 ## 0.8.0 — Etapa 8: motor de risco
 
 - Motor de risco (`avaliarRisco`): cruza a inclinação do setor do usuário com a

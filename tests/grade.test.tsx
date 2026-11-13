@@ -20,6 +20,7 @@ import {
 import { classificarInclinacao, inclinacaoDoSetor, inclinacaoHorn, pontosDeAmostra } from '@/domain/inclinacao';
 import type { EstadoLocalizacao } from '@/domain/localizacao';
 import { useSetorAtual } from '@/hooks/useSetorAtual';
+import { consultarAltitude } from '@/services/terreno';
 
 afterEach(cleanup);
 
@@ -182,6 +183,28 @@ describe('inclinação de um setor', () => {
     expect(r.classe).toBe(classificarInclinacao(esperado));
   });
 
+  it('consulta cada ponto passando só a coordenada (regressão: índice do map virava opção da consulta)', async () => {
+    const consultar = vi.fn((...argumentos: unknown[]) =>
+      argumentos.length === 1 ? Promise.resolve(10) : Promise.reject(new Error('argumentos inesperados')),
+    );
+    await expect(inclinacaoDoSetor(setor, consultar as (p: Coordenada) => Promise<number>)).resolves.toMatchObject({
+      percentual: 0,
+    });
+    expect(consultar).toHaveBeenCalledTimes(9);
+  });
+
+  it('funciona com a consulta real de altitude, lendo de um tile em memória', async () => {
+    // Tile sintético: a altitude sobe 1 m a cada pixel para leste.
+    const tile = new Float32Array(256 * 256);
+    for (let i = 0; i < tile.length; i++) tile[i] = i % 256;
+    const carregar = vi.fn().mockResolvedValue(tile);
+    const consultar = (p: Coordenada) => consultarAltitude(p, carregar);
+    const r = await inclinacaoDoSetor(setor, consultar);
+    // ~9,5 m por pixel no zoom 14 nesta latitude → cerca de 10% de inclinação.
+    expect(r.percentual).toBeGreaterThan(7);
+    expect(r.percentual).toBeLessThan(14);
+  });
+
   it('falha se a altitude não puder ser consultada', async () => {
     await expect(inclinacaoDoSetor(setor, () => Promise.reject(new Error('sem rede')))).rejects.toThrow('sem rede');
   });
@@ -275,22 +298,43 @@ describe('inclinação na interface do mapa', () => {
   const aqui: EstadoLocalizacao = { modo: 'simulado', status: 'ok', posicao: RECIFE, naCobertura: true, nomeLocal: 'Teste' };
   const setor = setorDe(RECIFE);
 
-  it('o botão troca altitude por inclinação (uma camada de cada vez) e mostra a legenda das faixas', () => {
+  it('abre no modo inclinação; com o mapa afastado, mostra a altitude e pede para aproximar', () => {
     render(<MapaBase />);
     const el = screen.getByLabelText('Mapa').querySelector<HTMLElement>('.mapa__leaflet')!;
-    fireEvent.click(screen.getByRole('button', { name: 'Mostrar inclinação dos setores' }));
     expect(el.dataset.relevo).toBe('inclinacao');
-    expect(screen.queryByRole('group', { name: 'Legenda de altitude' })).toBeNull();
-    const legenda = screen.getByRole('group', { name: 'Legenda de inclinação' });
-    for (const texto of ['Baixo (< 5%)', 'Moderado (5% – 15%)', 'Alto (15% – 30%)', 'Muito alto (> 30%)']) {
+    expect(screen.getByRole('button', { name: 'Ocultar inclinação dos setores' }).getAttribute('aria-pressed')).toBe('true');
+    // Mapa aberto no estado inteiro: os setores não cabem, então vale a altitude.
+    expect(screen.getByRole('group', { name: 'Legenda de altitude' })).toBeTruthy();
+    expect(screen.queryByRole('group', { name: 'Legenda de inclinação' })).toBeNull();
+    expect(screen.getByText('Aproxime o mapa para ver a inclinação dos setores de 100 m.')).toBeTruthy();
+  });
+
+  it('com o mapa aproximado no usuário, mostra a legenda das faixas de inclinação', async () => {
+    render(<MapaBase localizacao={aqui} />);
+    const legenda = await screen.findByRole('group', { name: 'Legenda de inclinação' });
+    for (const texto of ['Relevo / Inclinação', 'Baixo (< 5%)', 'Moderado (5% – 15%)', 'Alto (15% – 30%)', 'Muito alto (> 30%)']) {
       expect(legenda.textContent).toContain(texto);
     }
-    // Mapa aberto no estado inteiro: pede para aproximar.
-    expect(screen.getByText('Aproxime o mapa para ver os setores de 100 m.')).toBeTruthy();
+    expect(screen.queryByRole('group', { name: 'Legenda de altitude' })).toBeNull();
+    expect(screen.queryByText(/Aproxime o mapa/)).toBeNull();
+  });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Mostrar relevo' }));
+  it('os botões alternam entre inclinação, altitude e nenhuma camada', async () => {
+    render(<MapaBase localizacao={aqui} />);
+    const el = screen.getByLabelText('Mapa').querySelector<HTMLElement>('.mapa__leaflet')!;
+    await screen.findByRole('group', { name: 'Legenda de inclinação' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar altitude' }));
     expect(el.dataset.relevo).toBe('altitude');
+    expect(screen.getByRole('group', { name: 'Legenda de altitude' })).toBeTruthy();
     expect(screen.queryByRole('group', { name: 'Legenda de inclinação' })).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ocultar altitude' }));
+    expect(el.dataset.relevo).toBe('nenhum');
+    expect(screen.queryByRole('group', { name: /Legenda/ })).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar inclinação dos setores' }));
+    expect(el.dataset.relevo).toBe('inclinacao');
   });
 
   it('mostra a inclinação do setor do usuário conforme o estado do cálculo', () => {

@@ -147,8 +147,12 @@ config/inclinacao.ts     faixas, cores e limites de desenho
 - **No mapa:** a grade só é desenhada a partir do zoom 15 e até 1.500 setores por
   vez; é redesenhada ao fim de cada movimento. Respostas de um desenho antigo são
   descartadas. Os resultados ficam em memória enquanto o mapa existir.
-- **Uma camada de cada vez:** `MapaBase` tem o modo `altitude`, `inclinacao` ou
-  `nenhum`.
+- **Uma camada de cada vez:** `MapaBase` tem o modo `inclinacao` (padrão),
+  `altitude` ou `nenhum`. No modo inclinação, abaixo do zoom 15 é exibida a
+  altitude.
+- Funções de consulta passadas como parâmetro são sempre chamadas com um único
+  argumento (nunca `lista.map(consultar)`), porque a consulta real tem
+  parâmetros opcionais.
 - Os hooks de consulta guardam a função de consulta em um `ref`, para não
   refazer o trabalho se ela for recriada a cada renderização.
 

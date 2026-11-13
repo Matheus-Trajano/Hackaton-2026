@@ -58,8 +58,9 @@ type ModoRelevo = 'altitude' | 'inclinacao' | 'nenhum';
 /**
  * Mapa base (Leaflet) centrado em Pernambuco e limitado ao estado, com
  * controles próprios de zoom, centralizar e troca de camada, e escala métrica.
- * Por cima do mapa base vai o mapa de calor de altitude ou a inclinação dos
- * setores de 100 m (um de cada vez). A grade aparece com o mapa aproximado.
+ * Por cima do mapa base vai a inclinação dos setores de 100 m (padrão) ou o mapa
+ * de calor de altitude, um de cada vez. A grade aparece com o mapa aproximado; com
+ * ele afastado, o modo inclinação mostra a altitude.
  * Quando há localização utilizável, mostra o marcador do usuário e foca nele.
  */
 export function MapaBase({ className = '', localizacao, aoUsarDemonstracao, altitude, setorAtual }: Props) {
@@ -71,9 +72,12 @@ export function MapaBase({ className = '', localizacao, aoUsarDemonstracao, alti
   const [base, setBase] = useState<IdMapaBase>(MAPA.baseInicial);
   const [zoom, setZoom] = useState<number>(MAPA.zoomInicial);
   const [falhaNosTiles, setFalhaNosTiles] = useState(false);
-  const [modoRelevo, setModoRelevo] = useState<ModoRelevo>('altitude');
-  const relevoVisivel = modoRelevo === 'altitude';
-  const inclinacaoVisivel = modoRelevo === 'inclinacao';
+  const [modoRelevo, setModoRelevo] = useState<ModoRelevo>('inclinacao');
+  // Os setores de 100 m só cabem na tela com o mapa aproximado. Com ele afastado, o modo
+  // inclinação mostra a altitude no lugar, para o mapa não ficar sem informação de relevo.
+  const zoomDaGrade = zoom >= GRADE.zoomMinimo;
+  const inclinacaoVisivel = modoRelevo === 'inclinacao' && zoomDaGrade;
+  const relevoVisivel = modoRelevo === 'altitude' || (modoRelevo === 'inclinacao' && !zoomDaGrade);
   const [falhaNoRelevo, setFalhaNoRelevo] = useState(false);
 
   // Cria o mapa uma única vez.
@@ -264,9 +268,9 @@ export function MapaBase({ className = '', localizacao, aoUsarDemonstracao, alti
         )}
         {relevoVisivel && <LegendaAltitude />}
         {inclinacaoVisivel && <LegendaInclinacao />}
-        {inclinacaoVisivel && zoom < GRADE.zoomMinimo && (
+        {modoRelevo === 'inclinacao' && !zoomDaGrade && (
           <p className="mapa__aviso mapa__aviso--neutro" role="status">
-            Aproxime o mapa para ver os setores de 100 m.
+            Aproxime o mapa para ver a inclinação dos setores de 100 m.
           </p>
         )}
       </div>
@@ -333,17 +337,19 @@ export function MapaBase({ className = '', localizacao, aoUsarDemonstracao, alti
         </button>
         <button
           type="button"
-          aria-label={relevoVisivel ? 'Ocultar relevo' : 'Mostrar relevo'}
-          aria-pressed={relevoVisivel}
-          onClick={() => setModoRelevo(relevoVisivel ? 'nenhum' : 'altitude')}
+          aria-label={modoRelevo === 'altitude' ? 'Ocultar altitude' : 'Mostrar altitude'}
+          aria-pressed={modoRelevo === 'altitude'}
+          onClick={() => setModoRelevo(modoRelevo === 'altitude' ? 'nenhum' : 'altitude')}
         >
           <Icone nome="montanha" tamanho={22} />
         </button>
         <button
           type="button"
-          aria-label={inclinacaoVisivel ? 'Ocultar inclinação dos setores' : 'Mostrar inclinação dos setores'}
-          aria-pressed={inclinacaoVisivel}
-          onClick={() => setModoRelevo(inclinacaoVisivel ? 'nenhum' : 'inclinacao')}
+          aria-label={
+            modoRelevo === 'inclinacao' ? 'Ocultar inclinação dos setores' : 'Mostrar inclinação dos setores'
+          }
+          aria-pressed={modoRelevo === 'inclinacao'}
+          onClick={() => setModoRelevo(modoRelevo === 'inclinacao' ? 'nenhum' : 'inclinacao')}
         >
           <Icone nome="grade" tamanho={22} />
         </button>

@@ -65,7 +65,7 @@ Por cima do mapa base, o app pinta a altitude do terreno: **mais claro = mais
 baixo, mais vermelho = mais alto**. O mar fica transparente. A escala vai de 0 a
 1.000 m ou mais e não é linear, para que os morros do litoral (dezenas de metros)
 apareçam tão bem quanto as serras do interior. O botão com o ícone de montanha
-liga e desliga a camada; a legenda fica no canto superior esquerdo. Com a
+mostra a altitude em qualquer zoom; a legenda fica no canto superior esquerdo. Com a
 localização ativa, a caixa de coordenadas mostra também a altitude do ponto.
 
 Os dados vêm dos AWS Terrain Tiles (resolução de origem de cerca de 30 m).
@@ -114,8 +114,9 @@ Se a consulta falhar, o painel mostra "Sem dados" em vez de números.
 ## Grade de setores e inclinação
 
 O território é dividido em setores de **100 m × 100 m**. Com o mapa aproximado
-(zoom 15 ou mais), a grade é desenhada sobre o mapa. O botão com o ícone de
-grade pinta cada setor pela sua classe de inclinação:
+(zoom 15 ou mais), a grade é desenhada sobre o mapa e cada setor é pintado pela
+sua classe de inclinação. Este é o modo padrão do mapa; com o mapa afastado, ele
+mostra a altitude no lugar. O botão com o ícone de grade liga e desliga o modo:
 
 | Classe | Inclinação | Cor |
 |---|---|---|

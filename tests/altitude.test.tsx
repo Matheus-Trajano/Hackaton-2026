@@ -230,25 +230,24 @@ describe('relevo no mapa', () => {
     nomeLocal: 'Teste',
   };
 
-  it('começa com o relevo ligado, com legenda e crédito da fonte', () => {
+  it('com o mapa afastado, mostra a altitude com legenda e crédito da fonte', () => {
     render(<MapaBase />);
     const mapa = screen.getByLabelText('Mapa');
-    expect(mapa.querySelector<HTMLElement>('.mapa__leaflet')?.dataset.relevo).toBe('altitude');
     const legenda = screen.getByRole('group', { name: 'Legenda de altitude' });
     expect(legenda.textContent).toContain('Altitude (m)');
     expect(legenda.textContent).toContain('1000+');
     expect(mapa.querySelector('.leaflet-control-attribution')?.textContent).toContain('Relevo');
   });
 
-  it('o botão oculta e mostra o relevo e a legenda', () => {
+  it('o botão de altitude liga e desliga a camada e a legenda', () => {
     render(<MapaBase />);
-    fireEvent.click(screen.getByRole('button', { name: 'Ocultar relevo' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar altitude' }));
+    expect(screen.getByRole('group', { name: 'Legenda de altitude' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Ocultar altitude' }));
     expect(screen.queryByRole('group', { name: 'Legenda de altitude' })).toBeNull();
     expect(screen.getByLabelText('Mapa').querySelector('.leaflet-control-attribution')?.textContent).not.toContain(
       'Relevo',
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Mostrar relevo' }));
-    expect(screen.getByRole('group', { name: 'Legenda de altitude' })).toBeTruthy();
   });
 
   it('mostra a altitude do usuário conforme o estado da consulta', () => {
