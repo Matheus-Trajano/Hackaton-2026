@@ -189,8 +189,13 @@ config/clima.ts          URL, janela, intervalos, faixas de intensidade, local p
   com erro ou disponível; a chuva pode estar carregando, com erro ou disponível.
 - **Princípios:** sem inclinação conhecida, o resultado é `indefinido` (nunca
   "seguro" por falta de dados); setor de inclinação alta ou muito alta é risco
-  mesmo sem previsão; inclinação moderada sem previsão vira `atencao`.
-- O texto do painel sempre cita os dados usados (percentual, classe e chuva).
+  mesmo sem previsão; abaixo de 20° o setor é `seguro`. O estado `atencao` não
+  é mais produzido pelo cálculo (só pelo modo demonstração).
+- O texto do painel sempre cita os dados usados (graus, classe e chuva). O
+  número exibido é arredondado para baixo (`grausParaExibir`), para nunca
+  contradizer a classe.
+- Classes de inclinação em graus (`config/inclinacao.ts`, `LIMITES_INCLINACAO`):
+  normal < 20°, alto 20° a 30°, muito alto > 30°.
 - **Modo demonstração:** `App.tsx` guarda `modoRisco`. Em `automatico` vale a
   avaliação real; nos demais, `avaliacaoDeDemonstracao`, e o painel exibe
   "Estado simulado".

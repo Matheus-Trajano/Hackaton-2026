@@ -17,7 +17,8 @@ export interface PedidoDeAlerta {
   localizacaoSimulada?: boolean;
   /** Estado de risco exibido no app no momento do pedido. */
   risco?: string;
-  inclinacaoPercentual?: number;
+  /** Inclinação do setor, em graus. */
+  inclinacaoGraus?: number;
   chuva?: string;
   /** Momento do pedido no aparelho (ISO 8601). */
   momento?: string;
@@ -51,7 +52,7 @@ export function validarPedido(dados: unknown): PedidoDeAlerta | string {
     precisaoMetros: numero(d.precisaoMetros) && d.precisaoMetros >= 0 ? d.precisaoMetros : undefined,
     localizacaoSimulada: d.localizacaoSimulada === true,
     risco: texto(d.risco, 40),
-    inclinacaoPercentual: numero(d.inclinacaoPercentual) ? d.inclinacaoPercentual : undefined,
+    inclinacaoGraus: numero(d.inclinacaoGraus) ? d.inclinacaoGraus : undefined,
     chuva: texto(d.chuva, 40),
     momento: texto(d.momento, 40),
   };

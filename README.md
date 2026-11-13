@@ -4,7 +4,7 @@ Protótipo (MVP) de um aplicativo mobile que avisa quando o usuário está em um
 encosta com risco de deslizamento, cruzando a localização do dispositivo, a
 inclinação do terreno e a previsão de chuva. Cobertura inicial: Pernambuco.
 
-> **Estado atual:** as 10 etapas do protótipo estão concluídas (versão 1.0.0). O app é instalável no Android como PWA. Falta apenas publicar na Vercel, passo descrito em [docs/DEPLOY.md](docs/DEPLOY.md). Veja
+> **Estado atual:** as 10 etapas do protótipo estão concluídas; versão 1.1.0 (inclinação em graus, risco só a partir de 20°). Falta apenas publicar/atualizar na Vercel, passo descrito em [docs/DEPLOY.md](docs/DEPLOY.md). Veja
 > [docs/PLANO.md](docs/PLANO.md).
 
 ## Stack
@@ -80,16 +80,21 @@ com a **previsão de chuva** do mesmo local:
 
 | Inclinação do setor | Chuva moderada ou mais forte | Sem chuva significativa | Previsão indisponível |
 |---|---|---|---|
-| Alta ou muito alta (≥ 15%) | **Risco** ("Você está em risco!") | **Risco** ("Você está em área de risco") | **Risco** |
-| Moderada (5% a < 15%) | **Atenção** | Seguro | **Atenção** (por cautela) |
-| Baixa (< 5%) | Seguro | Seguro | Seguro |
+| Alta (20° a 30°) ou muito alta (> 30°) | **Risco** ("Você está em risco!") | **Risco** ("Você está em área de risco") | **Risco** |
+| Normal (< 20°) | Seguro | Seguro | Seguro |
+
+- **Só conta como risco a inclinação a partir de 20°.** O motivo: a fonte de
+  relevo inclui a altura de prédios, o que cria inclinações pequenas e falsas em
+  áreas planas construídas; abaixo de 20° o setor é tratado como faixa normal.
+- A inclinação é medida e exibida em **graus**.
 
 - Um setor de inclinação alta ou muito alta é zona de risco com ou sem chuva; a
   chuva agrava o alerta.
 - Sem localização ou sem dados de relevo, o painel mostra "Risco ainda não
   avaliado" e o motivo — o app não supõe segurança.
-- Em risco, aparecem as instruções "O que fazer agora"; em atenção, "Fique
-  atento"; nos demais casos, dicas de prevenção.
+- Em risco, aparecem as instruções "O que fazer agora"; nos demais casos, dicas
+  de prevenção. O estado "Atenção" não é mais produzido pelo cálculo; existe só
+  no modo demonstração.
 - O app avalia apenas risco de **deslizamento em encosta**. Alagamento em área
   plana não é avaliado.
 
@@ -142,10 +147,9 @@ mostra a altitude no lugar. O botão com o ícone de grade liga e desliga o modo
 
 | Classe | Inclinação | Cor |
 |---|---|---|
-| Baixo | < 5% | verde |
-| Moderado | 5% – 15% | amarelo |
-| Alto | 15% – 30% | laranja |
-| Muito alto | > 30% | vermelho |
+| Normal | < 20° | verde |
+| Alto | 20° – 30° | laranja |
+| Muito alto | > 30° | vermelho |
 
 A posição do usuário é cruzada com a grade: o setor em que ele está ganha um
 contorno reforçado e a caixa de coordenadas mostra a inclinação desse setor.
@@ -208,6 +212,9 @@ Os ícones são gerados por `python3 scripts/gerar_icones.py` (requer Pillow).
 ## Limitações conhecidas
 
 - O envio de alerta é simulado: não chega à Defesa Civil.
+- A inclinação é a média de um setor de 100 m sobre dados de cerca de 30 m, o
+  que suaviza o relevo: encostas curtas e íngremes podem ficar abaixo de 20° e
+  aparecer como faixa normal. Falta conferir morros conhecidos com dados reais.
 - As regras de risco são parâmetros do protótipo, não critérios oficiais, e só
   consideram deslizamento em encosta (não alagamento).
 - A área coberta é o retângulo que envolve Pernambuco, não o contorno do estado.

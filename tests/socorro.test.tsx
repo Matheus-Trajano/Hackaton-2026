@@ -56,17 +56,21 @@ describe('rota /api/alerta', () => {
   });
 
   it('normaliza o pedido: descarta campos inválidos e ignora os desconhecidos', () => {
-    const p = validarPedido({ ...PEDIDO, precisaoMetros: -5, risco: 'x'.repeat(100), inclinacaoPercentual: '40', outro: 1 });
+    const p = validarPedido({ ...PEDIDO, precisaoMetros: -5, risco: 'x'.repeat(100), inclinacaoGraus: '24', outro: 1 });
     expect(p).toEqual({
       lat: -8.0153,
       lon: -34.9125,
       precisaoMetros: undefined,
       localizacaoSimulada: false,
       risco: undefined,
-      inclinacaoPercentual: undefined,
+      inclinacaoGraus: undefined,
       chuva: undefined,
       momento: AGORA.toISOString(),
     });
+  });
+
+  it('guarda a inclinação em graus quando é um número', () => {
+    expect(validarPedido({ ...PEDIDO, inclinacaoGraus: 24.5 })).toMatchObject({ inclinacaoGraus: 24.5 });
   });
 
   it('gera protocolos no formato ES-AAAAMMDD-XXXXXX', () => {
