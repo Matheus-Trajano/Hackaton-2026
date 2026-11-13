@@ -192,7 +192,7 @@ config/clima.ts          URL, janela, intervalos, faixas de intensidade, local p
   mesmo sem previsão; inclinação normal (menos de 15°) é `seguro`. O estado
   `atencao` não é produzido pelo cálculo, só pelo modo demonstração.
 - Classes de inclinação em graus (`config/inclinacao.ts`, `LIMITES_INCLINACAO`):
-  normal < 15°, alto 15° a < 35°, muito alto ≥ 35°.
+  normal < 15°, alto 15° a < 45°, muito alto ≥ 45°.
 - O texto do painel sempre cita os dados usados (percentual, classe e chuva).
 - **Modo demonstração:** `App.tsx` guarda `modoRisco`. Em `automatico` vale a
   avaliação real; nos demais, `avaliacaoDeDemonstracao`, e o painel exibe

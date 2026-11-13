@@ -80,7 +80,7 @@ com a **previsão de chuva** do mesmo local:
 
 | Inclinação do setor | Chuva moderada ou mais forte | Sem chuva significativa | Previsão indisponível |
 |---|---|---|---|
-| Alta (15° a 35°) ou muito alta (35° em diante) | **Risco** ("Você está em risco!") | **Risco** ("Você está em área de risco") | **Risco** |
+| Alta (15° a 45°) ou muito alta (45° em diante) | **Risco** ("Você está em risco!") | **Risco** ("Você está em área de risco") | **Risco** |
 | Normal (menos de 15°) | Seguro | Seguro | Seguro |
 
 - Um setor de inclinação alta ou muito alta é zona de risco com ou sem chuva; a
@@ -143,10 +143,10 @@ mostra a altitude no lugar. O botão com o ícone de grade liga e desliga o modo
 | Classe | Inclinação | Cor |
 |---|---|---|
 | Normal | 0° a 15° | verde |
-| Alto | 15° a 35° | laranja |
-| Muito alto | 35° em diante | vermelho |
+| Alto | 15° a 45° | laranja |
+| Muito alto | 45° em diante | vermelho |
 
-Os limites exatos de 15° e 35° já pertencem à faixa de cima. A classe é definida
+Os limites exatos de 15° e 45° já pertencem à faixa de cima. A classe é definida
 pelo ângulo em graus.
 
 A posição do usuário é cruzada com a grade: o setor em que ele está ganha um

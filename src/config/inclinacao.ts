@@ -5,7 +5,7 @@ export const LIMITES_INCLINACAO = {
   /** A partir deste ângulo a inclinação é alta; abaixo, normal. */
   alto: 15,
   /** A partir deste ângulo a inclinação é muito alta. */
-  muitoAlto: 35,
+  muitoAlto: 45,
 } as const;
 
 export interface FaixaInclinacao {
@@ -16,7 +16,7 @@ export interface FaixaInclinacao {
   cor: string;
 }
 
-/** Faixas de inclinação (em graus), da menor para a maior: normal 0 a 15 · alto 15 a 35 · muito alto 35 em diante. */
+/** Faixas de inclinação (em graus), da menor para a maior: normal 0 a 15 · alto 15 a 45 · muito alto 45 em diante. */
 export const FAIXAS_INCLINACAO: readonly FaixaInclinacao[] = [
   { classe: 'normal', rotulo: 'Normal', faixa: `0° – ${LIMITES_INCLINACAO.alto}°`, cor: '#2ecc40' },
   {

@@ -11,7 +11,7 @@ export interface Inclinacao {
   classe: ClasseInclinacao;
 }
 
-/** Classe pelo ângulo em graus: normal < 15° · alto 15° a < 35° · muito alto ≥ 35°. */
+/** Classe pelo ângulo em graus: normal < 15° · alto 15° a < 45° · muito alto ≥ 45°. */
 export function classificarInclinacao(graus: number): ClasseInclinacao {
   if (graus < LIMITES_INCLINACAO.alto) return 'normal';
   if (graus < LIMITES_INCLINACAO.muitoAlto) return 'alto';
