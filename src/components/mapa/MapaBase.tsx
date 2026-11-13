@@ -1,3 +1,4 @@
+import { formatarGraus } from '@/domain/inclinacao';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useEffect, useRef, useState } from 'react';
@@ -79,6 +80,9 @@ export function MapaBase({ className = '', localizacao, aoUsarDemonstracao, alti
   const inclinacaoVisivel = modoRelevo === 'inclinacao' && zoomDaGrade;
   const relevoVisivel = modoRelevo === 'altitude' || (modoRelevo === 'inclinacao' && !zoomDaGrade);
   const [falhaNoRelevo, setFalhaNoRelevo] = useState(false);
+  // Painéis sobre o mapa que o usuário pode recolher para ver mais do mapa.
+  const [legendaOculta, setLegendaOculta] = useState(false);
+  const [localOculto, setLocalOculto] = useState(false);
 
   // Cria o mapa uma única vez.
   useEffect(() => {
@@ -266,8 +270,18 @@ export function MapaBase({ className = '', localizacao, aoUsarDemonstracao, alti
             )}
           </div>
         )}
-        {relevoVisivel && <LegendaAltitude />}
-        {inclinacaoVisivel && <LegendaInclinacao />}
+        {(relevoVisivel || inclinacaoVisivel) && legendaOculta && (
+          <button
+            type="button"
+            className="botao-reabrir"
+            aria-label="Mostrar legenda"
+            onClick={() => setLegendaOculta(false)}
+          >
+            <Icone nome="info" tamanho={18} />
+          </button>
+        )}
+        {relevoVisivel && !legendaOculta && <LegendaAltitude aoOcultar={() => setLegendaOculta(true)} />}
+        {inclinacaoVisivel && !legendaOculta && <LegendaInclinacao aoOcultar={() => setLegendaOculta(true)} />}
         {modoRelevo === 'inclinacao' && !zoomDaGrade && (
           <p className="mapa__aviso mapa__aviso--neutro" role="status">
             Aproxime o mapa para ver a inclinação dos setores de 100 m.
@@ -275,8 +289,18 @@ export function MapaBase({ className = '', localizacao, aoUsarDemonstracao, alti
         )}
       </div>
 
-      {posicao && localizacao && (
-        <div className="mapa__coordenadas">
+      {posicao && localizacao && localOculto && (
+        <button
+          type="button"
+          className="botao-reabrir mapa__reabrir-local"
+          aria-label="Mostrar dados da localização"
+          onClick={() => setLocalOculto(false)}
+        >
+          <Icone nome="mira" tamanho={18} />
+        </button>
+      )}
+      {posicao && localizacao && !localOculto && (
+        <div className="mapa__coordenadas" role="group" aria-label="Dados da localização">
           <Icone nome="mira" tamanho={22} />
           <div>
             <p className="rotulo">
@@ -291,13 +315,21 @@ export function MapaBase({ className = '', localizacao, aoUsarDemonstracao, alti
             {altitude?.status === 'erro' && <p className="rotulo">Altitude indisponível</p>}
             {setorAtual?.status === 'ok' && (
               <p className="rotulo">
-                Inclinação do setor: {Math.round(setorAtual.inclinacao.percentual)}% (
+                Inclinação do setor: {formatarGraus(setorAtual.inclinacao.graus)} (
                 {faixaDaClasse(setorAtual.inclinacao.classe).rotulo.toLowerCase()})
               </p>
             )}
             {setorAtual?.status === 'carregando' && <p className="rotulo">Inclinação: calculando…</p>}
             {setorAtual?.status === 'erro' && <p className="rotulo">Inclinação indisponível</p>}
           </div>
+          <button
+            type="button"
+            className="botao-ocultar"
+            aria-label="Ocultar dados da localização"
+            onClick={() => setLocalOculto(true)}
+          >
+            <Icone nome="menos" tamanho={14} />
+          </button>
         </div>
       )}
 

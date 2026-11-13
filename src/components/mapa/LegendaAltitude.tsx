@@ -1,3 +1,4 @@
+import { Icone } from '@/components/ui/Icone';
 import { ESCALA_ALTITUDE } from '@/config/relevo';
 
 const GRADIENTE = `linear-gradient(90deg, ${ESCALA_ALTITUDE.map(
@@ -5,11 +6,18 @@ const GRADIENTE = `linear-gradient(90deg, ${ESCALA_ALTITUDE.map(
 ).join(', ')})`;
 
 /** Legenda do mapa de calor: claro = baixo, vermelho = alto. */
-export function LegendaAltitude() {
+export function LegendaAltitude({ aoOcultar }: { aoOcultar?: () => void }) {
   const ultima = ESCALA_ALTITUDE.length - 1;
   return (
     <div className="legenda" role="group" aria-label="Legenda de altitude">
-      <p className="legenda__titulo">Altitude (m)</p>
+      <div className="legenda__cabecalho">
+        <p className="legenda__titulo">Altitude (m)</p>
+        {aoOcultar && (
+          <button type="button" className="botao-ocultar" aria-label="Ocultar legenda" onClick={aoOcultar}>
+            <Icone nome="menos" tamanho={14} />
+          </button>
+        )}
+      </div>
       <div className="legenda__barra" style={{ background: GRADIENTE }} />
       <div className="legenda__valores">
         {ESCALA_ALTITUDE.map((parada, i) => (

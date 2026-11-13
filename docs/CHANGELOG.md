@@ -2,6 +2,16 @@
 
 Uma entrada por prompt/etapa.
 
+## 1.5.0 — Painéis do mapa recolhíveis e inclinação do setor em graus
+
+- A legenda (inclinação ou altitude) e o painel da localização ganharam um botão
+  pequeno para ocultar; no lugar fica um botão pequeno que os mostra de novo.
+- A linha "Inclinação do setor" passa a mostrar graus ("9° (normal)") no lugar
+  do percentual, no mesmo formato do painel de risco.
+- A escolha de ocultar não é guardada: ao recarregar o app os painéis voltam.
+- Verificação: lint, tipos, 298 testes e build aprovados. Aparência não
+  conferida em navegador.
+
 ## 1.4.0 — Quatro faixas de inclinação (volta do "Moderado")
 
 - Faixas: Normal (0° a 11°, verde), Moderado (11° a 20°, amarelo), Alto (20° a
