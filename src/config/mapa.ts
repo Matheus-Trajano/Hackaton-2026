@@ -35,6 +35,8 @@ export const MAPA = {
   /** Zoom em que o estado inteiro cabe na largura de um celular. */
   zoomInicial: 6,
   zoomMinimo: 6,
+  /** Zoom usado ao focar na posição do usuário (nível de bairro). */
+  zoomUsuario: 16,
   zoomMaximo: 18,
   /** Folga, em graus, além dos limites de PE até onde o mapa pode ser arrastado. */
   folgaGraus: 0.6,

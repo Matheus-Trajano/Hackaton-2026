@@ -4,7 +4,7 @@ Protótipo (MVP) de um aplicativo mobile que avisa quando o usuário está em um
 encosta com risco de deslizamento, cruzando a localização do dispositivo, a
 inclinação do terreno e a previsão de chuva. Cobertura inicial: Pernambuco.
 
-> **Estado atual:** etapa 3 de 10 concluída (layout mobile e mapa base de Pernambuco; localização, relevo, clima e análise de risco ainda não integrados). Veja
+> **Estado atual:** etapa 4 de 10 concluída (layout mobile, mapa base de Pernambuco e localização do usuário; relevo, clima e análise de risco ainda não integrados). Veja
 > [docs/PLANO.md](docs/PLANO.md).
 
 ## Stack
@@ -42,10 +42,10 @@ src/
     mapa/       mapa base (Leaflet) e seus controles
     telas/      uma tela por aba
     ui/         peças reutilizáveis (ícones)
-  hooks/        hooks React (relógio; depois geolocalização, clima, setor atual)
+  hooks/        hooks React (relógio, localização; depois clima e setor atual)
   services/     clientes das APIs externas
   domain/       lógica pura e testada (grade, inclinação, risco)
-  config/       constantes (limites de PE, tamanho do setor, provedores do mapa)
+  config/       constantes (limites de PE, setor, provedores do mapa, pontos de demonstração)
   types/        tipos compartilhados
   styles/       CSS global e tema
 tests/          testes automatizados
@@ -58,6 +58,22 @@ Mapa base em Leaflet, centrado em Pernambuco e travado na região do estado
 Pernambuco e trocar a camada (satélite Esri ↔ ruas OpenStreetMap), além da
 escala métrica. O mesmo componente aparece na tela inicial e, em tela cheia,
 na aba **Mapa**.
+
+## Localização
+
+Ao abrir, o app pede a localização do aparelho (GPS) e a acompanha
+continuamente. Com a posição dentro de Pernambuco, o mapa mostra o marcador, as
+coordenadas e a precisão, e foca no usuário.
+
+Se a permissão for negada, a localização falhar ou o usuário estiver fora de
+Pernambuco, o mapa mostra um aviso com o botão **Usar local de demonstração**.
+Na aba **Sobre** é possível escolher entre o GPS e sete locais de demonstração
+na Região Metropolitana do Recife (morros e áreas planas; coordenadas
+aproximadas).
+
+> A geolocalização do navegador exige HTTPS (a Vercel já fornece) e pode ser
+> bloqueada quando o app está embutido em outra página (iframe); nesse caso,
+> abra o endereço do app diretamente em uma aba.
 
 ## Simulação do dispositivo
 
