@@ -235,6 +235,11 @@ demonstração*: em "Automático" (padrão) o painel de risco usa os dados reais
 outras opções forçam um estado (seguro / atenção / em risco), e o painel avisa
 que o estado é simulado.
 
+Na mesma aba, a seção *Chuva de teste* simula chuva fraca, moderada ou forte no
+lugar da previsão real: o painel de chuva, o risco e as recomendações passam a
+responder a ela, conforme a inclinação do setor. O painel avisa que a chuva é
+simulada; "Automático" volta à previsão real.
+
 ## Documentação
 
 - [Plano de desenvolvimento](docs/PLANO.md)

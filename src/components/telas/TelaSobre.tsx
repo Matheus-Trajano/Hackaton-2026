@@ -1,4 +1,5 @@
 import { APP, ETAPA_ATUAL, TOTAL_ETAPAS } from '@/config/app';
+import { CHUVAS_DE_TESTE, type ChuvaDeTeste } from '@/config/clima';
 import { PONTOS_DEMO } from '@/config/pontosDemo';
 import { formatarCoordenada, mensagemLocalizacao, posicaoUtilizavel } from '@/domain/localizacao';
 import type { Instalacao } from '@/hooks/useInstalacao';
@@ -15,14 +16,31 @@ const OPCOES: { valor: ModoRisco; rotulo: string }[] = [
   { valor: 'risco', rotulo: 'Em risco' },
 ];
 
+/** `automatico` usa a previsão real; os demais simulam a chuva, para demonstração. */
+export type ModoChuva = 'automatico' | ChuvaDeTeste;
+
+const OPCOES_DE_CHUVA: { valor: ModoChuva; rotulo: string }[] = [
+  { valor: 'automatico', rotulo: 'Automático' },
+  ...(Object.keys(CHUVAS_DE_TESTE) as ChuvaDeTeste[]).map((valor) => ({ valor, rotulo: CHUVAS_DE_TESTE[valor].rotulo })),
+];
+
 interface Props {
+  modoChuva: ModoChuva;
+  aoMudarModoChuva: (modo: ModoChuva) => void;
   modoRisco: ModoRisco;
   aoMudarModoRisco: (modo: ModoRisco) => void;
   localizacao: Localizacao;
   instalacao: Instalacao;
 }
 
-export function TelaSobre({ modoRisco, aoMudarModoRisco, localizacao, instalacao }: Props) {
+export function TelaSobre({
+  modoChuva,
+  aoMudarModoChuva,
+  modoRisco,
+  aoMudarModoRisco,
+  localizacao,
+  instalacao,
+}: Props) {
   const { estado, pontoDemoId, usarGps, usarPontoDemo } = localizacao;
   const aviso = mensagemLocalizacao(estado);
   return (
@@ -65,10 +83,36 @@ export function TelaSobre({ modoRisco, aoMudarModoRisco, localizacao, instalacao
       </section>
 
       <section className="painel">
+        <h2>Chuva de teste</h2>
+        <p>
+          Em "Automático", o app usa a previsão real. As outras opções simulam a chuva das próximas horas: o
+          painel de chuva, o risco e as recomendações passam a responder a ela, conforme a inclinação do seu
+          setor.
+        </p>
+        <div className="segmentado" role="group" aria-label="Chuva de teste">
+          {OPCOES_DE_CHUVA.map((opcao) => (
+            <button
+              key={opcao.valor}
+              type="button"
+              aria-pressed={modoChuva === opcao.valor}
+              onClick={() => aoMudarModoChuva(opcao.valor)}
+            >
+              {opcao.rotulo}
+            </button>
+          ))}
+        </div>
+        {modoChuva !== 'automatico' && (
+          <p className="rotulo" role="status">
+            Chuva simulada: {CHUVAS_DE_TESTE[modoChuva].rotulo.toLowerCase()}. Veja o resultado na aba Início.
+          </p>
+        )}
+      </section>
+
+      <section className="painel">
         <h2>Modo demonstração</h2>
         <p>
           Em "Automático", o painel de risco usa os dados reais: a inclinação do seu setor e a previsão de
-          chuva. As outras opções forçam um estado, para demonstração.
+          chuva. As outras opções forçam um estado, para demonstração, e ignoram a chuva de teste.
         </p>
         <div className="segmentado" role="group" aria-label="Estado de risco simulado">
           {OPCOES.map((opcao) => (

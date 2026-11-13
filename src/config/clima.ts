@@ -21,6 +21,19 @@ export const FAIXAS_CHUVA: readonly FaixaChuva[] = [
   { intensidade: 'muito-forte', rotulo: 'Chuva muito forte', abaixoDe: Infinity },
 ];
 
+/** Chuvas que podem ser simuladas no modo demonstração (aba Sobre). */
+export type ChuvaDeTeste = 'fraca' | 'moderada' | 'forte';
+
+/**
+ * Valores usados em cada chuva de teste: volume por hora (dentro da faixa da
+ * intensidade) e probabilidade exibida. São valores de demonstração, não medições.
+ */
+export const CHUVAS_DE_TESTE: Record<ChuvaDeTeste, { rotulo: string; mmPorHora: number; probabilidade: number }> = {
+  fraca: { rotulo: 'Chuva fraca', mmPorHora: 2, probabilidade: 60 },
+  moderada: { rotulo: 'Chuva moderada', mmPorHora: 10, probabilidade: 80 },
+  forte: { rotulo: 'Chuva forte', mmPorHora: 30, probabilidade: 95 },
+};
+
 export const CLIMA = {
   urlPrevisao: 'https://api.open-meteo.com/v1/forecast',
   /** Janela resumida no painel. */

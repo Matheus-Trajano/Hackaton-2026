@@ -259,6 +259,14 @@ textarea {
   text-align: center;
 }
 
+.clima__simulado {
+  margin-top: 4px;
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--laranja);
+}
+
 .clima__icone {
   color: #8fb6ff;
   flex: none;
