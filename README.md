@@ -240,6 +240,7 @@ que o estado é simulado.
 - [APIs utilizadas](docs/APIS.md)
 - [Deploy na Vercel](docs/DEPLOY.md)
 - [Histórico de mudanças](docs/CHANGELOG.md)
+- [Uso de IA no desenvolvimento](docs/USO_DE_IA.md)
 
 ## Aviso
 

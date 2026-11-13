@@ -19,8 +19,9 @@ indicada), atualização da documentação e um commit.
 ## Regras de negócio já definidas
 
 - Setores da grade: 100 m × 100 m.
-- Classes de inclinação: Baixo < 5% · Moderado 5–15% · Alto 15–30% · Muito alto > 30%.
-  Nos limites: 5% já é moderado, 15% já é alto, 30% ainda é alto.
+- Classes de inclinação (desde a versão 1.4.0, em graus): Normal < 11° · Moderado
+  11°–20° · Alto 20°–45° · Muito alto ≥ 45°. O limite exato pertence à classe de cima.
+  (Até a 1.0.1: Baixo < 5% · Moderado 5–15% · Alto 15–30% · Muito alto > 30%.)
 - Inclinação do setor: método de Horn sobre 9 pontos do setor (espaçados 50 m).
 - Mapa de calor de altitude: mais claro = mais baixo, mais vermelho = mais alto;
   escala não linear com paradas em 0, 20, 50, 100, 200, 500 e 1.000 m; mar transparente.
