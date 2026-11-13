@@ -4,12 +4,12 @@ Protótipo (MVP) de um aplicativo mobile que avisa quando o usuário está em um
 encosta com risco de deslizamento, cruzando a localização do dispositivo, a
 inclinação do terreno e a previsão de chuva. Cobertura inicial: Pernambuco.
 
-> **Estado atual:** etapa 2 de 10 concluída (layout mobile; mapa, clima e análise de risco ainda não integrados). Veja
+> **Estado atual:** etapa 3 de 10 concluída (layout mobile e mapa base de Pernambuco; localização, relevo, clima e análise de risco ainda não integrados). Veja
 > [docs/PLANO.md](docs/PLANO.md).
 
 ## Stack
 
-React + TypeScript + Vite · Vitest + Testing Library · ESLint · deploy na Vercel.
+React + TypeScript + Vite · Leaflet (mapa) · Vitest + Testing Library · ESLint · deploy na Vercel.
 
 ## Como rodar
 
@@ -39,16 +39,25 @@ src/
   components/
     layout/     moldura de celular, cabeçalho, navegação inferior
     inicio/     painéis da tela inicial (clima, mapa, risco, instruções, socorro)
+    mapa/       mapa base (Leaflet) e seus controles
     telas/      uma tela por aba
     ui/         peças reutilizáveis (ícones)
   hooks/        hooks React (relógio; depois geolocalização, clima, setor atual)
   services/     clientes das APIs externas
   domain/       lógica pura e testada (grade, inclinação, risco)
-  config/       constantes (limites de PE, tamanho do setor, etc.)
+  config/       constantes (limites de PE, tamanho do setor, provedores do mapa)
   types/        tipos compartilhados
   styles/       CSS global e tema
 tests/          testes automatizados
 ```
+
+## Mapa
+
+Mapa base em Leaflet, centrado em Pernambuco e travado na região do estado
+(com uma pequena folga). Controles: aproximar, afastar, centralizar em
+Pernambuco e trocar a camada (satélite Esri ↔ ruas OpenStreetMap), além da
+escala métrica. O mesmo componente aparece na tela inicial e, em tela cheia,
+na aba **Mapa**.
 
 ## Simulação do dispositivo
 

@@ -16,7 +16,10 @@ export type NomeIcone =
   | 'grafico'
   | 'seta'
   | 'mira'
-  | 'relogio';
+  | 'relogio'
+  | 'mais'
+  | 'menos'
+  | 'camadas';
 
 const DESENHOS: Record<NomeIcone, ReactNode> = {
   casa: <path d="M3 11.5 12 4l9 7.5M5.5 10v9.5h4.5v-6h4v6h4.5V10" />,
@@ -35,7 +38,7 @@ const DESENHOS: Record<NomeIcone, ReactNode> = {
   info: (
     <>
       <circle cx="12" cy="12" r="9" />
-      <path d="M12 11v6M12 7.5v.500" />
+      <path d="M12 11v6M12 7.5v.5" />
     </>
   ),
   engrenagem: (
@@ -47,7 +50,7 @@ const DESENHOS: Record<NomeIcone, ReactNode> = {
   alerta: (
     <>
       <path d="M12 3.5 22 20.5H2L12 3.5Z" />
-      <path d="M12 10v5M12 17.5v.500" />
+      <path d="M12 10v5M12 17.5v.5" />
     </>
   ),
   proibido: (
@@ -71,7 +74,7 @@ const DESENHOS: Record<NomeIcone, ReactNode> = {
   ),
   chuva: (
     <>
-      <path d="M7 15.5a4.5 4.5 0 1 1 1.2-8.8A5.5 5.5 0 0 1 18.8 9a3.3 3.3 0 0 1-.800 6.5H7Z" />
+      <path d="M7 15.5a4.5 4.5 0 1 1 1.2-8.8A5.5 5.5 0 0 1 18.8 9a3.3 3.3 0 0 1-.8 6.5H7Z" />
       <path d="M8.5 18.5l-1 2.5M12.5 18.5l-1 2.5M16.5 18.5l-1 2.5" />
     </>
   ),
@@ -90,6 +93,9 @@ const DESENHOS: Record<NomeIcone, ReactNode> = {
       <path d="M12 2.5V6M12 18v3.5M2.5 12H6M18 12h3.5" />
     </>
   ),
+  mais: <path d="M12 5v14M5 12h14" />,
+  menos: <path d="M5 12h14" />,
+  camadas: <path d="m12 3.5 9 4.5-9 4.5L3 8l9-4.5ZM3.5 12.5 12 16.8l8.5-4.3M3.5 16.5 12 20.8l8.5-4.3" />,
   relogio: (
     <>
       <circle cx="12" cy="12" r="9" />

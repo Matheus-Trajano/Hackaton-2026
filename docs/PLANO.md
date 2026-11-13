@@ -7,7 +7,7 @@ indicada), atualização da documentação e um commit.
 |---|---|---|---|
 | 1 | Estrutura do projeto, configuração, documentação inicial, `vercel.json` | Lint, tipos, teste de exemplo e build | ✅ Concluída |
 | 2 | Layout mobile: cabeçalho, moldura de celular, navegação inferior, tema escuro | Build, testes de interface e conferência visual | ✅ Concluída |
-| 3 | Mapa base centrado em Pernambuco, com zoom, centralizar e escala | Mapa abre, limitado a PE | ⏳ Pendente |
+| 3 | Mapa base centrado em Pernambuco, com zoom, centralizar e escala | Testes do mapa e dos limites; conferência visual | ✅ Concluída |
 | 4 | Geolocalização: GPS real, modo simulado, marcador e coordenadas | Testes de permissão negada e ponto fora de PE | ⏳ Pendente |
 | 5 | Altitude: leitura dos tiles, mapa de calor e legenda | Testes da conversão de altitude | ⏳ Pendente |
 | 6 | Grade de 100 m e cálculo de inclinação por setor | Testes com terrenos sintéticos | ⏳ Pendente |
@@ -40,3 +40,14 @@ indicada), atualização da documentação e um commit.
 - `npm run build`: build de produção gerado.
 - Conferência visual: **pendente do usuário** — o ambiente de desenvolvimento não
   tem navegador, então a aparência não foi conferida por captura de tela.
+
+## Resultado da verificação — etapa 3
+
+- `npm run lint` e `npm run typecheck`: sem erros.
+- `npm run test`: 24 testes, 24 aprovados (16 novos: limites de Pernambuco com
+  cidades dentro e fora, criação do mapa, zoom com limite mínimo, centralizar,
+  troca de camada e aba Mapa em tela cheia).
+- `npm run build`: build de produção gerado.
+- **Não verificado no ambiente de desenvolvimento:** o carregamento real das
+  imagens do mapa (Esri e OpenStreetMap), porque o ambiente não acessa esses
+  servidores nem tem navegador. Precisa ser conferido no preview.

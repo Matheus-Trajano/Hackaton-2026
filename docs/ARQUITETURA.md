@@ -44,11 +44,12 @@ MolduraCelular            moldura do aparelho (só em telas largas) + barra de s
 ├── <main>                uma tela por aba
 │   ├── TelaInicio
 │   │   ├── PainelClima          chuva nas próximas 3 h e temperatura
-│   │   ├── AreaMapa             espaço reservado para o mapa
+│   │   ├── MapaBase             mapa Leaflet + controles
 │   │   ├── PainelRisco          não avaliado / seguro / em risco
 │   │   ├── Instrucoes + BotaoSocorro
 │   │   └── BarraMonitoramento
-│   ├── TelaEmBreve       abas Mapa e Alertas (provisórias)
+│   ├── MapaBase          aba Mapa (mesmo componente, em tela cheia)
+│   ├── TelaEmBreve       aba Alertas (provisória)
 │   └── TelaSobre         informações e modo demonstração
 └── NavegacaoInferior     Início · Mapa · Alertas · Sobre
 ```
@@ -62,8 +63,26 @@ MolduraCelular            moldura do aparelho (só em telas largas) + barra de s
 - Estilos: CSS puro em `src/styles/global.css`, com variáveis de cor do tema.
 - A moldura de celular é ativada por media query (`min-width: 600px`).
 
-## Estado atual (etapa 2)
+## Mapa
 
-Layout completo da tela inicial e navegação entre abas. Ainda sem mapa,
-localização, clima e análise de risco reais; o estado de risco só muda pelo
-modo demonstração.
+- `components/mapa/MapaBase.tsx` usa o Leaflet diretamente (sem `react-leaflet`):
+  o mapa é criado uma vez em um `useEffect` e guardado em um `ref`.
+- Configuração em `config/mapa.ts`: provedores, centro, zoom inicial/mínimo/máximo
+  e folga dos limites.
+- O mapa é travado em Pernambuco com `maxBounds` (limites de PE + folga) e
+  `minZoom`.
+- Os controles (aproximar, afastar, centralizar, trocar camada) são botões React
+  sobre o mapa; a escala é o controle nativo do Leaflet, só em metros/km.
+- Se nenhuma imagem do mapa base carregar, aparece um aviso sobre o mapa.
+- Um `ResizeObserver` recalcula o tamanho do mapa quando o painel muda.
+- `domain/geografia.ts` tem as funções puras de limites (`dentroDePernambuco`,
+  `expandirLimites`). A cobertura usa o **retângulo** que envolve o estado, não o
+  contorno exato — aceita trechos de estados vizinhos dentro do retângulo.
+- Limitação conhecida: a tela inicial e a aba Mapa criam instâncias separadas do
+  mapa, então posição e zoom não são preservados ao trocar de aba.
+
+## Estado atual (etapa 3)
+
+Layout completo, navegação entre abas e mapa base funcional. Ainda sem
+localização, relevo, clima e análise de risco reais; o estado de risco só muda
+pelo modo demonstração.
