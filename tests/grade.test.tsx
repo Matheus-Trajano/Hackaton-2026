@@ -138,6 +138,19 @@ describe('cálculo de inclinação', () => {
     expect(inclinacaoHorn(grade, 50).percentual).toBeCloseTo(50, 6);
   });
 
+  it('os graus da legenda são os mesmos limites da classificação (5%, 15% e 30%)', () => {
+    const emGraus = (percentual: number) =>
+      ((Math.atan(percentual / 100) * 180) / Math.PI).toFixed(1).replace('.', ',') + '°';
+    expect([5, 15, 30].map(emGraus)).toEqual(['2,9°', '8,5°', '16,7°']);
+    expect(FAIXAS_INCLINACAO.map((f) => f.faixa)).toEqual([
+      `< ${emGraus(5)}`,
+      `${emGraus(5)} – ${emGraus(15)}`,
+      `${emGraus(15)} – ${emGraus(30)}`,
+      `> ${emGraus(30)}`,
+    ]);
+    expect(FAIXAS_INCLINACAO.some((f) => f.faixa.includes('%'))).toBe(false);
+  });
+
   it('exige exatamente 9 altitudes', () => {
     expect(() => inclinacaoHorn([1, 2, 3], 50)).toThrow();
   });
@@ -312,7 +325,7 @@ describe('inclinação na interface do mapa', () => {
   it('com o mapa aproximado no usuário, mostra a legenda das faixas de inclinação', async () => {
     render(<MapaBase localizacao={aqui} />);
     const legenda = await screen.findByRole('group', { name: 'Legenda de inclinação' });
-    for (const texto of ['Relevo / Inclinação', 'Baixo (< 5%)', 'Moderado (5% – 15%)', 'Alto (15% – 30%)', 'Muito alto (> 30%)']) {
+    for (const texto of ['Relevo / Inclinação', 'Baixo (< 2,9°)', 'Moderado (2,9° – 8,5°)', 'Alto (8,5° – 16,7°)', 'Muito alto (> 16,7°)']) {
       expect(legenda.textContent).toContain(texto);
     }
     expect(screen.queryByRole('group', { name: 'Legenda de altitude' })).toBeNull();

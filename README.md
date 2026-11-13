@@ -142,10 +142,13 @@ mostra a altitude no lugar. O botão com o ícone de grade liga e desliga o modo
 
 | Classe | Inclinação | Cor |
 |---|---|---|
-| Baixo | < 5% | verde |
-| Moderado | 5% – 15% | amarelo |
-| Alto | 15% – 30% | laranja |
-| Muito alto | > 30% | vermelho |
+| Baixo | < 2,9° (5%) | verde |
+| Moderado | 2,9° – 8,5° (5% – 15%) | amarelo |
+| Alto | 8,5° – 16,7° (15% – 30%) | laranja |
+| Muito alto | > 16,7° (30%) | vermelho |
+
+A legenda do mapa mostra as faixas em graus; os limites são os mesmos de antes,
+apenas convertidos.
 
 A posição do usuário é cruzada com a grade: o setor em que ele está ganha um
 contorno reforçado e a caixa de coordenadas mostra a inclinação desse setor.
