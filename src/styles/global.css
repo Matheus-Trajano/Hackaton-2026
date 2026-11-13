@@ -847,6 +847,35 @@ button:focus-visible {
   gap: 8px;
 }
 
+/* ---------- Falhas ---------- */
+
+.aviso-conexao {
+  margin: 0;
+  padding: 6px 12px;
+  background: #6b4a00;
+  color: #fff;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.aviso-conexao a {
+  color: #fff;
+  font-weight: 700;
+}
+
+.falha {
+  min-height: 100dvh;
+  display: grid;
+  align-content: center;
+  gap: 12px;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 24px;
+  text-align: center;
+  line-height: 1.4;
+}
+
 /* ---------- Navegação inferior ---------- */
 
 .navegacao {

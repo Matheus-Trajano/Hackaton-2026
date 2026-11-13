@@ -221,7 +221,38 @@ components/telas/TelaAlertas.tsx
   moldura do celular); recebe o foco ao abrir e fecha com Esc, exceto durante o
   envio.
 
-## Estado atual (etapa 9)
+## App instalável (PWA) e falhas
 
-Todas as funções do MVP estão implementadas. Falta a etapa 10: instalação como
-app (PWA), tratamento de falhas restante, documentação final e o deploy.
+```
+public/manifest.webmanifest   nome, cores, modo tela cheia e ícones
+public/icones/                192 e 512 px, versão mascarável e ícone para iOS
+public/sw.js                  service worker (JavaScript puro, sem build)
+src/pwa/registrar.ts          registra o service worker, só em produção
+src/hooks/useInstalacao.ts    oferta de instalação do navegador
+src/hooks/useConexao.ts       aparelho com ou sem rede
+src/components/layout/BarreiraDeErro.tsx
+```
+
+Service worker — guarda só a interface, nunca dados:
+
+| Pedido | Estratégia |
+|---|---|
+| Página | Rede primeiro; sem rede, a última versão guardada |
+| `/assets/*` (nomes com hash) | Guardado primeiro |
+| Outros arquivos do app (manifesto, ícones) | Rede primeiro; guardado como reserva |
+| `/api/*`, outros servidores (mapa, relevo, clima), pedidos que não são GET | Não interfere |
+
+- Na instalação, o service worker baixa a página e os arquivos que ela cita;
+  assim o app abre offline já depois da primeira visita.
+- Como a página vem sempre da rede quando há conexão, um novo deploy chega ao
+  usuário sem precisar trocar a versão do cache. Arquivos antigos de `/assets/`
+  não são apagados (ocupam pouco; limpeza fica como melhoria).
+- Não foi usada biblioteca de PWA: o comportamento cabe em um arquivo pequeno e
+  testável (os testes carregam `sw.js` com rede e cache simulados).
+- A decisão de não guardar tiles e previsão é deliberada: mostrar relevo ou
+  chuva desatualizados como se fossem atuais seria pior do que mostrar "Sem dados".
+
+## Estado atual (versão 1.0.0)
+
+Todas as etapas do plano estão implementadas. Pendências fora do código:
+deploy na Vercel e conferência em aparelho real (ver `docs/PLANO.md`).

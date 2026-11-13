@@ -2,6 +2,21 @@
 
 Uma entrada por prompt/etapa.
 
+## 1.0.0 — Etapa 10: app instalável e acabamento
+
+- PWA: manifesto, ícones (192, 512, mascarável, iOS) e service worker próprio.
+- Service worker guarda só a interface; mapa, relevo, clima e API passam direto.
+- Aba Sobre: seção "Instalar no celular" com botão "Instalar app" quando o
+  navegador oferece a instalação.
+- Faixa "Sem internet" com o telefone 199 quando o aparelho fica sem rede.
+- Tela "Algo deu errado" para erros inesperados, com "Recarregar" e "Ligar 199".
+- `vercel.json`: `sw.js` sem cache e `/assets/` com cache longo.
+- Favicon; script `scripts/gerar_icones.py`.
+- Documentação final: instalação no Android, falhas tratadas, limitações.
+- Verificação: lint, tipos, 255 testes e build aprovados; versão de produção
+  conferida por HTTP. Service worker em navegador real, instalação no Android e
+  deploy na Vercel ainda não testados.
+
 ## 0.9.0 — Etapa 9: pedido de socorro
 
 - Botão "Pedir socorro" ativo: abre diálogo com "Ligar 199" e "Enviar alerta".

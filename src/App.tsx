@@ -1,3 +1,4 @@
+import { APP } from '@/config/app';
 import { useState } from 'react';
 import { Cabecalho } from '@/components/layout/Cabecalho';
 import { MolduraCelular } from '@/components/layout/MolduraCelular';
@@ -12,6 +13,8 @@ import { mensagemLocalizacao, posicaoUtilizavel } from '@/domain/localizacao';
 import { avaliacaoDeDemonstracao, avaliarRisco } from '@/domain/risco';
 import { CLIMA } from '@/config/clima';
 import { useAlertas } from '@/hooks/useAlertas';
+import { useConexao } from '@/hooks/useConexao';
+import { useInstalacao } from '@/hooks/useInstalacao';
 import { useAltitude } from '@/hooks/useAltitude';
 import { useClima } from '@/hooks/useClima';
 import { useSetorAtual } from '@/hooks/useSetorAtual';
@@ -69,11 +72,19 @@ export function App() {
       throw erro;
     }
   };
+  const conectado = useConexao();
+  const instalacao = useInstalacao();
   const usarDemonstracao = () => localizacao.usarPontoDemo(PONTO_DEMO_PADRAO.id);
 
   return (
     <MolduraCelular>
       <Cabecalho aoAbrirAjustes={() => setAba('sobre')} />
+      {!conectado && (
+        <p className="aviso-conexao" role="status">
+          Sem internet: mapa, previsão e envio de alerta não funcionam. Em emergência, ligue{' '}
+          <a href={`tel:${APP.telefoneEmergencia}`}>{APP.telefoneEmergencia}</a>.
+        </p>
+      )}
       <main className="conteudo">
         {aba === 'inicio' && (
           <TelaInicio
@@ -104,6 +115,7 @@ export function App() {
             modoRisco={modoRisco}
             aoMudarModoRisco={setModoRisco}
             localizacao={localizacao}
+            instalacao={instalacao}
           />
         )}
       </main>
