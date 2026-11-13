@@ -5,7 +5,6 @@ import { Icone } from '@/components/ui/Icone';
 import { LIMITES_PE } from '@/config/app';
 import { MAPA, MAPAS_BASE, type IdMapaBase } from '@/config/mapa';
 import { faixaDaClasse, GRADE } from '@/config/inclinacao';
-import { grausParaExibir } from '@/domain/inclinacao';
 import type { EstadoAltitude } from '@/hooks/useAltitude';
 import type { EstadoSetor } from '@/hooks/useSetorAtual';
 import { CamadaRelevo } from './CamadaRelevo';
@@ -292,7 +291,7 @@ export function MapaBase({ className = '', localizacao, aoUsarDemonstracao, alti
             {altitude?.status === 'erro' && <p className="rotulo">Altitude indisponível</p>}
             {setorAtual?.status === 'ok' && (
               <p className="rotulo">
-                Inclinação do setor: {grausParaExibir(setorAtual.inclinacao)}° (
+                Inclinação do setor: {Math.round(setorAtual.inclinacao.percentual)}% (
                 {faixaDaClasse(setorAtual.inclinacao.classe).rotulo.toLowerCase()})
               </p>
             )}

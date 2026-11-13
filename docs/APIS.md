@@ -47,7 +47,7 @@ Pedido (`POST`, `Content-Type: application/json`):
   "precisaoMetros": 12,
   "localizacaoSimulada": false,
   "risco": "risco",
-  "inclinacaoGraus": 24.5,
+  "inclinacaoPercentual": 40.2,
   "chuva": "forte",
   "momento": "2026-11-13T14:37:00.000Z"
 }

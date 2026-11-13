@@ -1,16 +1,4 @@
-export type ClasseInclinacao = 'normal' | 'alto' | 'muito-alto';
-
-/**
- * Limites das classes, em graus. Só inclinações a partir de `risco` contam como
- * risco: valores menores, comuns em áreas planas onde os prédios distorcem a
- * altitude, são tratados como faixa normal.
- */
-export const LIMITES_INCLINACAO = {
-  /** A partir deste ângulo o setor é de risco alto. */
-  risco: 20,
-  /** Acima deste ângulo o setor é de risco muito alto. */
-  muitoAlto: 30,
-} as const;
+export type ClasseInclinacao = 'baixo' | 'moderado' | 'alto' | 'muito-alto';
 
 export interface FaixaInclinacao {
   classe: ClasseInclinacao;
@@ -20,16 +8,15 @@ export interface FaixaInclinacao {
   cor: string;
 }
 
-/** Faixas de inclinação (em graus), da menor para a maior: normal < 20 · alto 20 a 30 · muito alto > 30. */
+/**
+ * Faixas de inclinação (em %), da menor para a maior:
+ * baixo < 5 · moderado 5 a < 15 · alto 15 a 30 · muito alto > 30.
+ */
 export const FAIXAS_INCLINACAO: readonly FaixaInclinacao[] = [
-  { classe: 'normal', rotulo: 'Normal', faixa: `< ${LIMITES_INCLINACAO.risco}°`, cor: '#2ecc40' },
-  {
-    classe: 'alto',
-    rotulo: 'Alto',
-    faixa: `${LIMITES_INCLINACAO.risco}° – ${LIMITES_INCLINACAO.muitoAlto}°`,
-    cor: '#ff851b',
-  },
-  { classe: 'muito-alto', rotulo: 'Muito alto', faixa: `> ${LIMITES_INCLINACAO.muitoAlto}°`, cor: '#e5262b' },
+  { classe: 'baixo', rotulo: 'Baixo', faixa: '< 5%', cor: '#2ecc40' },
+  { classe: 'moderado', rotulo: 'Moderado', faixa: '5% – 15%', cor: '#ffdc00' },
+  { classe: 'alto', rotulo: 'Alto', faixa: '15% – 30%', cor: '#ff851b' },
+  { classe: 'muito-alto', rotulo: 'Muito alto', faixa: '> 30%', cor: '#e5262b' },
 ];
 
 export function faixaDaClasse(classe: ClasseInclinacao): FaixaInclinacao {
