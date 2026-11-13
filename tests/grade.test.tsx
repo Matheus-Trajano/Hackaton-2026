@@ -359,6 +359,46 @@ describe('inclinação na interface do mapa', () => {
     expect(el.dataset.relevo).toBe('inclinacao');
   });
 
+  it('a linha do setor mostra graus, e não percentual', () => {
+    render(
+      <MapaBase
+        localizacao={aqui}
+        setorAtual={{ status: 'ok', setor, inclinacao: { percentual: 16, graus: 9.09, classe: 'normal' } }}
+      />,
+    );
+    const painel = screen.getByRole('group', { name: 'Dados da localização' });
+    expect(painel.textContent).toContain('Inclinação do setor: 9° (normal)');
+    expect(painel.textContent).not.toContain('%');
+  });
+
+  it('o painel da localização pode ser ocultado e reexibido por um botão pequeno', () => {
+    render(
+      <MapaBase
+        localizacao={aqui}
+        setorAtual={{ status: 'ok', setor, inclinacao: { percentual: 16, graus: 9.09, classe: 'normal' } }}
+      />,
+    );
+    expect(screen.queryByRole('button', { name: 'Mostrar dados da localização' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Ocultar dados da localização' }));
+    expect(screen.queryByRole('group', { name: 'Dados da localização' })).toBeNull();
+    expect(screen.queryByText(/Inclinação do setor/)).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar dados da localização' }));
+    expect(screen.getByRole('group', { name: 'Dados da localização' }).textContent).toContain('Inclinação do setor: 9°');
+    expect(screen.queryByRole('button', { name: 'Mostrar dados da localização' })).toBeNull();
+  });
+
+  it('a legenda pode ser ocultada e reexibida por um botão pequeno, sem afetar o painel da localização', async () => {
+    render(<MapaBase localizacao={aqui} setorAtual={{ status: 'carregando', setor }} />);
+    const [legenda] = await screen.findAllByRole('group', { name: /^Legenda de/ });
+    expect(legenda).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Ocultar legenda' }));
+    expect(screen.queryAllByRole('group', { name: /^Legenda de/ })).toHaveLength(0);
+    expect(screen.getByRole('group', { name: 'Dados da localização' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar legenda' }));
+    expect(screen.getAllByRole('group', { name: /^Legenda de/ })).toHaveLength(1);
+    expect(screen.queryByRole('button', { name: 'Mostrar legenda' })).toBeNull();
+  });
+
   it('mostra a inclinação do setor do usuário conforme o estado do cálculo', () => {
     const { rerender } = render(<MapaBase localizacao={aqui} setorAtual={{ status: 'carregando', setor }} />);
     expect(screen.getByText('Inclinação: calculando…')).toBeTruthy();
@@ -368,7 +408,7 @@ describe('inclinação na interface do mapa', () => {
         setorAtual={{ status: 'ok', setor, inclinacao: { percentual: 21.6, graus: 12.2, classe: 'moderado' } }}
       />,
     );
-    expect(screen.getByText(/Inclinação do setor: 22% \(\s*moderado\)/)).toBeTruthy();
+    expect(screen.getByText(/Inclinação do setor: 12,2° \(\s*moderado\)/)).toBeTruthy();
     rerender(<MapaBase localizacao={aqui} setorAtual={{ status: 'erro', setor }} />);
     expect(screen.getByText('Inclinação indisponível')).toBeTruthy();
   });
