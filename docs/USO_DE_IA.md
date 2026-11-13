@@ -127,8 +127,11 @@ início até a versão 1.5.0, e para que serviu cada uso.
 - **Não validou as regras de risco.** Os limites de inclinação e as regras de
   chuva foram definidos pelo responsável ou propostos como padrão de protótipo.
   Não foram comparados com mapeamento oficial nem com relevo real.
-- **Não gerou imagens com IA.** Os ícones do app são desenhos vetoriais escritos
-  em código e gerados por script (`scripts/gerar_icones.py`).
+- **Não gerou as imagens do app.** Até a versão 1.5.0 os ícones eram desenhos
+  vetoriais escritos em código. A partir da 1.5.1 o logotipo é uma arte enviada
+  pelo responsável, criada fora desta conversa (o agente escreveu um prompt de
+  logotipo para o Gemini a pedido dele); o agente apenas recortou a arte e gerou
+  os tamanhos por script (`scripts/gerar_icones.py`).
 - **Não publicou o app.** A publicação na Vercel é feita pela conta do
   responsável.
 - **Não roda dentro do app.** O alerta de socorro é simulado e nenhuma decisão

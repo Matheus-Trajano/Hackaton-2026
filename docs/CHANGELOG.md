@@ -2,6 +2,17 @@
 
 Uma entrada por prompt/etapa.
 
+## 1.5.2 — Novo símbolo no ícone do app e na miniatura do site
+
+- Ícones de instalação (192, 512, mascarável e iPhone) e miniatura da aba do
+  navegador (`public/favicon.png`) passam a usar o novo símbolo, sobre o fundo
+  azul-escuro do app.
+- `scripts/gerar_icones.py` agora gera todos a partir de
+  `scripts/logo-origem.png`.
+- Quem já instalou o app pode continuar vendo o ícone antigo até reinstalar.
+- Verificação: lint, tipos, testes e build aprovados. Aparência no aparelho não
+  conferida.
+
 ## 1.5.1 — Novo logotipo no cabeçalho
 
 - O escudo laranja do cabeçalho foi trocado pelo novo símbolo (escudo verde com
