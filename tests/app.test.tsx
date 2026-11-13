@@ -53,9 +53,10 @@ describe('layout (etapa 2)', () => {
     expect(screen.queryByLabelText('Previsão do tempo')).toBeNull();
   });
 
-  it('o botão de ajustes abre a aba Sobre', () => {
+  it('o cabeçalho não tem botão de ajustes; a aba Sobre abre pela navegação inferior', () => {
     render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: 'Ajustes' }));
+    expect(screen.queryByRole('button', { name: 'Ajustes' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Sobre' }));
     expect(screen.getByRole('heading', { name: 'Modo demonstração' })).toBeTruthy();
   });
 

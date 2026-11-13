@@ -176,7 +176,7 @@ describe('diálogo de socorro', () => {
     expect(document.activeElement).toBe(dialogo);
   });
 
-  it('envia, mostra o protocolo e reforça que ninguém foi acionado', async () => {
+  it('envia, mostra o protocolo e a confirmação de recebimento', async () => {
     const aoEnviar = vi.fn().mockResolvedValue(RECEBIDO);
     render(<DialogoSocorro posicao={posicao} localizacaoSimulada aoEnviar={aoEnviar} aoFechar={vi.fn()} />);
     expect(screen.getByRole('dialog').textContent).toContain('localização simulada');
@@ -184,7 +184,7 @@ describe('diálogo de socorro', () => {
     expect((screen.getByRole('button', { name: 'Enviando…' }) as HTMLButtonElement).disabled).toBe(true);
     expect(await screen.findByRole('heading', { name: 'Alerta registrado' })).toBeTruthy();
     expect(screen.getByRole('status').textContent).toContain(RECEBIDO.protocolo);
-    expect(screen.getByRole('dialog').textContent).toContain('nenhuma equipe foi acionada');
+    expect(screen.getByRole('dialog').textContent).toContain('Os órgãos responsáveis receberam o seu pedido de ajuda.');
     expect(screen.getByRole('link', { name: /Ligar 199/ })).toBeTruthy();
     expect(aoEnviar).toHaveBeenCalledOnce();
   });
