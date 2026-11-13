@@ -10,8 +10,10 @@ Uma entrada por prompt/etapa.
 - `scripts/gerar_icones.py` agora gera todos a partir de
   `scripts/logo-origem.png`.
 - Quem já instalou o app pode continuar vendo o ícone antigo até reinstalar.
-- Verificação: lint, tipos, testes e build aprovados. Aparência no aparelho não
-  conferida.
+- Verificação: lint, tipos e build aprovados; 296 de 298 testes passam. Os 2
+  que falham já falhavam na `main` antes desta mudança (botão "Ajustes" e
+  aviso de demonstração do socorro, alterados no PR #21). Aparência no aparelho
+  não conferida.
 
 ## 1.5.1 — Novo logotipo no cabeçalho
 
