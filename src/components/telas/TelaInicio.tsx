@@ -7,7 +7,8 @@ import { PainelRisco } from '@/components/inicio/PainelRisco';
 import type { EstadoLocalizacao } from '@/domain/localizacao';
 import type { EstadoAltitude } from '@/hooks/useAltitude';
 import type { EstadoSetor } from '@/hooks/useSetorAtual';
-import type { EstadoRisco, ResumoClima } from '@/types';
+import type { EstadoClima } from '@/hooks/useClima';
+import type { EstadoRisco } from '@/types';
 
 interface Props {
   estadoRisco: EstadoRisco;
@@ -15,8 +16,9 @@ interface Props {
   aoUsarDemonstracao: () => void;
   altitude: EstadoAltitude;
   setorAtual: EstadoSetor;
-  clima?: ResumoClima;
-  ultimaAtualizacao?: Date;
+  clima: EstadoClima;
+  /** De onde é a previsão do tempo. */
+  localDoClima: string;
   aoVerDetalhes: () => void;
 }
 
@@ -27,12 +29,12 @@ export function TelaInicio({
   altitude,
   setorAtual,
   clima,
-  ultimaAtualizacao,
+  localDoClima,
   aoVerDetalhes,
 }: Props) {
   return (
     <div className="inicio">
-      <PainelClima clima={clima} />
+      <PainelClima estado={clima} local={localDoClima} />
       <MapaBase
         localizacao={localizacao}
         aoUsarDemonstracao={aoUsarDemonstracao}
@@ -44,7 +46,10 @@ export function TelaInicio({
         <Instrucoes estado={estadoRisco} />
         <BotaoSocorro />
       </div>
-      <BarraMonitoramento ultimaAtualizacao={ultimaAtualizacao} aoVerDetalhes={aoVerDetalhes} />
+      <BarraMonitoramento
+        ultimaAtualizacao={clima.status === 'ok' ? clima.atualizadoEm : undefined}
+        aoVerDetalhes={aoVerDetalhes}
+      />
     </div>
   );
 }

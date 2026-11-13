@@ -4,7 +4,7 @@ Protótipo (MVP) de um aplicativo mobile que avisa quando o usuário está em um
 encosta com risco de deslizamento, cruzando a localização do dispositivo, a
 inclinação do terreno e a previsão de chuva. Cobertura inicial: Pernambuco.
 
-> **Estado atual:** etapa 6 de 10 concluída (layout mobile, mapa base, localização, mapa de calor de altitude, grade de setores de 100 m e inclinação; clima e análise de risco ainda não integrados). Veja
+> **Estado atual:** etapa 7 de 10 concluída (layout mobile, mapa base, localização, mapa de calor de altitude, grade de setores de 100 m, inclinação e previsão do tempo; a análise de risco ainda não está integrada). Veja
 > [docs/PLANO.md](docs/PLANO.md).
 
 ## Stack
@@ -42,8 +42,8 @@ src/
     mapa/       mapa base (Leaflet) e seus controles
     telas/      uma tela por aba
     ui/         peças reutilizáveis (ícones)
-  hooks/        hooks React (relógio, localização, altitude, setor atual; depois clima)
-  services/     clientes das APIs externas (terreno/altitude)
+  hooks/        hooks React (relógio, localização, altitude, setor atual, clima)
+  services/     clientes das APIs externas (terreno/altitude, clima)
   domain/       lógica pura e testada (grade, inclinação, risco)
   config/       constantes (limites de PE, setor, provedores do mapa, pontos de demonstração)
   types/        tipos compartilhados
@@ -69,6 +69,24 @@ liga e desliga a camada; a legenda fica no canto superior esquerdo. Com a
 localização ativa, a caixa de coordenadas mostra também a altitude do ponto.
 
 Os dados vêm dos AWS Terrain Tiles (resolução de origem de cerca de 30 m).
+
+## Previsão do tempo
+
+O painel superior mostra, para a posição do usuário, a previsão das **próximas
+3 horas**: maior probabilidade de chuva, intensidade, temperatura atual, o
+detalhe hora a hora e o volume total previsto. Os dados vêm da Open-Meteo e são
+atualizados a cada 10 minutos (ou 1 minuto depois de uma falha).
+
+| Intensidade | Maior volume em uma hora |
+|---|---|
+| Sem chuva | < 0,1 mm |
+| Chuva fraca | 0,1 a < 5 mm |
+| Chuva moderada | 5 a < 25 mm |
+| Chuva forte | 25 a < 50 mm |
+| Chuva muito forte | ≥ 50 mm |
+
+Sem localização utilizável, a previsão é a de Recife, e o painel informa isso.
+Se a consulta falhar, o painel mostra "Sem dados" em vez de números.
 
 ## Grade de setores e inclinação
 

@@ -2,6 +2,20 @@
 
 Uma entrada por prompt/etapa.
 
+## 0.7.0 — Etapa 7: previsão do tempo
+
+- Integração com a Open-Meteo: temperatura atual e chuva hora a hora.
+- Painel superior com probabilidade de chuva nas próximas 3 h, intensidade,
+  temperatura, detalhe hora a hora e volume total.
+- Classificação da chuva em cinco intensidades.
+- Atualização automática a cada 10 minutos; a última previsão é mantida se uma
+  atualização falhar.
+- Previsão para a posição do usuário ou, sem localização, para Recife (com aviso).
+- A barra de monitoramento passa a mostrar o horário da última atualização.
+- Testes: acesso à rede bloqueado por padrão.
+- Verificação: lint, tipos, 153 testes e build aprovados; chamada real à API a
+  conferir no preview.
+
 ## 0.6.0 — Etapa 6: grade de 100 m e inclinação
 
 - Grade de setores de 100 m × 100 m sobre o mapa (a partir do zoom 15).

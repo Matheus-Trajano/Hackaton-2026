@@ -8,7 +8,9 @@ import { TelaInicio } from '@/components/telas/TelaInicio';
 import { TelaSobre } from '@/components/telas/TelaSobre';
 import { PONTO_DEMO_PADRAO } from '@/config/pontosDemo';
 import { posicaoUtilizavel } from '@/domain/localizacao';
+import { CLIMA } from '@/config/clima';
 import { useAltitude } from '@/hooks/useAltitude';
+import { useClima } from '@/hooks/useClima';
 import { useSetorAtual } from '@/hooks/useSetorAtual';
 import { useLocalizacao } from '@/hooks/useLocalizacao';
 import type { Aba, EstadoRisco } from '@/types';
@@ -22,6 +24,13 @@ export function App() {
   const posicao = posicaoUtilizavel(localizacao.estado) ? localizacao.estado.posicao : null;
   const altitude = useAltitude(posicao);
   const setorAtual = useSetorAtual(posicao);
+  // Sem localização utilizável, a previsão é a do local padrão (e o painel diz isso).
+  const clima = useClima(posicao ?? CLIMA.localPadrao);
+  const localDoClima = posicao
+    ? localizacao.estado.modo === 'simulado'
+      ? (localizacao.estado.nomeLocal ?? 'o local simulado')
+      : 'sua localização'
+    : `${CLIMA.localPadrao.nome} (sem localização)`;
   const usarDemonstracao = () => localizacao.usarPontoDemo(PONTO_DEMO_PADRAO.id);
 
   return (
@@ -31,6 +40,8 @@ export function App() {
         {aba === 'inicio' && (
           <TelaInicio
             estadoRisco={estadoRisco}
+            clima={clima}
+            localDoClima={localDoClima}
             localizacao={localizacao.estado}
             aoUsarDemonstracao={usarDemonstracao}
             altitude={altitude}

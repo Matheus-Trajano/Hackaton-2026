@@ -189,9 +189,41 @@ button:focus-visible {
 /* Clima */
 
 .clima {
+  display: grid;
+  gap: 6px;
+}
+
+.clima__resumo {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.clima__horas {
+  list-style: none;
+  padding: 6px 0 0;
+  border-top: 1px solid var(--borda);
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: var(--texto-suave);
+}
+
+.clima__horas li {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.clima__horas strong {
+  color: var(--texto);
+}
+
+.clima__local {
+  text-align: center;
 }
 
 .clima__icone {
@@ -234,6 +266,26 @@ button:focus-visible {
   font-size: 0.72rem;
   font-weight: 600;
   white-space: nowrap;
+}
+
+.selo--sem-chuva {
+  background: #1d6b3f;
+}
+
+.selo--fraca {
+  background: #2a6fb0;
+}
+
+.selo--moderada {
+  background: var(--azul);
+}
+
+.selo--forte {
+  background: #d9570c;
+}
+
+.selo--muito-forte {
+  background: var(--vermelho);
 }
 
 .selo--neutro {

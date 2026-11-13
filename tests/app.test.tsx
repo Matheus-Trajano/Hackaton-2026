@@ -31,9 +31,11 @@ describe('layout (etapa 2)', () => {
     expect(screen.getByRole('button', { name: 'Início' }).getAttribute('aria-current')).toBe('page');
   });
 
-  it('não inventa dados: clima sem valores, risco não avaliado e socorro desativado', () => {
+  it('não inventa dados: clima sem valores, risco não avaliado e socorro desativado', async () => {
     render(<App />);
-    expect(screen.getByText('Sem dados')).toBeTruthy();
+    // A rede é bloqueada nos testes: o clima começa carregando e termina sem dados.
+    expect(screen.getByText('Carregando…')).toBeTruthy();
+    expect(await screen.findByText('Sem dados')).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Risco ainda não avaliado' })).toBeTruthy();
     const socorro = screen.getByRole('button', { name: /Pedir socorro/i }) as HTMLButtonElement;
     expect(socorro.disabled).toBe(true);
