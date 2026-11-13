@@ -100,8 +100,28 @@ MolduraCelular            moldura do aparelho (só em telas largas) + barra de s
   coordenadas. O mapa foca no usuário na primeira posição e quando a origem muda;
   depois só move o marcador, para não brigar com quem está navegando no mapa.
 
-## Estado atual (etapa 4)
+## Relevo
 
-Layout, navegação, mapa base e localização (real ou simulada) funcionando.
-Ainda sem relevo, grade de setores, clima e análise de risco reais; o estado de
-risco só muda pelo modo demonstração e ainda **não** depende da localização.
+```
+services/terreno.ts      baixa o tile PNG, lê os pixels (canvas) e guarda em cache
+domain/altitude.ts       decodifica Terrarium, escolhe a cor, localiza ponto no tile
+components/mapa/
+  CamadaRelevo.ts        camada do Leaflet que pinta cada tile em um canvas
+  LegendaAltitude.tsx    legenda da escala
+hooks/useAltitude.ts     altitude da posição do usuário
+config/relevo.ts         URL, zooms, opacidade e escala de cores
+```
+
+- Um único cache de tiles (`tilesDeAltitude`) serve o mapa de calor e as
+  consultas de altitude; falhas não ficam guardadas.
+- A escala de cores (`ESCALA_ALTITUDE`) é fixa, igual em todo o estado, e não
+  linear. Altitude ≤ 0 fica transparente.
+- Os tiles são buscados até o zoom 14; em zooms maiores a imagem é ampliada.
+- `posicaoNoTile` (Web Mercator) é a base para a grade de setores da etapa 6.
+- Se nenhum tile de relevo carregar, o mapa mostra um aviso.
+
+## Estado atual (etapa 5)
+
+Layout, navegação, mapa base, localização (real ou simulada) e mapa de calor de
+altitude funcionando. Ainda sem grade de setores, inclinação, clima e análise de
+risco reais; o estado de risco só muda pelo modo demonstração.

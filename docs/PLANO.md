@@ -9,7 +9,7 @@ indicada), atualização da documentação e um commit.
 | 2 | Layout mobile: cabeçalho, moldura de celular, navegação inferior, tema escuro | Build, testes de interface e conferência visual | ✅ Concluída |
 | 3 | Mapa base centrado em Pernambuco, com zoom, centralizar e escala | Testes do mapa e dos limites; conferência visual | ✅ Concluída |
 | 4 | Geolocalização: GPS real, modo simulado, marcador e coordenadas | Testes de permissão negada, ponto fora de PE e modo simulado | ✅ Concluída |
-| 5 | Altitude: leitura dos tiles, mapa de calor e legenda | Testes da conversão de altitude | ⏳ Pendente |
+| 5 | Altitude: leitura dos tiles, mapa de calor e legenda | Testes da conversão de altitude, das cores e da grade de tiles | ✅ Concluída |
 | 6 | Grade de 100 m e cálculo de inclinação por setor | Testes com terrenos sintéticos | ⏳ Pendente |
 | 7 | Painel superior de clima (chuva nas próximas 3 h, temperatura) | Testes com respostas simuladas | ⏳ Pendente |
 | 8 | Motor de risco e painel inferior com instruções | Testes da combinação inclinação × chuva | ⏳ Pendente |
@@ -20,7 +20,8 @@ indicada), atualização da documentação e um commit.
 
 - Setores da grade: 100 m × 100 m.
 - Classes de inclinação: Baixo < 5% · Moderado 5–15% · Alto 15–30% · Muito alto > 30%.
-- Mapa de calor de altitude: mais claro = mais baixo, mais vermelho = mais alto.
+- Mapa de calor de altitude: mais claro = mais baixo, mais vermelho = mais alto;
+  escala não linear com paradas em 0, 20, 50, 100, 200, 500 e 1.000 m; mar transparente.
 - Risco final = inclinação do setor do usuário cruzada com a previsão de chuva.
 - Cobertura: Pernambuco.
 
@@ -62,3 +63,19 @@ indicada), atualização da documentação e um commit.
 - `npm run build`: build de produção gerado.
 - Os testes usam um GPS simulado. **Não verificado:** a leitura do GPS de um
   aparelho real e a aparência do marcador; precisam ser conferidas no preview.
+
+## Resultado da verificação — etapa 5
+
+- `npm run lint` e `npm run typecheck`: sem erros.
+- `npm run test`: 77 testes, 77 aprovados (35 novos: decodificação Terrarium,
+  escala de cores, mar transparente, localização na grade de tiles — conferida
+  contra a projeção do próprio Leaflet —, consulta de altitude, cache, hook e
+  controles no mapa).
+- `npm run build`: build de produção gerado.
+- Durante a etapa, um teste falhou porque o valor esperado, calculado à mão,
+  estava errado (linha do tile de Recife: 8559, não 8558). O código estava
+  certo; o teste foi corrigido e reforçado com a comparação contra o Leaflet.
+- **Não verificado no ambiente de desenvolvimento:** o download real dos tiles
+  de relevo, a leitura dos pixels no navegador (depende de o servidor permitir
+  acesso de outros domínios) e a aparência do mapa de calor. Precisam ser
+  conferidos no preview.

@@ -4,6 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import { Icone } from '@/components/ui/Icone';
 import { LIMITES_PE } from '@/config/app';
 import { MAPA, MAPAS_BASE, type IdMapaBase } from '@/config/mapa';
+import type { EstadoAltitude } from '@/hooks/useAltitude';
+import { CamadaRelevo } from './CamadaRelevo';
+import { LegendaAltitude } from './LegendaAltitude';
 import { expandirLimites } from '@/domain/geografia';
 import {
   formatarCoordenada,
@@ -39,14 +42,17 @@ interface Props {
   localizacao?: EstadoLocalizacao;
   /** Ação do botão oferecido quando a localização real não está disponível. */
   aoUsarDemonstracao?: () => void;
+  /** Altitude da posição do usuário, quando conhecida. */
+  altitude?: EstadoAltitude;
 }
 
 /**
  * Mapa base (Leaflet) centrado em Pernambuco e limitado ao estado, com
  * controles próprios de zoom, centralizar e troca de camada, e escala métrica.
+ * Por cima do mapa base vai o mapa de calor de altitude (pode ser ocultado).
  * Quando há localização utilizável, mostra o marcador do usuário e foca nele.
  */
-export function MapaBase({ className = '', localizacao, aoUsarDemonstracao }: Props) {
+export function MapaBase({ className = '', localizacao, aoUsarDemonstracao, altitude }: Props) {
   const elemento = useRef<HTMLDivElement>(null);
   const mapa = useRef<L.Map | null>(null);
   const camada = useRef<L.TileLayer | null>(null);
@@ -55,6 +61,8 @@ export function MapaBase({ className = '', localizacao, aoUsarDemonstracao }: Pr
   const [base, setBase] = useState<IdMapaBase>(MAPA.baseInicial);
   const [zoom, setZoom] = useState<number>(MAPA.zoomInicial);
   const [falhaNosTiles, setFalhaNosTiles] = useState(false);
+  const [relevoVisivel, setRelevoVisivel] = useState(true);
+  const [falhaNoRelevo, setFalhaNoRelevo] = useState(false);
 
   // Cria o mapa uma única vez.
   useEffect(() => {
@@ -114,6 +122,33 @@ export function MapaBase({ className = '', localizacao, aoUsarDemonstracao }: Pr
     };
   }, [base]);
 
+  // Mapa de calor de altitude, por cima do mapa base.
+  useEffect(() => {
+    const m = mapa.current;
+    if (!m || !relevoVisivel) return;
+    const relevo = new CamadaRelevo({
+      bounds: [
+        [AREA_PERMITIDA.sul, AREA_PERMITIDA.oeste],
+        [AREA_PERMITIDA.norte, AREA_PERMITIDA.leste],
+      ],
+      maxZoom: MAPA.zoomMaximo,
+      zIndex: 2,
+    });
+    let carregouAlgum = false;
+    relevo.on('tileload', () => {
+      carregouAlgum = true;
+      setFalhaNoRelevo(false);
+    });
+    relevo.on('tileerror', () => {
+      if (!carregouAlgum) setFalhaNoRelevo(true);
+    });
+    relevo.addTo(m);
+    return () => {
+      relevo.remove();
+      setFalhaNoRelevo(false);
+    };
+  }, [relevoVisivel]);
+
   // Marcador do usuário: cria, move ou remove conforme a localização.
   const posicao = localizacao && posicaoUtilizavel(localizacao) ? localizacao.posicao : null;
   const lat = posicao?.lat;
@@ -166,12 +201,17 @@ export function MapaBase({ className = '', localizacao, aoUsarDemonstracao }: Pr
 
   return (
     <section className={`mapa ${className}`} aria-label="Mapa">
-      <div ref={elemento} className="mapa__leaflet" data-zoom={zoom} data-base={base} />
+      <div ref={elemento} className="mapa__leaflet" data-zoom={zoom} data-base={base} data-relevo={relevoVisivel} />
 
       <div className="mapa__avisos">
         {falhaNosTiles && (
           <p className="mapa__aviso" role="status">
             Não foi possível carregar o mapa base. Verifique a conexão ou troque a camada.
+          </p>
+        )}
+        {falhaNoRelevo && (
+          <p className="mapa__aviso" role="status">
+            Não foi possível carregar os dados de relevo.
           </p>
         )}
         {avisoLocalizacao && (
@@ -184,6 +224,7 @@ export function MapaBase({ className = '', localizacao, aoUsarDemonstracao }: Pr
             )}
           </div>
         )}
+        {relevoVisivel && <LegendaAltitude />}
       </div>
 
       {posicao && localizacao && (
@@ -197,6 +238,9 @@ export function MapaBase({ className = '', localizacao, aoUsarDemonstracao }: Pr
             {localizacao.modo === 'gps' && localizacao.precisaoMetros !== undefined && (
               <p className="rotulo">Precisão: ±{Math.round(localizacao.precisaoMetros)} m</p>
             )}
+            {altitude?.status === 'ok' && <p className="rotulo">Altitude: {Math.round(altitude.metros)} m</p>}
+            {altitude?.status === 'carregando' && <p className="rotulo">Altitude: consultando…</p>}
+            {altitude?.status === 'erro' && <p className="rotulo">Altitude indisponível</p>}
           </div>
         </div>
       )}
@@ -234,6 +278,14 @@ export function MapaBase({ className = '', localizacao, aoUsarDemonstracao }: Pr
           }}
         >
           <Icone nome="camadas" tamanho={22} />
+        </button>
+        <button
+          type="button"
+          aria-label={relevoVisivel ? 'Ocultar relevo' : 'Mostrar relevo'}
+          aria-pressed={relevoVisivel}
+          onClick={() => setRelevoVisivel((visivel) => !visivel)}
+        >
+          <Icone nome="montanha" tamanho={22} />
         </button>
       </div>
     </section>

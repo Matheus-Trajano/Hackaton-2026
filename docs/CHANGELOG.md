@@ -2,6 +2,18 @@
 
 Uma entrada por prompt/etapa.
 
+## 0.5.0 — Etapa 5: mapa de calor de altitude
+
+- Leitura dos AWS Terrain Tiles (formato Terrarium) com cache em memória.
+- Camada de mapa de calor: claro = baixo, vermelho = alto; mar transparente.
+- Escala não linear (0 a 1.000 m+) e legenda no mapa.
+- Botão para ocultar/mostrar o relevo.
+- Altitude da posição do usuário na caixa de coordenadas.
+- Aviso quando os dados de relevo não carregam.
+- Cálculo da posição na grade de tiles (`posicaoNoTile`), validado contra o Leaflet.
+- Verificação: lint, tipos, 77 testes e build aprovados; download real dos tiles
+  e aparência a conferir no preview.
+
 ## 0.4.0 — Etapa 4: geolocalização
 
 - Localização pelo GPS do aparelho, acompanhada continuamente.

@@ -5,12 +5,14 @@ import { PainelClima } from '@/components/inicio/PainelClima';
 import { MapaBase } from '@/components/mapa/MapaBase';
 import { PainelRisco } from '@/components/inicio/PainelRisco';
 import type { EstadoLocalizacao } from '@/domain/localizacao';
+import type { EstadoAltitude } from '@/hooks/useAltitude';
 import type { EstadoRisco, ResumoClima } from '@/types';
 
 interface Props {
   estadoRisco: EstadoRisco;
   localizacao: EstadoLocalizacao;
   aoUsarDemonstracao: () => void;
+  altitude: EstadoAltitude;
   clima?: ResumoClima;
   ultimaAtualizacao?: Date;
   aoVerDetalhes: () => void;
@@ -20,6 +22,7 @@ export function TelaInicio({
   estadoRisco,
   localizacao,
   aoUsarDemonstracao,
+  altitude,
   clima,
   ultimaAtualizacao,
   aoVerDetalhes,
@@ -27,7 +30,7 @@ export function TelaInicio({
   return (
     <div className="inicio">
       <PainelClima clima={clima} />
-      <MapaBase localizacao={localizacao} aoUsarDemonstracao={aoUsarDemonstracao} />
+      <MapaBase localizacao={localizacao} aoUsarDemonstracao={aoUsarDemonstracao} altitude={altitude} />
       <PainelRisco estado={estadoRisco} />
       <div className="inicio__acoes">
         <Instrucoes estado={estadoRisco} />

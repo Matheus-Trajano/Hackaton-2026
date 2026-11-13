@@ -322,6 +322,33 @@ button:focus-visible {
   font-weight: 600;
 }
 
+.legenda {
+  justify-self: start;
+  width: 172px;
+  padding: 6px 8px;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  background: rgb(13 21 38 / 88%);
+}
+
+.legenda__titulo {
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.legenda__barra {
+  height: 10px;
+  margin: 4px 0 2px;
+  border-radius: 3px;
+}
+
+.legenda__valores {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6rem;
+  color: var(--texto-suave);
+}
+
 .mapa__coordenadas {
   position: absolute;
   left: 10px;
