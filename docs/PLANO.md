@@ -191,3 +191,10 @@ Pedido (valores finais): normal de 0° a 15° (une baixo e moderado), alto de
 15° a 45°, muito alto de 45° em diante.
 Verificação: lint, tipos, 261 testes e build aprovados, incluindo os limites
 (14,99° normal; 15° e 44,99° alto; 45° muito alto). Não conferido com relevo real.
+
+## Depois do plano — versão 1.3.0: alerta de alagamento
+
+Pedido: setores na faixa "Normal" devem gerar alerta de alagamento.
+Regra adotada: inclinação normal + chuva moderada ou mais forte prevista nas
+próximas 3 h. Verificação: lint, tipos, 271 testes e build aprovados. Não
+conferido com dados reais. O alerta não usa dados de drenagem, rios ou cotas.

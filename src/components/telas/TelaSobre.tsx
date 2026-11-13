@@ -11,7 +11,7 @@ export type ModoRisco = 'automatico' | EstadoRisco;
 const OPCOES: { valor: ModoRisco; rotulo: string }[] = [
   { valor: 'automatico', rotulo: 'Automático' },
   { valor: 'seguro', rotulo: 'Área segura' },
-  { valor: 'atencao', rotulo: 'Atenção' },
+  { valor: 'atencao', rotulo: 'Alagamento' },
   { valor: 'risco', rotulo: 'Em risco' },
 ];
 

@@ -189,8 +189,11 @@ config/clima.ts          URL, janela, intervalos, faixas de intensidade, local p
   com erro ou disponível; a chuva pode estar carregando, com erro ou disponível.
 - **Princípios:** sem inclinação conhecida, o resultado é `indefinido` (nunca
   "seguro" por falta de dados); setor de inclinação alta ou muito alta é risco
-  mesmo sem previsão; inclinação normal (menos de 15°) é `seguro`. O estado
-  `atencao` não é produzido pelo cálculo, só pelo modo demonstração.
+  mesmo sem previsão; inclinação normal (menos de 15°) com chuva moderada ou
+  mais forte gera alerta de alagamento (estado `atencao`, `perigo: 'alagamento'`);
+  sem chuva significativa ou sem previsão, é `seguro`.
+- `AvaliacaoRisco.perigo` (`deslizamento`, `alagamento` ou `null`) define quais
+  orientações o componente `Instrucoes` mostra.
 - Classes de inclinação em graus (`config/inclinacao.ts`, `LIMITES_INCLINACAO`):
   normal < 15°, alto 15° a < 45°, muito alto ≥ 45°.
 - O texto do painel sempre cita os dados usados (percentual, classe e chuva).

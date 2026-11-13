@@ -81,17 +81,21 @@ com a **previsão de chuva** do mesmo local:
 | Inclinação do setor | Chuva moderada ou mais forte | Sem chuva significativa | Previsão indisponível |
 |---|---|---|---|
 | Alta (15° a 45°) ou muito alta (45° em diante) | **Risco** ("Você está em risco!") | **Risco** ("Você está em área de risco") | **Risco** |
-| Normal (menos de 15°) | Seguro | Seguro | Seguro |
+| Normal (menos de 15°) | **Alerta de alagamento** | Seguro | Seguro |
 
 - Um setor de inclinação alta ou muito alta é zona de risco com ou sem chuva; a
   chuva agrava o alerta.
 - Sem localização ou sem dados de relevo, o painel mostra "Risco ainda não
   avaliado" e o motivo — o app não supõe segurança.
-- Em risco, aparecem as instruções "O que fazer agora"; nos demais casos, dicas
-  de prevenção. O estado "Atenção" não é mais produzido pelo cálculo (a classe
-  moderada deixou de existir); continua disponível só no modo demonstração.
-- O app avalia apenas risco de **deslizamento em encosta**. Alagamento em área
-  plana não é avaliado.
+- **Alerta de alagamento:** em setor de inclinação normal, chuva moderada ou mais
+  forte prevista gera o alerta (painel amarelo), com orientações próprias de
+  alagamento. Sem previsão disponível não há alerta.
+- Em risco, aparecem as instruções "O que fazer agora"; no alerta de alagamento,
+  "Fique atento"; nos demais casos, dicas de prevenção.
+- O alerta de alagamento é uma **indicação geral**: considera só a inclinação do
+  setor e a chuva prevista. O app não sabe se o local é baixo em relação ao
+  entorno, se fica perto de rio ou canal, nem como é a drenagem; por isso alerta
+  todo setor de inclinação normal quando há chuva, inclusive os que não alagam.
 
 Estas regras são parâmetros do protótipo (`src/config/risco.ts`), não critérios
 oficiais da Defesa Civil.
@@ -211,7 +215,8 @@ Os ícones são gerados por `python3 scripts/gerar_icones.py` (requer Pillow).
 
 - O envio de alerta é simulado: não chega à Defesa Civil.
 - As regras de risco são parâmetros do protótipo, não critérios oficiais, e só
-  consideram deslizamento em encosta (não alagamento).
+  não medem alagamento: o alerta de alagamento vale para todo setor de
+  inclinação normal com chuva prevista, sem dados de drenagem ou de rios.
 - A área coberta é o retângulo que envolve Pernambuco, não o contorno do estado.
 - As coordenadas dos locais de demonstração são aproximadas.
 - A reserva de altitude (Open-Meteo Elevation) não é acionada automaticamente.
