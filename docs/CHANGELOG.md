@@ -2,6 +2,77 @@
 
 Uma entrada por prompt/etapa.
 
+## 1.5.0 — Painéis do mapa recolhíveis e inclinação do setor em graus
+
+- A legenda (inclinação ou altitude) e o painel da localização ganharam um botão
+  pequeno para ocultar; no lugar fica um botão pequeno que os mostra de novo.
+- A linha "Inclinação do setor" passa a mostrar graus ("9° (normal)") no lugar
+  do percentual, no mesmo formato do painel de risco.
+- A escolha de ocultar não é guardada: ao recarregar o app os painéis voltam.
+- Verificação: lint, tipos, 298 testes e build aprovados. Aparência não
+  conferida em navegador.
+
+## 1.4.0 — Quatro faixas de inclinação (volta do "Moderado")
+
+- Faixas: Normal (0° a 11°, verde), Moderado (11° a 20°, amarelo), Alto (20° a
+  45°, laranja), Muito alto (45° em diante, vermelho). Legenda do mapa e cores
+  dos setores atualizadas.
+- Risco: alto e muito alto (a partir de 20°) são risco de deslizamento.
+- Moderado: "Atenção" (deslizamento) com chuva moderada ou mais forte, ou quando
+  a previsão está indisponível; área segura sem chuva significativa.
+- Normal: alerta de alagamento com chuva moderada ou mais forte (agora só abaixo
+  de 11°).
+- Verificação: lint, tipos, 295 testes e build aprovados. Não conferido com
+  relevo real.
+- Observação: o risco passa a começar em 20°, mesmo limite da versão 1.1.0, que
+  foi revertida após uso real.
+
+## 1.3.1 — Painel de risco mostra a inclinação em graus
+
+- O texto do painel de risco passa a mostrar o ângulo do setor do usuário
+  ("Seu setor tem inclinação de 9° (normal)"), no lugar do percentual.
+- O ângulo aparece com até uma casa decimal, arredondado para baixo (14,99°
+  aparece como "14,9°", nunca como "15°" em um setor normal).
+- A linha "Inclinação do setor" na tela do mapa continua em percentual.
+- Verificação: lint, tipos, 282 testes e build aprovados.
+
+## 1.3.0 — Alerta de alagamento em setores de inclinação normal
+
+- Setor de inclinação normal (menos de 15°) com chuva moderada, forte ou muito
+  forte prevista: painel "Alerta de alagamento" (amarelo), com orientações
+  próprias de alagamento.
+- Sem chuva significativa, ou sem previsão disponível, o setor normal continua
+  como área segura.
+- Setores de inclinação alta ou muito alta não mudam: risco de deslizamento.
+- Modo demonstração: a opção "Atenção" passou a se chamar "Alagamento".
+- Limite: o alerta considera só inclinação e chuva; não há dados de drenagem,
+  rios ou pontos baixos, então ele vale para todo setor normal quando chove.
+- Verificação: lint, tipos, 271 testes e build aprovados. Não conferido com
+  dados reais.
+
+## 1.2.0 — Novas faixas de inclinação, em graus
+
+- Faixas: Normal (0° a 15°, verde), Alto (15° a 45°, laranja), Muito alto (45°
+  em diante, vermelho). "Baixo" e "moderado" foram unidos na faixa Normal.
+- A classe passa a ser definida pelo ângulo em graus (antes, pelo percentual).
+- Motor de risco: inclinação normal é área segura; alta ou muito alta é risco.
+  O estado "Atenção" não é mais produzido pelo cálculo (só no modo demonstração).
+- A linha "Inclinação do setor" e o texto do painel de risco continuam mostrando
+  o valor em percentual.
+- Verificação: lint, tipos, 261 testes e build aprovados. Não conferido com
+  relevo real.
+- Observação: 45° de média em um setor de 100 m é raro; a faixa "Muito alto"
+  deve aparecer pouco no mapa.
+
+## 1.0.1 — Legenda de inclinação em graus
+
+- A legenda "Relevo / Inclinação" do mapa mostra as faixas em graus: Baixo
+  (< 2,9°), Moderado (2,9° – 8,5°), Alto (8,5° – 16,7°), Muito alto (> 16,7°).
+- São os mesmos limites de antes (5%, 15% e 30%), só convertidos; cálculo,
+  cores e regras de risco não mudaram.
+- A linha "Inclinação do setor" e o texto do painel de risco continuam em
+  percentual.
+
 ## Retorno à 1.0.0 (versão 1.1.0 desfeita)
 
 - A versão 1.1.0 (inclinação em graus, risco só a partir de 20°) foi publicada e

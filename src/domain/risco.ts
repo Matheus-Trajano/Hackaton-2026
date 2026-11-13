@@ -1,3 +1,4 @@
+import { formatarGraus } from '@/domain/inclinacao';
 import { CLIMA } from '@/config/clima';
 import { faixaDaClasse } from '@/config/inclinacao';
 import { RISCO } from '@/config/risco';
@@ -21,13 +22,17 @@ export interface AvaliacaoRisco {
   texto: string;
   /** Há chuva significativa prevista somando-se à inclinação? */
   chuvaAgrava: boolean;
+  /** Tipo de perigo avaliado; `null` quando não há perigo identificado ou avaliação. */
+  perigo: Perigo | null;
 }
+
+export type Perigo = 'deslizamento' | 'alagamento';
 
 const JANELA = `nas próximas ${CLIMA.horasDePrevisao} h`;
 
 function descreverInclinacao(inclinacao: Inclinacao): string {
   const rotulo = faixaDaClasse(inclinacao.classe).rotulo.toLowerCase();
-  return `Seu setor tem inclinação de ${Math.round(inclinacao.percentual)}% (${rotulo})`;
+  return `Seu setor tem inclinação de ${formatarGraus(inclinacao.graus)} (${rotulo})`;
 }
 
 /**
@@ -37,8 +42,12 @@ function descreverInclinacao(inclinacao: Inclinacao): string {
  * | Inclinação do setor | Chuva significativa | Sem chuva significativa | Previsão indisponível |
  * |---------------------|---------------------|-------------------------|-----------------------|
  * | alta ou muito alta  | risco (agravado)    | risco                   | risco                 |
- * | moderada            | atenção             | seguro                  | atenção (por cautela) |
- * | baixa               | seguro              | seguro                  | seguro                |
+ * | moderada (11°–20°)  | atenção             | seguro                  | atenção (por cautela) |
+ * | normal (< 11°)      | alerta de alagamento | seguro                 | seguro                |
+ *
+ * O alerta de alagamento usa o estado `atencao`, com `perigo: 'alagamento'`. Sem
+ * previsão disponível não há alerta de alagamento: ele depende só da chuva, e
+ * alertar todo terreno plano a cada falha da previsão tiraria o valor do aviso.
  *
  * Sem inclinação conhecida, o resultado é `indefinido` — o app não supõe segurança.
  */
@@ -50,7 +59,7 @@ export function avaliarRisco(inclinacao: InclinacaoParaRisco, chuva: ChuvaParaRi
         : inclinacao.status === 'erro'
           ? 'Não foi possível obter os dados de relevo do seu setor.'
           : (inclinacao.aviso ?? 'Aguardando sua localização.');
-    return { estado: 'indefinido', titulo: 'Risco ainda não avaliado', texto, chuvaAgrava: false };
+    return { estado: 'indefinido', titulo: 'Risco ainda não avaliado', texto, chuvaAgrava: false, perigo: null };
   }
 
   const { classe } = inclinacao.inclinacao;
@@ -67,21 +76,53 @@ export function avaliarRisco(inclinacao: InclinacaoParaRisco, chuva: ChuvaParaRi
 
   if (RISCO.classesDeRisco.includes(classe)) {
     return chuvaAgrava
-      ? { estado: 'risco', titulo: 'Você está em risco!', texto: `${relevo} e ${previsao}.`, chuvaAgrava }
+      ? {
+          estado: 'risco',
+          titulo: 'Você está em risco!',
+          texto: `${relevo} e ${previsao}.`,
+          chuvaAgrava,
+          perigo: 'deslizamento',
+        }
       : {
           estado: 'risco',
           titulo: 'Você está em área de risco',
           texto: `${relevo}; ${previsao}. Mantenha atenção.`,
           chuvaAgrava,
+          perigo: 'deslizamento',
         };
   }
 
+  // Inclinação moderada: atenção para deslizamento com chuva ou sem previsão.
   if (classe === RISCO.classeDeAtencao) {
-    if (chuvaAgrava) return { estado: 'atencao', titulo: 'Atenção', texto: `${relevo} e ${previsao}.`, chuvaAgrava };
-    if (!clima) {
-      // Sem saber da chuva, não dá para afirmar que está seguro.
-      return { estado: 'atencao', titulo: 'Atenção', texto: `${relevo}; ${previsao}.`, chuvaAgrava };
+    if (chuvaAgrava || clima === null) {
+      return {
+        estado: 'atencao',
+        titulo: 'Atenção',
+        texto: clima
+          ? `${relevo} e ${previsao}. Fique atento a sinais de deslizamento.`
+          : `${relevo} e ${previsao}. Fique atento.`,
+        chuvaAgrava,
+        perigo: 'deslizamento',
+      };
     }
+    return {
+      estado: 'seguro',
+      titulo: 'Você está em área segura',
+      texto: `${relevo} e ${previsao}.`,
+      chuvaAgrava,
+      perigo: null,
+    };
+  }
+
+  // Setor de inclinação normal: não há risco de deslizamento, mas a chuva pode alagar.
+  if (clima !== null && RISCO.chuvaDeAlagamento.includes(clima.intensidade)) {
+    return {
+      estado: 'atencao',
+      titulo: 'Alerta de alagamento',
+      texto: `${relevo} e ${previsao}. Pode haver alagamento.`,
+      chuvaAgrava,
+      perigo: 'alagamento',
+    };
   }
 
   return {
@@ -89,6 +130,7 @@ export function avaliarRisco(inclinacao: InclinacaoParaRisco, chuva: ChuvaParaRi
     titulo: 'Você está em área segura',
     texto: clima ? `${relevo} e ${previsao}.` : `${relevo}.`,
     chuvaAgrava,
+    perigo: null,
   };
 }
 
@@ -101,13 +143,15 @@ export function avaliacaoDeDemonstracao(estado: EstadoRisco): AvaliacaoRisco {
         titulo: 'Você está em risco!',
         texto: 'Sua localização está em uma área de encosta com inclinação acentuada e previsão de chuva forte.',
         chuvaAgrava: true,
+        perigo: 'deslizamento',
       };
     case 'atencao':
       return {
         estado,
-        titulo: 'Atenção',
-        texto: 'Seu setor tem inclinação moderada e há previsão de chuva significativa.',
+        titulo: 'Alerta de alagamento',
+        texto: 'Seu setor tem inclinação normal e há previsão de chuva forte. Pode haver alagamento.',
         chuvaAgrava: true,
+        perigo: 'alagamento',
       };
     case 'seguro':
       return {
@@ -115,6 +159,7 @@ export function avaliacaoDeDemonstracao(estado: EstadoRisco): AvaliacaoRisco {
         titulo: 'Você está em área segura',
         texto: 'Sua localização não está em área de encosta com risco no momento.',
         chuvaAgrava: false,
+        perigo: null,
       };
     case 'indefinido':
       return {
@@ -122,6 +167,7 @@ export function avaliacaoDeDemonstracao(estado: EstadoRisco): AvaliacaoRisco {
         titulo: 'Risco ainda não avaliado',
         texto: 'Aguardando sua localização e os dados de relevo e chuva.',
         chuvaAgrava: false,
+        perigo: null,
       };
   }
 }

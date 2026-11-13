@@ -386,6 +386,51 @@ button:focus-visible {
   background: rgb(13 21 38 / 88%);
 }
 
+.legenda__cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+/* Botão pequeno que recolhe um painel sobre o mapa. */
+.botao-ocultar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--borda);
+  border-radius: 6px;
+  background: rgb(255 255 255 / 8%);
+  color: var(--texto);
+  cursor: pointer;
+}
+
+/* Botão pequeno que fica no lugar do painel recolhido e o traz de volta. */
+.botao-reabrir {
+  justify-self: start;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  background: rgb(13 21 38 / 88%);
+  color: var(--texto);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.mapa__reabrir-local {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 500;
+}
+
 .legenda__titulo {
   font-size: 0.7rem;
   font-weight: 600;

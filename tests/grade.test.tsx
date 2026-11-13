@@ -110,7 +110,7 @@ describe('cálculo de inclinação', () => {
     const r = inclinacaoHorn(Array(9).fill(42), 50);
     expect(r.percentual).toBe(0);
     expect(r.graus).toBe(0);
-    expect(r.classe).toBe('baixo');
+    expect(r.classe).toBe('normal');
   });
 
   it('rampa de 10 m a cada 100 m para leste dá 10%', () => {
@@ -118,7 +118,7 @@ describe('cálculo de inclinação', () => {
     const r = inclinacaoHorn([0, 5, 10, 0, 5, 10, 0, 5, 10], 50);
     expect(r.percentual).toBeCloseTo(10, 6);
     expect(r.graus).toBeCloseTo(5.7106, 3);
-    expect(r.classe).toBe('moderado');
+    expect(r.classe).toBe('normal'); // 5,7°
   });
 
   it('rampa para o norte dá o mesmo valor que para o leste', () => {
@@ -143,20 +143,37 @@ describe('cálculo de inclinação', () => {
   });
 
   it.each([
-    [0, 'baixo'],
-    [4.99, 'baixo'],
-    [5, 'moderado'],
-    [14.99, 'moderado'],
-    [15, 'alto'],
-    [30, 'alto'],
-    [30.01, 'muito-alto'],
+    [0, 'normal'],
+    [10.99, 'normal'],
+    [11, 'moderado'],
+    [15, 'moderado'],
+    [19.99, 'moderado'],
+    [20, 'alto'],
+    [35, 'alto'],
+    [44.99, 'alto'],
+    [45, 'muito-alto'],
     [80, 'muito-alto'],
-  ])('%d%% é classe "%s"', (percentual, classe) => {
-    expect(classificarInclinacao(percentual)).toBe(classe);
+  ])('%d° é classe "%s"', (graus, classe) => {
+    expect(classificarInclinacao(graus)).toBe(classe);
   });
 
-  it('as faixas da legenda cobrem as quatro classes, em ordem', () => {
-    expect(FAIXAS_INCLINACAO.map((f) => f.classe)).toEqual(['baixo', 'moderado', 'alto', 'muito-alto']);
+  it('a classe sai do ângulo em graus, não do percentual', () => {
+    // Rampas de 15% (8,5°), 25% (14°), 30% (16,7°), 40% (21,8°), 75% (36,9°) e 110% (47,7°).
+    const rampa = (percentual: number) => inclinacaoHorn([0, 1, 2, 0, 1, 2, 0, 1, 2].map((v) => (v * percentual) / 2), 50);
+    expect(rampa(15)).toMatchObject({ classe: 'normal' });
+    expect(rampa(25)).toMatchObject({ classe: 'moderado' });
+    expect(rampa(30)).toMatchObject({ classe: 'moderado' });
+    expect(rampa(40)).toMatchObject({ classe: 'alto' });
+    expect(rampa(30).graus).toBeCloseTo(16.7, 1);
+    expect(rampa(75)).toMatchObject({ classe: 'alto' });
+    expect(rampa(110)).toMatchObject({ classe: 'muito-alto' });
+  });
+
+  it('a legenda tem quatro faixas em graus, com verde para a normal e amarelo para a moderada', () => {
+    expect(FAIXAS_INCLINACAO.map((f) => f.classe)).toEqual(['normal', 'moderado', 'alto', 'muito-alto']);
+    expect(FAIXAS_INCLINACAO.map((f) => f.faixa)).toEqual(['0° – 11°', '11° – 20°', '20° – 45°', '≥ 45°']);
+    expect(FAIXAS_INCLINACAO[1]!.cor).toBe('#ffdc00');
+    expect(FAIXAS_INCLINACAO[0]!.cor).toBe('#2ecc40');
   });
 });
 
@@ -177,10 +194,15 @@ describe('inclinação de um setor', () => {
     ['subindo 8% para leste', (leste: number) => 0.08 * leste, 8],
     ['subindo 22% para o norte', (_l: number, norte: number) => 0.22 * norte, 22],
     ['descendo 35% para leste', (leste: number) => -0.35 * leste, 35],
+    ['subindo 80% para o norte', (_l: number, norte: number) => 0.8 * norte, 80],
+    ['subindo 120% para o norte', (_l: number, norte: number) => 1.2 * norte, 120],
   ])('terreno %s → %d%%', async (_nome, f, esperado) => {
     const r = await inclinacaoDoSetor(setor, terreno(f));
     expect(r.percentual).toBeCloseTo(esperado, 1);
-    expect(r.classe).toBe(classificarInclinacao(esperado));
+    // 8% = 4,6° · 22% = 12,4° · 35% = 19,3° · 80% = 38,7° · 120% = 50,2°
+    expect(r.classe).toBe(
+      esperado < 19.4 ? 'normal' : esperado < 36.4 ? 'moderado' : esperado < 100 ? 'alto' : 'muito-alto',
+    );
   });
 
   it('consulta cada ponto passando só a coordenada (regressão: índice do map virava opção da consulta)', async () => {
@@ -219,7 +241,7 @@ describe('useSetorAtual (cruza a posição com a grade)', () => {
   });
 
   it('informa o setor do usuário e a inclinação dele', async () => {
-    const consultar = terreno((leste) => 0.18 * leste);
+    const consultar = terreno((leste) => 0.4 * leste); // 21,8°
     const { result } = renderHook(() => useSetorAtual(RECIFE, consultar));
     expect(result.current).toMatchObject({ status: 'carregando', setor: setorDe(RECIFE) });
     await waitFor(() => expect(result.current.status).toBe('ok'));
@@ -263,7 +285,7 @@ describe('grade no mapa', () => {
 
   it('no zoom 16 desenha os setores visíveis e pinta cada um pela inclinação', async () => {
     const mapa = criarMapa(16);
-    const camada = new CamadaSetores(mapa, terreno((leste) => 0.2 * leste));
+    const camada = new CamadaSetores(mapa, terreno((leste) => 0.4 * leste)); // 21,8°
     const total = camada.desenhar({ preencher: true });
     // 400 × 300 px a ~2,4 m/px ≈ 950 m × 710 m → cerca de 10 × 8 setores (mais as bordas).
     expect(total).toBeGreaterThan(60);
@@ -312,7 +334,7 @@ describe('inclinação na interface do mapa', () => {
   it('com o mapa aproximado no usuário, mostra a legenda das faixas de inclinação', async () => {
     render(<MapaBase localizacao={aqui} />);
     const legenda = await screen.findByRole('group', { name: 'Legenda de inclinação' });
-    for (const texto of ['Relevo / Inclinação', 'Baixo (< 5%)', 'Moderado (5% – 15%)', 'Alto (15% – 30%)', 'Muito alto (> 30%)']) {
+    for (const texto of ['Relevo / Inclinação', 'Normal (0° – 11°)', 'Moderado (11° – 20°)', 'Alto (20° – 45°)', 'Muito alto (≥ 45°)']) {
       expect(legenda.textContent).toContain(texto);
     }
     expect(screen.queryByRole('group', { name: 'Legenda de altitude' })).toBeNull();
@@ -337,16 +359,56 @@ describe('inclinação na interface do mapa', () => {
     expect(el.dataset.relevo).toBe('inclinacao');
   });
 
+  it('a linha do setor mostra graus, e não percentual', () => {
+    render(
+      <MapaBase
+        localizacao={aqui}
+        setorAtual={{ status: 'ok', setor, inclinacao: { percentual: 16, graus: 9.09, classe: 'normal' } }}
+      />,
+    );
+    const painel = screen.getByRole('group', { name: 'Dados da localização' });
+    expect(painel.textContent).toContain('Inclinação do setor: 9° (normal)');
+    expect(painel.textContent).not.toContain('%');
+  });
+
+  it('o painel da localização pode ser ocultado e reexibido por um botão pequeno', () => {
+    render(
+      <MapaBase
+        localizacao={aqui}
+        setorAtual={{ status: 'ok', setor, inclinacao: { percentual: 16, graus: 9.09, classe: 'normal' } }}
+      />,
+    );
+    expect(screen.queryByRole('button', { name: 'Mostrar dados da localização' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Ocultar dados da localização' }));
+    expect(screen.queryByRole('group', { name: 'Dados da localização' })).toBeNull();
+    expect(screen.queryByText(/Inclinação do setor/)).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar dados da localização' }));
+    expect(screen.getByRole('group', { name: 'Dados da localização' }).textContent).toContain('Inclinação do setor: 9°');
+    expect(screen.queryByRole('button', { name: 'Mostrar dados da localização' })).toBeNull();
+  });
+
+  it('a legenda pode ser ocultada e reexibida por um botão pequeno, sem afetar o painel da localização', async () => {
+    render(<MapaBase localizacao={aqui} setorAtual={{ status: 'carregando', setor }} />);
+    const [legenda] = await screen.findAllByRole('group', { name: /^Legenda de/ });
+    expect(legenda).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Ocultar legenda' }));
+    expect(screen.queryAllByRole('group', { name: /^Legenda de/ })).toHaveLength(0);
+    expect(screen.getByRole('group', { name: 'Dados da localização' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar legenda' }));
+    expect(screen.getAllByRole('group', { name: /^Legenda de/ })).toHaveLength(1);
+    expect(screen.queryByRole('button', { name: 'Mostrar legenda' })).toBeNull();
+  });
+
   it('mostra a inclinação do setor do usuário conforme o estado do cálculo', () => {
     const { rerender } = render(<MapaBase localizacao={aqui} setorAtual={{ status: 'carregando', setor }} />);
     expect(screen.getByText('Inclinação: calculando…')).toBeTruthy();
     rerender(
       <MapaBase
         localizacao={aqui}
-        setorAtual={{ status: 'ok', setor, inclinacao: { percentual: 21.6, graus: 12.2, classe: 'alto' } }}
+        setorAtual={{ status: 'ok', setor, inclinacao: { percentual: 21.6, graus: 12.2, classe: 'moderado' } }}
       />,
     );
-    expect(screen.getByText(/Inclinação do setor: 22% \(\s*alto\)/)).toBeTruthy();
+    expect(screen.getByText(/Inclinação do setor: 12,2° \(\s*moderado\)/)).toBeTruthy();
     rerender(<MapaBase localizacao={aqui} setorAtual={{ status: 'erro', setor }} />);
     expect(screen.getByText('Inclinação indisponível')).toBeTruthy();
   });

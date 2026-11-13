@@ -48,7 +48,7 @@ export function TelaInicio({
       />
       <PainelRisco avaliacao={risco} simulado={riscoSimulado} />
       <div className="inicio__acoes">
-        <Instrucoes estado={risco.estado} />
+        <Instrucoes estado={risco.estado} perigo={risco.perigo} />
         <BotaoSocorro aoPedir={aoPedirSocorro} />
       </div>
       <BarraMonitoramento

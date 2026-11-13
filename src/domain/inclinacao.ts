@@ -1,5 +1,5 @@
 import { APP } from '@/config/app';
-import type { ClasseInclinacao } from '@/config/inclinacao';
+import { LIMITES_INCLINACAO, type ClasseInclinacao } from '@/config/inclinacao';
 import type { Coordenada } from './geografia';
 import { limitesDoSetor, type Setor } from './grade';
 
@@ -11,11 +11,22 @@ export interface Inclinacao {
   classe: ClasseInclinacao;
 }
 
-/** baixo < 5 · moderado 5 a < 15 · alto 15 a 30 · muito alto > 30 (em %). */
-export function classificarInclinacao(percentual: number): ClasseInclinacao {
-  if (percentual < 5) return 'baixo';
-  if (percentual < 15) return 'moderado';
-  if (percentual <= 30) return 'alto';
+/**
+ * Ângulo para exibição, com uma casa decimal e vírgula ("16,7°"; inteiros sem casa: "14°").
+ * Arredonda para baixo, para o número mostrado nunca passar do limite de uma faixa
+ * em que o setor não está (14,99° aparece como "14,9°", e não "15°").
+ */
+export function formatarGraus(graus: number): string {
+  const decimos = Math.floor(graus * 10 + 1e-6);
+  const texto = decimos % 10 === 0 ? String(decimos / 10) : (decimos / 10).toFixed(1).replace('.', ',');
+  return `${texto}°`;
+}
+
+/** Classe pelo ângulo em graus: normal < 11° · moderado 11° a < 20° · alto 20° a < 45° · muito alto ≥ 45°. */
+export function classificarInclinacao(graus: number): ClasseInclinacao {
+  if (graus < LIMITES_INCLINACAO.moderado) return 'normal';
+  if (graus < LIMITES_INCLINACAO.alto) return 'moderado';
+  if (graus < LIMITES_INCLINACAO.muitoAlto) return 'alto';
   return 'muito-alto';
 }
 
@@ -35,8 +46,8 @@ export function inclinacaoHorn(altitudes: readonly number[], espacamento: number
   const lesteOeste = (c + 2 * f + i - (a + 2 * d + g)) / (8 * espacamento);
   const norteSul = (a + 2 * b + c - (g + 2 * h + i)) / (8 * espacamento);
   const tangente = Math.hypot(lesteOeste, norteSul);
-  const percentual = tangente * 100;
-  return { percentual, graus: (Math.atan(tangente) * 180) / Math.PI, classe: classificarInclinacao(percentual) };
+  const graus = (Math.atan(tangente) * 180) / Math.PI;
+  return { percentual: tangente * 100, graus, classe: classificarInclinacao(graus) };
 }
 
 /** Os 9 pontos de amostra do setor: cantos, meios das bordas e centro (norte → sul, oeste → leste). */

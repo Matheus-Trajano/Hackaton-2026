@@ -184,3 +184,17 @@ A mudança para inclinação em graus com risco a partir de 20° foi mesclada
 (PR #12) e depois revertida a pedido, por dar resultados errados com relevo
 real. O código voltou ao da versão 1.0.0 (255 testes, lint, tipos e build
 aprovados). O problema dos prédios na altitude segue sem solução.
+
+## Depois do plano — versão 1.2.0: faixas de inclinação em graus
+
+Pedido (valores finais): normal de 0° a 15° (une baixo e moderado), alto de
+15° a 45°, muito alto de 45° em diante.
+Verificação: lint, tipos, 261 testes e build aprovados, incluindo os limites
+(14,99° normal; 15° e 44,99° alto; 45° muito alto). Não conferido com relevo real.
+
+## Depois do plano — versão 1.3.0: alerta de alagamento
+
+Pedido: setores na faixa "Normal" devem gerar alerta de alagamento.
+Regra adotada: inclinação normal + chuva moderada ou mais forte prevista nas
+próximas 3 h. Verificação: lint, tipos, 271 testes e build aprovados. Não
+conferido com dados reais. O alerta não usa dados de drenagem, rios ou cotas.

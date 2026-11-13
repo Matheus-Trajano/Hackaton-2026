@@ -8,7 +8,7 @@ import { LIMITES_PE } from '@/config/app';
 import { faixaDaChuva, type ResumoClima } from '@/domain/clima';
 import type { Coordenada } from '@/domain/geografia';
 import { METROS_POR_GRAU_LON } from '@/domain/grade';
-import { classificarInclinacao } from '@/domain/inclinacao';
+import { classificarInclinacao, formatarGraus } from '@/domain/inclinacao';
 import { avaliacaoDeDemonstracao, avaliarRisco, type ChuvaParaRisco, type InclinacaoParaRisco } from '@/domain/risco';
 import type { EstadoRisco } from '@/types';
 
@@ -31,11 +31,12 @@ afterEach(() => {
 });
 
 const MM: Record<IntensidadeChuva, number> = { 'sem-chuva': 0, fraca: 2, moderada: 10, forte: 30, 'muito-forte': 70 };
-const PERCENTUAL: Record<ClasseInclinacao, number> = { baixo: 2, moderado: 10, alto: 22, 'muito-alto': 45 };
+const GRAUS: Record<ClasseInclinacao, number> = { normal: 5, moderado: 15, alto: 24, 'muito-alto': 50 };
+/** Percentual de uma rampa com o ângulo informado. */
+const rampa = (graus: number) => Math.tan((graus * Math.PI) / 180) * 100;
 
-function inclinacao(classe: ClasseInclinacao): InclinacaoParaRisco {
-  const percentual = PERCENTUAL[classe];
-  return { status: 'ok', inclinacao: { percentual, graus: 0, classe: classificarInclinacao(percentual) } };
+function inclinacao(classe: ClasseInclinacao, graus: number = GRAUS[classe]): InclinacaoParaRisco {
+  return { status: 'ok', inclinacao: { percentual: rampa(graus), graus, classe: classificarInclinacao(graus) } };
 }
 
 function clima(intensidade: IntensidadeChuva): ResumoClima {
@@ -55,10 +56,10 @@ function clima(intensidade: IntensidadeChuva): ResumoClima {
 const chuva = (intensidade: IntensidadeChuva): ChuvaParaRisco => ({ status: 'ok', clima: clima(intensidade) });
 
 describe('motor de risco: inclinação × chuva', () => {
-  const R = 'risco', A = 'atencao', S = 'seguro';
+  const R = 'risco', A = 'atencao', S = 'seguro'; // A = alerta de alagamento
   // prettier-ignore
   const MATRIZ: [ClasseInclinacao, IntensidadeChuva, EstadoRisco][] = [
-    ['baixo', 'sem-chuva', S],      ['baixo', 'fraca', S],      ['baixo', 'moderada', S],      ['baixo', 'forte', S],      ['baixo', 'muito-forte', S],
+    ['normal', 'sem-chuva', S],     ['normal', 'fraca', S],     ['normal', 'moderada', A],     ['normal', 'forte', A],     ['normal', 'muito-forte', A],
     ['moderado', 'sem-chuva', S],   ['moderado', 'fraca', S],   ['moderado', 'moderada', A],   ['moderado', 'forte', A],   ['moderado', 'muito-forte', A],
     ['alto', 'sem-chuva', R],       ['alto', 'fraca', R],       ['alto', 'moderada', R],       ['alto', 'forte', R],       ['alto', 'muito-forte', R],
     ['muito-alto', 'sem-chuva', R], ['muito-alto', 'fraca', R], ['muito-alto', 'moderada', R], ['muito-alto', 'forte', R], ['muito-alto', 'muito-forte', R],
@@ -68,22 +69,108 @@ describe('motor de risco: inclinação × chuva', () => {
     expect(avaliarRisco(inclinacao(classe), chuva(intensidade)).estado).toBe(esperado);
   });
 
+  it.each([
+    [0, 'atencao', 'alagamento', 'seguro', 'seguro'],
+    [10.99, 'atencao', 'alagamento', 'seguro', 'seguro'],
+    [11, 'atencao', 'deslizamento', 'seguro', 'atencao'],
+    [19.99, 'atencao', 'deslizamento', 'seguro', 'atencao'],
+    [20, 'risco', 'deslizamento', 'risco', 'risco'],
+    [44.99, 'risco', 'deslizamento', 'risco', 'risco'],
+    [45, 'risco', 'deslizamento', 'risco', 'risco'],
+    [60, 'risco', 'deslizamento', 'risco', 'risco'],
+  ] as [number, EstadoRisco, string, EstadoRisco, EstadoRisco][])(
+    '%d°: com chuva muito forte → %s (%s); sem chuva → %s; sem previsão → %s',
+    (graus, comChuva, perigo, semChuva, semPrevisao) => {
+      expect(avaliarRisco(inclinacao('normal', graus), chuva('muito-forte'))).toMatchObject({ estado: comChuva, perigo });
+      expect(avaliarRisco(inclinacao('normal', graus), chuva('sem-chuva')).estado).toBe(semChuva);
+      expect(avaliarRisco(inclinacao('normal', graus), { status: 'erro' }).estado).toBe(semPrevisao);
+    },
+  );
+
+  describe('inclinação moderada (11° a 20°)', () => {
+    it('com chuva significativa: atenção para deslizamento, sem alerta de alagamento', () => {
+      const r = avaliarRisco(inclinacao('moderado'), chuva('forte'));
+      expect(r).toMatchObject({ estado: 'atencao', titulo: 'Atenção', perigo: 'deslizamento', chuvaAgrava: true });
+      expect(r.texto).toBe(
+        'Seu setor tem inclinação de 15° (moderado) e há previsão de chuva forte nas próximas 3 h. Fique atento a sinais de deslizamento.',
+      );
+    });
+
+    it('sem chuva significativa: área segura', () => {
+      const r = avaliarRisco(inclinacao('moderado'), chuva('fraca'));
+      expect(r).toMatchObject({ estado: 'seguro', titulo: 'Você está em área segura', perigo: null });
+      expect(r.texto).toContain('15° (moderado)');
+    });
+
+    it('sem previsão: atenção por cautela', () => {
+      const r = avaliarRisco(inclinacao('moderado'), { status: 'erro' });
+      expect(r).toMatchObject({ estado: 'atencao', titulo: 'Atenção', perigo: 'deslizamento', chuvaAgrava: false });
+      expect(r.texto).toContain('previsão do tempo está indisponível');
+    });
+  });
+
+  describe('alerta de alagamento em setor de inclinação normal', () => {
+    it.each(['moderada', 'forte', 'muito-forte'] as IntensidadeChuva[])('chuva %s: alerta de alagamento', (intensidade) => {
+      const r = avaliarRisco(inclinacao('normal'), chuva(intensidade));
+      expect(r).toMatchObject({ estado: 'atencao', titulo: 'Alerta de alagamento', perigo: 'alagamento', chuvaAgrava: true });
+    });
+
+    it.each(['sem-chuva', 'fraca'] as IntensidadeChuva[])('chuva %s: área segura, sem alerta', (intensidade) => {
+      const r = avaliarRisco(inclinacao('normal'), chuva(intensidade));
+      expect(r).toMatchObject({ estado: 'seguro', titulo: 'Você está em área segura', perigo: null });
+    });
+
+    it('o texto cita a inclinação, a chuva e o alagamento', () => {
+      expect(avaliarRisco(inclinacao('normal'), chuva('forte')).texto).toBe(
+        'Seu setor tem inclinação de 5° (normal) e há previsão de chuva forte nas próximas 3 h. Pode haver alagamento.',
+      );
+    });
+
+    it('sem previsão disponível não há alerta de alagamento', () => {
+      for (const status of ['erro', 'carregando'] as const) {
+        expect(avaliarRisco(inclinacao('normal'), { status })).toMatchObject({ estado: 'seguro', perigo: null });
+      }
+    });
+
+    it('setores de inclinação alta ou muito alta nunca recebem alerta de alagamento: o perigo é deslizamento', () => {
+      for (const classe of ['alto', 'muito-alto'] as const) {
+        for (const intensidade of Object.keys(MM) as IntensidadeChuva[]) {
+          expect(avaliarRisco(inclinacao(classe), chuva(intensidade))).toMatchObject({ estado: 'risco', perigo: 'deslizamento' });
+        }
+      }
+    });
+
+    it('o alerta de alagamento só aparece abaixo de 11°; a atenção de deslizamento, só entre 11° e 20°', () => {
+      for (let graus = 0; graus <= 60; graus += 0.5) {
+        for (const intensidade of Object.keys(MM) as IntensidadeChuva[]) {
+          const r = avaliarRisco(inclinacao('normal', graus), chuva(intensidade));
+          if (r.perigo === 'alagamento') expect(graus).toBeLessThan(11);
+          if (r.estado === 'atencao' && r.perigo === 'deslizamento') {
+            expect(graus).toBeGreaterThanOrEqual(11);
+            expect(graus).toBeLessThan(20);
+          }
+          if (r.estado === 'risco') expect(graus).toBeGreaterThanOrEqual(20);
+        }
+      }
+    });
+  });
+
   it('zona de risco com chuva significativa: alerta máximo, citando inclinação e chuva', () => {
     const r = avaliarRisco(inclinacao('muito-alto'), chuva('forte'));
     expect(r).toMatchObject({ estado: 'risco', titulo: 'Você está em risco!', chuvaAgrava: true });
-    expect(r.texto).toBe('Seu setor tem inclinação de 45% (muito alto) e há previsão de chuva forte nas próximas 3 h.');
+    expect(r.texto).toBe('Seu setor tem inclinação de 50° (muito alto) e há previsão de chuva forte nas próximas 3 h.');
   });
 
   it('zona de risco sem chuva significativa: continua em risco, com título mais brando', () => {
     const r = avaliarRisco(inclinacao('alto'), chuva('fraca'));
     expect(r).toMatchObject({ estado: 'risco', titulo: 'Você está em área de risco', chuvaAgrava: false });
-    expect(r.texto).toContain('22% (alto)');
+    expect(r.texto).toContain('24° (alto)');
     expect(r.texto).toContain('não há previsão de chuva significativa');
   });
 
   it('área segura explica o motivo', () => {
-    expect(avaliarRisco(inclinacao('baixo'), chuva('forte')).texto).toBe(
-      'Seu setor tem inclinação de 2% (baixo) e há previsão de chuva forte nas próximas 3 h.',
+    expect(avaliarRisco(inclinacao('normal'), chuva('fraca')).texto).toBe(
+      'Seu setor tem inclinação de 5° (normal) e não há previsão de chuva significativa nas próximas 3 h.',
     );
   });
 
@@ -91,8 +178,8 @@ describe('motor de risco: inclinação × chuva', () => {
     it.each([
       ['alto', 'risco'],
       ['muito-alto', 'risco'],
-      ['moderado', 'atencao'], // por cautela: sem saber da chuva, não afirma segurança
-      ['baixo', 'seguro'],
+      ['moderado', 'atencao'],
+      ['normal', 'seguro'],
     ] as [ClasseInclinacao, EstadoRisco][])('inclinação %s → %s', (classe, esperado) => {
       for (const status of ['erro', 'carregando'] as const) {
         const r = avaliarRisco(inclinacao(classe), { status });
@@ -104,7 +191,7 @@ describe('motor de risco: inclinação × chuva', () => {
     it('o texto diz que a previsão está indisponível ou sendo consultada, sem citar chuva', () => {
       expect(avaliarRisco(inclinacao('alto'), { status: 'erro' }).texto).toContain('previsão do tempo está indisponível');
       expect(avaliarRisco(inclinacao('alto'), { status: 'carregando' }).texto).toContain('ainda está sendo consultada');
-      expect(avaliarRisco(inclinacao('baixo'), { status: 'erro' }).texto).toBe('Seu setor tem inclinação de 2% (baixo).');
+      expect(avaliarRisco(inclinacao('normal'), { status: 'erro' }).texto).toBe('Seu setor tem inclinação de 5° (normal).');
     });
   });
 
@@ -121,6 +208,7 @@ describe('motor de risco: inclinação × chuva', () => {
         titulo: 'Risco ainda não avaliado',
         texto,
         chuvaAgrava: false,
+        perigo: null,
       });
     });
   });
@@ -132,13 +220,41 @@ describe('motor de risco: inclinação × chuva', () => {
   });
 });
 
+describe('ângulo exibido no painel', () => {
+  it.each([
+    [0, '0°'],
+    [5, '5°'],
+    [9.04, '9°'],
+    [16.7, '16,7°'],
+    [16.699, '16,6°'],
+    [14.99, '14,9°'], // arredonda para baixo: não aparece "15°" em setor normal
+    [15, '15°'],
+    [44.99, '44,9°'],
+    [45, '45°'],
+    [50.26, '50,2°'],
+  ] as [number, string][])('%d° aparece como %s', (graus, texto) => {
+    expect(formatarGraus(graus)).toBe(texto);
+  });
+
+  it('o painel mostra graus, e não percentual', () => {
+    for (const graus of [0, 3, 14.99, 15, 30, 45, 60]) {
+      for (const intensidade of Object.keys(MM) as IntensidadeChuva[]) {
+        const { texto } = avaliarRisco(inclinacao('normal', graus), chuva(intensidade));
+        expect(texto).toContain(`inclinação de ${formatarGraus(graus)} (`);
+        expect(texto).not.toContain('%');
+      }
+    }
+  });
+});
+
 describe('painel de risco', () => {
   it('risco usa role=alert; os demais, role=status', () => {
     const { rerender } = render(<PainelRisco avaliacao={avaliacaoDeDemonstracao('risco')} />);
     expect(screen.getByRole('alert').textContent).toContain('Você está em risco!');
     rerender(<PainelRisco avaliacao={avaliacaoDeDemonstracao('atencao')} />);
     expect(screen.queryByRole('alert')).toBeNull();
-    expect(screen.getByRole('heading', { name: 'Atenção' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Alerta de alagamento' })).toBeTruthy();
+    expect(screen.getByRole('status')).toBeTruthy();
   });
 
   it('avisa quando o estado é simulado', () => {
@@ -184,44 +300,88 @@ describe('risco no app, de ponta a ponta (GPS → setor → inclinação × chuv
     );
   }
 
-  it('encosta de 40% com chuva forte: alerta de risco e instruções de emergência', async () => {
+  it('encosta de 50° (119%) com chuva forte: alerta de risco e instruções de emergência', async () => {
     gpsEmRecife();
-    terreno.percentual = 40;
+    terreno.percentual = rampa(50);
     previsao(30);
     render(<App />);
     const alerta = await screen.findByRole('alert');
     await waitFor(() => expect(alerta.textContent).toContain('Você está em risco!'));
-    expect(alerta.textContent).toContain('inclinação de 40% (muito alto) e há previsão de chuva forte');
+    expect(alerta.textContent).toContain('inclinação de 50° (muito alto) e há previsão de chuva forte');
     expect(alerta.textContent).not.toContain('Estado simulado');
     expect(screen.getByRole('heading', { name: 'O que fazer agora:' })).toBeTruthy();
   });
 
-  it('encosta de 20% sem chuva: área de risco, com título mais brando', async () => {
+  it('encosta de 30% (16,7°, moderada) com chuva forte: atenção, com orientações de deslizamento', async () => {
     gpsEmRecife();
-    terreno.percentual = 20;
-    previsao(0);
-    render(<App />);
-    await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('Você está em área de risco'));
-    expect(screen.getByRole('alert').textContent).toContain('20% (alto)');
-  });
-
-  it('terreno de 10% com chuva moderada: atenção', async () => {
-    gpsEmRecife();
-    terreno.percentual = 10;
-    previsao(12);
+    terreno.percentual = 30;
+    previsao(30);
     render(<App />);
     expect(await screen.findByRole('heading', { name: 'Atenção' })).toBeTruthy();
+    expect(screen.getByText(/inclinação de 16,6° \(moderado\) e há previsão de chuva forte/)).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Fique atento:' })).toBeTruthy();
+    expect(screen.getByText(/Observe sinais de deslizamento/)).toBeTruthy();
+    expect(screen.queryByText(/Não atravesse ruas alagadas/)).toBeNull();
     expect(screen.queryByRole('alert')).toBeNull();
   });
 
-  it('terreno plano com chuva forte: área segura', async () => {
+  it('encosta de 30% (16,7°, moderada) sem chuva: área segura', async () => {
+    gpsEmRecife();
+    terreno.percentual = 30;
+    previsao(0);
+    render(<App />);
+    expect(await screen.findByRole('heading', { name: 'Você está em área segura' })).toBeTruthy();
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('encosta de 45% (24,2°) sem chuva: área de risco, com título mais brando', async () => {
+    gpsEmRecife();
+    terreno.percentual = 45;
+    previsao(0);
+    render(<App />);
+    await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('Você está em área de risco'));
+    expect(screen.getByRole('alert').textContent).toContain('24,2° (alto)');
+  });
+
+  it('terreno de 15% (8,5°) com chuva muito forte: alerta de alagamento, com orientações de alagamento', async () => {
+    gpsEmRecife();
+    terreno.percentual = 15;
+    previsao(70);
+    render(<App />);
+    expect(await screen.findByRole('heading', { name: 'Alerta de alagamento' })).toBeTruthy();
+    expect(screen.getByText(/inclinação de 8,5° \(normal\) e há previsão de chuva muito forte.*Pode haver alagamento\./)).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Fique atento:' })).toBeTruthy();
+    expect(screen.getByText(/Não atravesse ruas alagadas/)).toBeTruthy();
+    expect(screen.queryByText(/sinais de deslizamento/)).toBeNull();
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('terreno plano com chuva moderada: alerta de alagamento', async () => {
     gpsEmRecife();
     terreno.percentual = 1;
-    previsao(30);
+    previsao(12);
+    render(<App />);
+    expect(await screen.findByRole('heading', { name: 'Alerta de alagamento' })).toBeTruthy();
+  });
+
+  it('terreno plano sem chuva significativa: área segura', async () => {
+    gpsEmRecife();
+    terreno.percentual = 1;
+    previsao(2);
     render(<App />);
     expect(await screen.findByRole('heading', { name: 'Você está em área segura' })).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Para se prevenir:' })).toBeTruthy();
+    expect(screen.queryByText(/Não atravesse ruas alagadas/)).toBeNull();
+  });
+
+  it('encosta com chuva forte não mostra orientações de alagamento', async () => {
+    gpsEmRecife();
+    terreno.percentual = rampa(24);
+    previsao(30);
+    render(<App />);
+    await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('Você está em risco!'));
+    expect(screen.queryByText(/Não atravesse ruas alagadas/)).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Alerta de alagamento' })).toBeNull();
   });
 
   it('sem dados de relevo: não avalia, e diz por quê', async () => {
