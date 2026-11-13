@@ -2,20 +2,15 @@
 
 Uma entrada por prompt/etapa.
 
-## 1.1.0 — Inclinação em graus; risco só a partir de 20°
+## Retorno à 1.0.0 (versão 1.1.0 desfeita)
 
-- Motivo: a fonte de relevo inclui prédios, o que criava inclinações pequenas e
-  falsas (classes "baixo"/"moderado"/"alto" em percentual) em áreas planas.
-- Novas classes, em graus: Normal (< 20°, verde), Alto (20° a 30°, laranja),
-  Muito alto (> 30°, vermelho). As classes "baixo" e "moderado" deixam de existir.
-- Motor de risco: abaixo de 20° o setor é seguro, com qualquer chuva; a partir
-  de 20° é risco. O estado "Atenção" não é mais produzido pelo cálculo (continua
-  no modo demonstração).
-- Telas em graus: legenda, caixa do mapa ("Inclinação do setor: 24° (alto)") e
-  texto do painel de risco. O alerta envia `inclinacaoGraus`.
-- Mapa, altitude, clima, socorro e PWA sem alteração.
-- Verificação: lint, tipos, 264 testes e build aprovados. Não conferido com
-  relevo real: quais morros continuam marcados como risco com o limite de 20°.
+- A versão 1.1.0 (inclinação em graus, risco só a partir de 20°) foi publicada e
+  desfeita a pedido: o cálculo de risco passou a dar resultados errados em uso
+  real.
+- O código voltou a ser idêntico ao da 1.0.0: inclinação em percentual, com as
+  classes baixo (< 5%), moderado (5% a 15%), alto (15% a 30%) e muito alto (> 30%).
+- Continua em aberto o problema original: a fonte de relevo inclui a altura de
+  prédios e distorce a inclinação em áreas construídas.
 
 ## 1.0.0 — Etapa 10: app instalável e acabamento
 
