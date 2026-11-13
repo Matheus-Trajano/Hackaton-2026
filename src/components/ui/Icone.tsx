@@ -22,7 +22,9 @@ export type NomeIcone =
   | 'camadas'
   | 'montanha'
   | 'grade'
-  | 'telefone';
+  | 'telefone'
+  | 'microfone'
+  | 'microfone-gravando';
 
 const DESENHOS: Record<NomeIcone, ReactNode> = {
   casa: <path d="M3 11.5 12 4l9 7.5M5.5 10v9.5h4.5v-6h4v6h4.5V10" />,
@@ -103,6 +105,19 @@ const DESENHOS: Record<NomeIcone, ReactNode> = {
   grade: <path d="M4 4h16v16H4zM4 9.3h16M4 14.7h16M9.3 4v16M14.7 4v16" />,
   telefone: (
     <path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 4.5 5.5a2 2 0 0 1 2-2Z" />
+  ),
+  microfone: (
+    <>
+      <rect x="8" y="3" width="8" height="12" rx="4" />
+      <path d="M5 11a7 7 0 0 0 14 0M12 18v3M8.5 21h7" />
+    </>
+  ),
+  'microfone-gravando': (
+    <>
+      <rect x="8" y="3" width="8" height="12" rx="4" />
+      <path d="M5 11a7 7 0 0 0 14 0M12 18v3M8.5 21h7" />
+      <circle cx="19.5" cy="5" r="2" fill="currentColor" stroke="none" />
+    </>
   ),
   relogio: (
     <>

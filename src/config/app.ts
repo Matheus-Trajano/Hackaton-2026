@@ -7,6 +7,8 @@ export const APP = {
   tamanhoSetorMetros: 100,
   /** Telefone da Defesa Civil. */
   telefoneEmergencia: '199',
+  /** Telefone do Corpo de Bombeiros. */
+  telefoneBombeiros: '193',
 } as const;
 
 /** Limites geográficos aproximados de Pernambuco (continente). */
