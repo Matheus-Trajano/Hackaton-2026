@@ -177,3 +177,15 @@ indicada), atualização da documentação e um commit.
 As 10 etapas estão concluídas. Próximos passos fora do plano: publicar na
 Vercel, instalar em um Android e conferir em campo os itens listados como não
 verificados.
+
+## Depois do plano — versão 1.1.0: relevo natural do solo
+
+Pedido: trocar a fonte de altitude, que inclui prédios, pelo relevo natural de
+todo o estado, sem alterar as outras funções.
+
+- Feito: fonte configurável, script de conversão, documentação (`docs/RELEVO.md`).
+- Verificação: 267 testes aprovados; script testado com dados sintéticos em
+  coordenadas geográficas (30 m) e projetadas (2 m).
+- **Pendente (fora deste ambiente, que não acessa os sites dos dados):** baixar
+  o FABDEM, gerar os tiles do estado, hospedar e definir as variáveis na Vercel.
+  Até lá o app usa a fonte anterior.

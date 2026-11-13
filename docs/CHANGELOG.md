@@ -2,6 +2,23 @@
 
 Uma entrada por prompt/etapa.
 
+## 1.1.0 — Fonte do relevo configurável (relevo natural do solo)
+
+- Motivo: a fonte padrão (AWS Terrain Tiles / SRTM) é modelo de superfície e
+  inclui prédios e árvores na altitude.
+- `VITE_RELEVO_URL`, `VITE_RELEVO_ZOOM_MAXIMO` e `VITE_RELEVO_NOME` apontam o app
+  para tiles próprios de um modelo do terreno. Sem elas, nada muda.
+- `scripts/gerar_tiles_relevo.py`: converte GeoTIFF (FABDEM, PE3D, outros) em
+  tiles Terrarium para a área de Pernambuco.
+- Aba Sobre: seção "Fonte do relevo", com o tipo (superfície ou terreno) e aviso
+  de configuração inválida.
+- Service worker não guarda `/relevo/`.
+- `docs/RELEVO.md`: passo a passo completo; `.env.example`.
+- Verificação: lint, tipos, 267 testes e build aprovados; script conferido com
+  GeoTIFFs sintéticos (erro menor que 0,6 m em um plano inclinado, leitura feita
+  como o app lê). **Não feito:** download dos dados reais, geração dos tiles do
+  estado e hospedagem — o app continua na fonte padrão até isso ser feito.
+
 ## 1.0.0 — Etapa 10: app instalável e acabamento
 
 - PWA: manifesto, ícones (192, 512, mascarável, iOS) e service worker próprio.

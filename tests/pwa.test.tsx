@@ -146,6 +146,7 @@ describe('service worker', () => {
     expect(a.pedir('/terrarium/14/1/1.png', { origem: 'https://s3.amazonaws.com' })).toBeNull();
     expect(a.pedir('/v1/forecast', { origem: 'https://api.open-meteo.com' })).toBeNull();
     expect(a.pedir('/api/alerta')).toBeNull();
+    expect(a.pedir('/relevo/13/3302/4279.png')).toBeNull();
     expect(a.pedir('/qualquer', { method: 'POST' })).toBeNull();
   });
 

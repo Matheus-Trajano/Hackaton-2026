@@ -1,5 +1,6 @@
 import { APP, ETAPA_ATUAL, TOTAL_ETAPAS } from '@/config/app';
 import { PONTOS_DEMO } from '@/config/pontosDemo';
+import { RELEVO } from '@/config/relevo';
 import { formatarCoordenada, mensagemLocalizacao, posicaoUtilizavel } from '@/domain/localizacao';
 import type { Instalacao } from '@/hooks/useInstalacao';
 import type { Localizacao } from '@/hooks/useLocalizacao';
@@ -36,6 +37,17 @@ export function TelaSobre({ modoRisco, aoMudarModoRisco, localizacao, instalacao
         <p className="rotulo">
           Versão {APP.versao} · etapa {ETAPA_ATUAL} de {TOTAL_ETAPAS} do protótipo
         </p>
+      </section>
+
+      <section className="painel">
+        <h2>Fonte do relevo</h2>
+        <p>{RELEVO.nome}</p>
+        <p className="rotulo">
+          {RELEVO.tipo === 'terreno'
+            ? 'Modelo do terreno: altitude do solo, sem prédios nem vegetação.'
+            : 'Modelo de superfície: a altitude inclui prédios e copas de árvores, o que pode criar inclinações falsas em áreas construídas.'}
+        </p>
+        {RELEVO.avisoConfiguracao && <p role="alert">{RELEVO.avisoConfiguracao}</p>}
       </section>
 
       <section className="painel">

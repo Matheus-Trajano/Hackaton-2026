@@ -64,3 +64,20 @@ Só `lat` e `lon` são obrigatórios. Respostas:
 A rota não tem autenticação nem limite de chamadas — aceitável só porque é
 simulada. Uma versão real precisaria de ambos, além de armazenamento e do
 encaminhamento à Defesa Civil.
+
+## Relevo: superfície × terreno
+
+Os AWS Terrain Tiles (item 2) são um modelo de **superfície** em Pernambuco
+(SRTM): a altitude inclui prédios e copas de árvores. A Open-Meteo Elevation
+(item 4) tem a mesma limitação.
+
+Desde a versão 1.1.0 a fonte é configurável. Com `VITE_RELEVO_URL` definido, o
+app lê tiles Terrarium próprios, gerados de um modelo digital do terreno:
+
+| Dado | Uso | Licença | Estado |
+|---|---|---|---|
+| FABDEM v1-2 (Universidade de Bristol), ~30 m | Recomendado para o estado inteiro | Não comercial | Não baixado nem hospedado ainda |
+| PE3D — MDT (Governo de Pernambuco), 1 m | Áreas prioritárias | Gratuito, com cadastro | Não baixado |
+
+Não são APIs: são arquivos convertidos por `scripts/gerar_tiles_relevo.py` e
+hospedados como arquivos estáticos. Detalhes em [RELEVO.md](RELEVO.md).

@@ -11,6 +11,8 @@
  */
 const CACHE = 'encosta-segura-v1';
 const INICIO = '/';
+/** Dados, não interface: a API e os tiles de relevo (quando hospedados junto do app). */
+const NAO_GUARDAR = ['/api/', '/relevo/'];
 
 const ehHtml = (resposta) => (resposta.headers.get('content-type') ?? '').includes('text/html');
 
@@ -88,7 +90,7 @@ self.addEventListener('fetch', (evento) => {
   const pedido = evento.request;
   if (pedido.method !== 'GET') return;
   const url = new URL(pedido.url);
-  // Outros servidores (mapas, relevo, clima) e a API do app não passam pelo cache.
-  if (url.origin !== self.location.origin || url.pathname.startsWith('/api/')) return;
+  // Outros servidores (mapas, relevo, clima), a API e os tiles de relevo não passam pelo cache.
+  if (url.origin !== self.location.origin || NAO_GUARDAR.some((inicio) => url.pathname.startsWith(inicio))) return;
   evento.respondWith(pedido.mode === 'navigate' ? pagina(pedido) : arquivo(pedido, url.pathname + url.search));
 });
