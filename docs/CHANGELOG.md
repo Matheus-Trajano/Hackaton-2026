@@ -2,6 +2,15 @@
 
 Uma entrada por prompt/etapa.
 
+## 1.5.1 — Novo logotipo no cabeçalho
+
+- O escudo laranja do cabeçalho foi trocado pelo novo símbolo (escudo verde com
+  casa laranja sobre a encosta), em `public/logo.png`, recortado da imagem
+  enviada e com fundo transparente.
+- O favicon e os ícones de instalação continuam com o símbolo anterior.
+- Verificação: lint, tipos, testes e build aprovados. Aparência não conferida em
+  navegador.
+
 ## 1.5.0 — Painéis do mapa recolhíveis e inclinação do setor em graus
 
 - A legenda (inclinação ou altitude) e o painel da localização ganharam um botão
