@@ -4,9 +4,13 @@ import { useEffect, useRef, useState } from 'react';
 import { Icone } from '@/components/ui/Icone';
 import { LIMITES_PE } from '@/config/app';
 import { MAPA, MAPAS_BASE, type IdMapaBase } from '@/config/mapa';
+import { faixaDaClasse, GRADE } from '@/config/inclinacao';
 import type { EstadoAltitude } from '@/hooks/useAltitude';
+import type { EstadoSetor } from '@/hooks/useSetorAtual';
 import { CamadaRelevo } from './CamadaRelevo';
+import { CamadaSetores } from './CamadaSetores';
 import { LegendaAltitude } from './LegendaAltitude';
+import { LegendaInclinacao } from './LegendaInclinacao';
 import { expandirLimites } from '@/domain/geografia';
 import {
   formatarCoordenada,
@@ -44,15 +48,21 @@ interface Props {
   aoUsarDemonstracao?: () => void;
   /** Altitude da posição do usuário, quando conhecida. */
   altitude?: EstadoAltitude;
+  /** Setor da grade em que o usuário está e sua inclinação. */
+  setorAtual?: EstadoSetor;
 }
+
+/** O que é pintado sobre o mapa base. */
+type ModoRelevo = 'altitude' | 'inclinacao' | 'nenhum';
 
 /**
  * Mapa base (Leaflet) centrado em Pernambuco e limitado ao estado, com
  * controles próprios de zoom, centralizar e troca de camada, e escala métrica.
- * Por cima do mapa base vai o mapa de calor de altitude (pode ser ocultado).
+ * Por cima do mapa base vai o mapa de calor de altitude ou a inclinação dos
+ * setores de 100 m (um de cada vez). A grade aparece com o mapa aproximado.
  * Quando há localização utilizável, mostra o marcador do usuário e foca nele.
  */
-export function MapaBase({ className = '', localizacao, aoUsarDemonstracao, altitude }: Props) {
+export function MapaBase({ className = '', localizacao, aoUsarDemonstracao, altitude, setorAtual }: Props) {
   const elemento = useRef<HTMLDivElement>(null);
   const mapa = useRef<L.Map | null>(null);
   const camada = useRef<L.TileLayer | null>(null);
@@ -61,7 +71,9 @@ export function MapaBase({ className = '', localizacao, aoUsarDemonstracao, alti
   const [base, setBase] = useState<IdMapaBase>(MAPA.baseInicial);
   const [zoom, setZoom] = useState<number>(MAPA.zoomInicial);
   const [falhaNosTiles, setFalhaNosTiles] = useState(false);
-  const [relevoVisivel, setRelevoVisivel] = useState(true);
+  const [modoRelevo, setModoRelevo] = useState<ModoRelevo>('altitude');
+  const relevoVisivel = modoRelevo === 'altitude';
+  const inclinacaoVisivel = modoRelevo === 'inclinacao';
   const [falhaNoRelevo, setFalhaNoRelevo] = useState(false);
 
   // Cria o mapa uma única vez.
@@ -149,6 +161,32 @@ export function MapaBase({ className = '', localizacao, aoUsarDemonstracao, alti
     };
   }, [relevoVisivel]);
 
+  // Grade de setores de 100 m (e inclinação, se ligada), redesenhada a cada movimento do mapa.
+  const setorUsuario = setorAtual && setorAtual.status !== 'sem-posicao' ? setorAtual.setor : null;
+  const linhaUsuario = setorUsuario?.linha;
+  const colunaUsuario = setorUsuario?.coluna;
+  const corUsuario = setorAtual?.status === 'ok' ? faixaDaClasse(setorAtual.inclinacao.classe).cor : undefined;
+
+  useEffect(() => {
+    const m = mapa.current;
+    if (!m) return;
+    const setores = new CamadaSetores(m);
+    const desenhar = () =>
+      setores.desenhar({
+        preencher: inclinacaoVisivel,
+        destaque:
+          linhaUsuario !== undefined && colunaUsuario !== undefined
+            ? { setor: { linha: linhaUsuario, coluna: colunaUsuario }, cor: corUsuario }
+            : undefined,
+      });
+    desenhar();
+    m.on('moveend', desenhar);
+    return () => {
+      m.off('moveend', desenhar);
+      setores.remover();
+    };
+  }, [inclinacaoVisivel, linhaUsuario, colunaUsuario, corUsuario]);
+
   // Marcador do usuário: cria, move ou remove conforme a localização.
   const posicao = localizacao && posicaoUtilizavel(localizacao) ? localizacao.posicao : null;
   const lat = posicao?.lat;
@@ -201,7 +239,7 @@ export function MapaBase({ className = '', localizacao, aoUsarDemonstracao, alti
 
   return (
     <section className={`mapa ${className}`} aria-label="Mapa">
-      <div ref={elemento} className="mapa__leaflet" data-zoom={zoom} data-base={base} data-relevo={relevoVisivel} />
+      <div ref={elemento} className="mapa__leaflet" data-zoom={zoom} data-base={base} data-relevo={modoRelevo} />
 
       <div className="mapa__avisos">
         {falhaNosTiles && (
@@ -225,6 +263,12 @@ export function MapaBase({ className = '', localizacao, aoUsarDemonstracao, alti
           </div>
         )}
         {relevoVisivel && <LegendaAltitude />}
+        {inclinacaoVisivel && <LegendaInclinacao />}
+        {inclinacaoVisivel && zoom < GRADE.zoomMinimo && (
+          <p className="mapa__aviso mapa__aviso--neutro" role="status">
+            Aproxime o mapa para ver os setores de 100 m.
+          </p>
+        )}
       </div>
 
       {posicao && localizacao && (
@@ -241,6 +285,14 @@ export function MapaBase({ className = '', localizacao, aoUsarDemonstracao, alti
             {altitude?.status === 'ok' && <p className="rotulo">Altitude: {Math.round(altitude.metros)} m</p>}
             {altitude?.status === 'carregando' && <p className="rotulo">Altitude: consultando…</p>}
             {altitude?.status === 'erro' && <p className="rotulo">Altitude indisponível</p>}
+            {setorAtual?.status === 'ok' && (
+              <p className="rotulo">
+                Inclinação do setor: {Math.round(setorAtual.inclinacao.percentual)}% (
+                {faixaDaClasse(setorAtual.inclinacao.classe).rotulo.toLowerCase()})
+              </p>
+            )}
+            {setorAtual?.status === 'carregando' && <p className="rotulo">Inclinação: calculando…</p>}
+            {setorAtual?.status === 'erro' && <p className="rotulo">Inclinação indisponível</p>}
           </div>
         </div>
       )}
@@ -283,9 +335,17 @@ export function MapaBase({ className = '', localizacao, aoUsarDemonstracao, alti
           type="button"
           aria-label={relevoVisivel ? 'Ocultar relevo' : 'Mostrar relevo'}
           aria-pressed={relevoVisivel}
-          onClick={() => setRelevoVisivel((visivel) => !visivel)}
+          onClick={() => setModoRelevo(relevoVisivel ? 'nenhum' : 'altitude')}
         >
           <Icone nome="montanha" tamanho={22} />
+        </button>
+        <button
+          type="button"
+          aria-label={inclinacaoVisivel ? 'Ocultar inclinação dos setores' : 'Mostrar inclinação dos setores'}
+          aria-pressed={inclinacaoVisivel}
+          onClick={() => setModoRelevo(inclinacaoVisivel ? 'nenhum' : 'inclinacao')}
+        >
+          <Icone nome="grade" tamanho={22} />
         </button>
       </div>
     </section>

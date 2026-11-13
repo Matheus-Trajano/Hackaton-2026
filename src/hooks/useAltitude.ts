@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Coordenada } from '@/domain/geografia';
 import { consultarAltitude } from '@/services/terreno';
 
@@ -17,6 +17,10 @@ export function useAltitude(
   const lon = posicao?.lon;
   const [estado, setEstado] = useState<EstadoAltitude>({ status: 'sem-posicao' });
 
+  // Guardada em ref para que uma função recriada a cada renderização não refaça a consulta.
+  const consultarAtual = useRef(consultar);
+  consultarAtual.current = consultar;
+
   useEffect(() => {
     if (lat === undefined || lon === undefined) {
       setEstado({ status: 'sem-posicao' });
@@ -24,14 +28,14 @@ export function useAltitude(
     }
     let cancelado = false;
     setEstado({ status: 'carregando' });
-    consultar({ lat, lon }).then(
+    consultarAtual.current({ lat, lon }).then(
       (metros) => !cancelado && setEstado({ status: 'ok', metros }),
       () => !cancelado && setEstado({ status: 'erro' }),
     );
     return () => {
       cancelado = true;
     };
-  }, [lat, lon, consultar]);
+  }, [lat, lon]);
 
   return estado;
 }

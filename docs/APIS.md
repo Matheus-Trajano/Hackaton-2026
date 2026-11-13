@@ -5,7 +5,7 @@ Todas gratuitas e sem chave. A coluna "Estado" indica se já está integrada.
 | # | API | Uso | Etapa | Estado |
 |---|---|---|---|---|
 | 1 | Geolocation API (navegador) — `navigator.geolocation.watchPosition` | Posição do dispositivo, acompanhada continuamente | 4 | **Integrada** |
-| 2 | AWS Terrain Tiles (Terrarium) — `https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png` | Altitude para o mapa de calor, a altitude do usuário e (etapa 6) a inclinação | 5–6 | **Integrada** (mapa de calor e altitude do ponto) |
+| 2 | AWS Terrain Tiles (Terrarium) — `https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png` | Altitude para o mapa de calor, a altitude do usuário e a inclinação | 5–6 | **Integrada** (mapa de calor, altitude do ponto e inclinação dos setores) |
 | 3 | Open-Meteo Forecast — `https://api.open-meteo.com/v1/forecast` | Chuva e temperatura das próximas horas | 7 | Planejada |
 | 4 | Open-Meteo Elevation — `https://api.open-meteo.com/v1/elevation` | Reserva para a altitude | 5–6 | Planejada |
 | 5 | Esri World Imagery — `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}` | Mapa base de satélite (padrão) | 3 | **Integrada** |
